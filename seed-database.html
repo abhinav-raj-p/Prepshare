@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Firestore Database Seeder | MCA Ace</title>
+    
+    <!-- Google Fonts & Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind Play CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="js/tailwind-config.js"></script>
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="bg-[#f8fafc] text-on-surface font-body-md min-h-screen flex items-center justify-center p-6">
+
+    <div class="max-w-2xl w-full bg-white rounded-3xl border border-border-light shadow-2xl overflow-hidden animate-slide-up">
+        <!-- Header banner -->
+        <div class="bg-primary text-white p-8 relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-[#FB6514] opacity-25 rounded-full blur-2xl"></div>
+            <div class="relative z-10 space-y-2">
+                <span class="bg-[#FB6514] text-white text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded">Database Setup</span>
+                <h1 class="font-display-lg text-2xl md:text-3xl font-bold">PrepShare Firestore Seeder</h1>
+                <p class="text-xs text-white/75">Bootstrap all courses, modules, lessons, and mock test collections in one click.</p>
+            </div>
+        </div>
+
+        <div class="p-8 space-y-6">
+            <!-- Alert log -->
+            <div id="status-box" class="hidden p-4 rounded-xl text-xs font-bold border"></div>
+
+            <!-- STEP 1: Paste configuration -->
+            <div class="space-y-4">
+                <h3 class="font-bold text-primary text-base flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-bold">1</span>
+                    Enter Firebase Configuration
+                </h3>
+                <p class="text-xs text-on-surface-variant leading-relaxed">
+                    Go to your <a href="https://console.firebase.google.com/" target="_blank" class="text-[#FB6514] font-bold hover:underline">Firebase Console</a>, select your project, open <strong>Project Settings</strong> (gear icon), scroll down to <strong>Web apps</strong>, and copy the config object.
+                </p>
+                <textarea id="firebase-config-input" rows="7" class="w-full font-mono text-xs border border-border-light rounded-xl p-4 focus:ring-1 focus:ring-primary bg-surface-subtle outline-none" placeholder='{
+  "apiKey": "AIzaSy...",
+  "authDomain": "your-project.firebaseapp.com",
+  "projectId": "your-project",
+  "storageBucket": "your-project.appspot.com",
+  "messagingSenderId": "1234567890",
+  "appId": "1:1234567890:web:abcdef..."
+}'></textarea>
+            </div>
+
+            <!-- STEP 2: Bootstrapping options -->
+            <div class="space-y-4 border-t border-border-light pt-6">
+                <h3 class="font-bold text-primary text-base flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-bold">2</span>
+                    Admin Bootstrapping Credentials
+                </h3>
+                <p class="text-xs text-on-surface-variant">
+                    Enter the email/password to create or sign in to the platform administrator account.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">Admin Email</label>
+                        <input type="email" id="admin-email" value="admin@mcaace.com" class="w-full border border-border-light bg-surface rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">Password</label>
+                        <input type="text" id="admin-password" value="admin123" class="w-full border border-border-light bg-surface rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Action Buttons -->
+            <div class="border-t border-border-light pt-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div class="text-[11px] text-on-surface-variant max-w-sm">
+                    <strong>Note:</strong> If Firestore rules are locked, the script will register the user as a student first. You will need to manually change their role to <code>admin</code> in the console before writing other collections.
+                </div>
+                <button id="seed-btn" class="bg-[#FB6514] hover:bg-[#e0560d] text-white font-bold text-sm px-8 py-3.5 rounded-lg shadow-md active:scale-95 transition-all w-full sm:w-auto">
+                    Start Seeding Database
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress List -->
+        <div id="progress-container" class="hidden border-t border-border-light p-8 bg-surface-subtle space-y-3">
+            <h4 class="font-bold text-xs text-primary uppercase tracking-wide">Seeding Progress Log:</h4>
+            <div id="progress-log" class="font-mono text-[10px] text-on-surface-variant space-y-1.5 max-h-40 overflow-y-auto custom-scrollbar bg-white border border-border-light p-4 rounded-xl">
+                <!-- Progress steps written here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Compat -->
+    <script src="js/config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script>
+        const logBox = document.getElementById('progress-log');
+        const statusBox = document.getElementById('status-box');
+        const progressContainer = document.getElementById('progress-container');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.APP_CONFIG && window.APP_CONFIG.firebase && window.APP_CONFIG.firebase.apiKey !== "YOUR_API_KEY") {
+                document.getElementById('firebase-config-input').value = JSON.stringify(window.APP_CONFIG.firebase, null, 4);
+                progressContainer.classList.remove('hidden');
+                log("Loaded configuration automatically from js/config.js. Ready to seed.");
+            }
+        });
+
+        const log = (text, type = 'info') => {
+            const colors = {
+                info: 'text-on-surface-variant',
+                success: 'text-success font-bold',
+                error: 'text-error font-bold',
+                warning: 'text-[#e67e22] font-semibold'
+            };
+            const div = document.createElement('div');
+            div.className = colors[type];
+            div.innerText = `[${new Date().toLocaleTimeString()}] ${text}`;
+            logBox.appendChild(div);
+            logBox.scrollTop = logBox.scrollHeight;
+        };
+
+        const showStatus = (text, type = 'info') => {
+            statusBox.classList.remove('hidden', 'bg-success/10', 'text-success', 'border-success/30', 'bg-error/10', 'text-error', 'border-error/30');
+            if (type === 'success') {
+                statusBox.classList.add('bg-success/10', 'text-success', 'border-success/30');
+            } else if (type === 'error') {
+                statusBox.classList.add('bg-error/10', 'text-error', 'border-error/30');
+            } else {
+                statusBox.classList.add('bg-primary/10', 'text-primary', 'border-primary/20');
+            }
+            statusBox.innerText = text;
+            statusBox.classList.remove('hidden');
+        };
+
+        // Seed data structures
+        const SEED_DATA = {
+            courses: [
+                {
+                    id: "course-nimcet",
+                    title: "NIMCET Complete Mastery 2025",
+                    slug: "nimcet-mastery",
+                    description: "The most comprehensive guide to cracking India's top MCA entrance exam. Includes live classes, 500+ mock tests, and personal mentoring.",
+                    thumbnailUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuALEXXXyISFGFvWY4LYQ1SR0f0gOi5QEAwsF0jldhvdJjfDP3WyUk59MI9enbNc0LgvUAs_Rz736Vq1dc2mBRDj499nGvpbwmL3AEvzPPVPtH0upBva9o5wPN4dYf-j62VG1sQeuhBFQzyTvqM0XAV1-wmxgDoEThz1rXaIhN2lcGVodFwMzBmkA3j2NiEMfdxQ_x_ORdD94kTlPeMsAVQn6trDrzPE6k9-YxuvKMDXwEQ3zPTq3oI-CQwO0y9ioFQj3lNphSxaSf18",
+                    bannerUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuALEXXXyISFGFvWY4LYQ1SR0f0gOi5QEAwsF0jldhvdJjfDP3WyUk59MI9enbNc0LgvUAs_Rz736Vq1dc2mBRDj499nGvpbwmL3AEvzPPVPtH0upBva9o5wPN4dYf-j62VG1sQeuhBFQzyTvqM0XAV1-wmxgDoEThz1rXaIhN2lcGVodFwMzBmkA3j2NiEMfdxQ_x_ORdD94kTlPeMsAVQn6trDrzPE6k9-YxuvKMDXwEQ3zPTq3oI-CQwO0y9ioFQj3lNphSxaSf18",
+                    price: 8999,
+                    discountPrice: 4999,
+                    category: "MCA Entrance",
+                    tags: ["NIMCET", "Math", "Logic"],
+                    isPublished: true,
+                    isDeleted: false,
+                    totalModules: 1,
+                    totalLessons: 1,
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: "course-placement",
+                    title: "Placement Preparation Program",
+                    slug: "placement-prep",
+                    description: "A comprehensive 6-month career track designed to help MCA students crack placements at Tier-1 tech companies. Covers DSA, System Design, and Aptitude.",
+                    thumbnailUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuDPB_Wuu4-i7gEvTQtlPHVYD5pu8Bd_0U7CxDziHl8QqXOFF9-R0axU19EITsUZEhl5YvWRycWg3Wi2samP0H6k0rRH5Ljob4GL50x8w7dQnIXaHLfdiFXwICoDSk8Evff8hb4f-LIFpZOyT8_dpQypNLnmaxpW4hupPd-auS2ypi6ubiHz-yURMYxBzVG23xfdSMEYbusD4IdQM7TkmyfcP4I6dF8KZiJVD6-mkJK82NRGHjDggxpBbI2LYYVTBAhZXgm7OLndxLBt",
+                    bannerUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuDPB_Wuu4-i7gEvTQtlPHVYD5pu8Bd_0U7CxDziHl8QqXOFF9-R0axU19EITsUZEhl5YvWRycWg3Wi2samP0H6k0rRH5Ljob4GL50x8w7dQnIXaHLfdiFXwICoDSk8Evff8hb4f-LIFpZOyT8_dpQypNLnmaxpW4hupPd-auS2ypi6ubiHz-yURMYxBzVG23xfdSMEYbusD4IdQM7TkmyfcP4I6dF8KZiJVD6-mkJK82NRGHjDggxpBbI2LYYVTBAhZXgm7OLndxLBt",
+                    price: 12499,
+                    discountPrice: 7499,
+                    category: "Placement Preparation",
+                    tags: ["DSA", "System Design", "Aptitude"],
+                    isPublished: true,
+                    isDeleted: false,
+                    totalModules: 3,
+                    totalLessons: 2,
+                    createdAt: new Date().toISOString()
+                }
+            ],
+            modules: [
+                { id: "mod-1", courseId: "course-placement", title: "Mathematics & Logic Foundations", order: 1 },
+                { id: "mod-2", courseId: "course-placement", title: "Advanced Data Structures", order: 2 },
+                { id: "mod-3", courseId: "course-placement", title: "Dynamic Programming", order: 3 },
+                { id: "mod-nimcet-1", courseId: "course-nimcet", title: "Trigonometry & Algebra", order: 1 }
+            ],
+            topics: [
+                { id: "top-1", courseId: "course-placement", moduleId: "mod-1", title: "Permutations & Combinations Basics", order: 1 },
+                { id: "top-2", courseId: "course-placement", moduleId: "mod-2", title: "Binary Trees & AVL Trees", order: 1 },
+                { id: "top-3", courseId: "course-placement", moduleId: "mod-3", title: "DP Patterns", order: 1 }
+            ],
+            lessons: [
+                {
+                    id: "les-1",
+                    courseId: "course-placement",
+                    moduleId: "mod-1",
+                    topicId: "top-1",
+                    title: "Introduction to P&C Formulae",
+                    description: "Fundamental counting principles, permutations versus combinations details.",
+                    youtubeVideoId: "L-M1zD2E1j0",
+                    youtubeUrl: "https://www.youtube.com/watch?v=L-M1zD2E1j0",
+                    durationSeconds: 900,
+                    isFreePreview: true,
+                    resources: ["https://res.cloudinary.com/demo/image/upload/sample_pdf.pdf"],
+                    order: 1
+                },
+                {
+                    id: "les-2",
+                    courseId: "course-placement",
+                    moduleId: "mod-2",
+                    topicId: "top-2",
+                    title: "AVL Trees Balancing Rotations",
+                    description: "Learn LL, RR, LR, RL tree rotations dynamically.",
+                    youtubeVideoId: "FNeL18KsWPc",
+                    youtubeUrl: "https://www.youtube.com/watch?v=FNeL18KsWPc",
+                    durationSeconds: 1200,
+                    isFreePreview: false,
+                    resources: [],
+                    order: 1
+                }
+            ],
+            mocktests: [
+                {
+                    id: "mock-placement-1",
+                    courseId: "course-placement",
+                    title: "Placement DSA Foundation Mock 1",
+                    durationMinutes: 60,
+                    marksCorrect: 4,
+                    marksWrong: -1,
+                    questions: [
+                        {
+                            questionText: "What is the time complexity of searching in a balanced AVL tree?",
+                            options: ["O(1)", "O(log N)", "O(N)", "O(N log N)"],
+                            correctAnswer: "B"
+                        },
+                        {
+                            questionText: "Which data structure operates on a Last In First Out (LIFO) basis?",
+                            options: ["Queue", "Stack", "Heap", "Binary Search Tree"],
+                            correctAnswer: "B"
+                        }
+                    ]
+                }
+            ],
+            notifications: [
+                {
+                    id: "notif-seed-1",
+                    title: "System Seeding Active",
+                    message: "Database initialized successfully with mock tests and lessons.",
+                    recipientUid: "all",
+                    createdAt: new Date().toISOString()
+                }
+            ],
+            activities: [
+                {
+                    id: "act-seed-1",
+                    userId: "system",
+                    email: "system@prepshare.com",
+                    type: "system",
+                    description: "Firestore database seeding initiated.",
+                    timestamp: new Date().toISOString()
+                }
+            ]
+        };
+
+        document.getElementById('seed-btn').addEventListener('click', async () => {
+            progressContainer.classList.remove('hidden');
+            logBox.innerHTML = '';
+            showStatus("Initializing Firebase seeder...", "info");
+
+            const rawConfig = document.getElementById('firebase-config-input').value.trim();
+            if (!rawConfig) {
+                log("Error: Firebase configuration input is empty.", "error");
+                showStatus("Error: Configuration missing.", "error");
+                return;
+            }
+
+            let parsedConfig;
+            try {
+                // Try parsing directly as JSON or extract object content
+                let jsonStr = rawConfig;
+                if (rawConfig.includes("apiKey")) {
+                    // Try to make it JSON compatible if copied as a raw JS object
+                    jsonStr = rawConfig
+                        .replace(/([a-zA-Z0-9]+):/g, '"$1":')
+                        .replace(/'/g, '"')
+                        .replace(/,\s*}/g, '}')
+                        .replace(/,\s*]/g, ']');
+                }
+                parsedConfig = JSON.parse(jsonStr);
+            } catch (err) {
+                // Second attempt: parse using eval (safe here as it's locally run by developer)
+                try {
+                    parsedConfig = eval("(" + rawConfig + ")");
+                } catch (evalErr) {
+                    log(`Failed to parse config object: ${err.message}`, "error");
+                    showStatus("Failed to parse config object. Please check formatting.", "error");
+                    return;
+                }
+            }
+
+            if (!parsedConfig || !parsedConfig.apiKey || !parsedConfig.projectId) {
+                log("Error: Missing apiKey or projectId in configuration.", "error");
+                showStatus("Invalid Firebase Config.", "error");
+                return;
+            }
+
+            log(`Config parsed successfully for project: ${parsedConfig.projectId}`);
+
+            // Initialize Firebase App
+            let db, auth;
+            try {
+                if (firebase.apps.length > 0) {
+                    firebase.apps.forEach(app => app.delete());
+                }
+                const app = firebase.initializeApp(parsedConfig);
+                db = app.firestore();
+                auth = app.auth();
+                log("Firebase app initialized successfully.", "success");
+            } catch (initErr) {
+                log(`Failed to initialize Firebase SDK: ${initErr.message}`, "error");
+                showStatus("Firebase Init Failed.", "error");
+                return;
+            }
+
+            // Start authentication
+            const email = document.getElementById('admin-email').value.trim();
+            const password = document.getElementById('admin-password').value.trim();
+
+            if (!email || !password) {
+                log("Admin credentials must not be empty.", "error");
+                showStatus("Invalid credentials.", "error");
+                return;
+            }
+
+            log(`Attempting to sign in or create user: ${email}...`);
+            let user = null;
+            try {
+                // Try signing in
+                const userCred = await auth.signInWithEmailAndPassword(email, password);
+                user = userCred.user;
+                log(`Successfully signed in as existing auth user: ${user.uid}`, "success");
+            } catch (loginErr) {
+                // If sign in fails, try creating the user
+                try {
+                    const userCred = await auth.createUserWithEmailAndPassword(email, password);
+                    user = userCred.user;
+                    log(`Successfully created new auth user: ${user.uid}`, "success");
+                } catch (createErr) {
+                    log(`Authentication warning: ${createErr.message}`, "warning");
+                    log(`Please make sure "Email/Password" is enabled under Firebase Console -> Authentication -> Sign-in method.`, "warning");
+                    log("Continuing to seed remaining collections assuming Rules allow writes...", "info");
+                }
+            }
+
+            // Write user details if authenticated successfully
+            if (user) {
+                log("Updating user record in Firestore `/users` collection...");
+                let isUserAdmin = false;
+                try {
+                    // Attempt to retrieve existing doc to check role
+                    const docSnap = await db.collection("users").doc(user.uid).get();
+                    if (docSnap.exists) {
+                        const data = docSnap.data();
+                        isUserAdmin = data.role === 'admin';
+                        log(`Existing user document found. Role: ${data.role}`, isUserAdmin ? 'success' : 'warning');
+                    }
+                    
+                    const initialImg = `data:image/svg+xml;utf8,` + encodeURIComponent(`
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="40" height="40">
+                            <circle cx="50" cy="50" r="50" fill="#1e3a8a"/>
+                            <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="bold" font-size="50" fill="#ffffff">A</text>
+                        </svg>
+                    `);
+
+                    const userPayload = {
+                        uid: user.uid,
+                        name: "Dr. K. Sharma (Admin)",
+                        email: email,
+                        role: isUserAdmin ? 'admin' : 'student', // Write as student first if not already admin, to satisfy rules
+                        profileImage: 'default',
+                        isActive: true,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+
+                    await db.collection("users").doc(user.uid).set(userPayload, { merge: true });
+                    log(`Created/updated user document in Firestore. UID: ${user.uid}`, "success");
+                } catch (userErr) {
+                    log(`Warning: Failed to create user document: ${userErr.message}`, "warning");
+                    log("Continuing to seed remaining collections assuming Rules allow writes...", "info");
+                }
+            } else {
+                log("Skipping user record update because authentication failed.", "warning");
+            }
+
+            // Seed Collections helper
+            const writeCollection = async (colName, items) => {
+                log(`Seeding collection \`/${colName}\`...`);
+                let successCount = 0;
+                for (const item of items) {
+                    try {
+                        const { id, ...data } = item;
+                        const ref = db.collection(colName).doc(id || undefined);
+                        await ref.set({
+                            ...data,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                        log(`  + Wrote ${colName}/${ref.id}`);
+                        successCount++;
+                    } catch (e) {
+                        log(`  x Error writing item in ${colName}: ${e.message}`, "error");
+                    }
+                }
+                log(`Seeded ${successCount}/${items.length} records in \`/${colName}\``, successCount === items.length ? "success" : "warning");
+            };
+
+            // Write all seed data
+            try {
+                await writeCollection('courses', SEED_DATA.courses);
+                await writeCollection('modules', SEED_DATA.modules);
+                await writeCollection('topics', SEED_DATA.topics);
+                await writeCollection('lessons', SEED_DATA.lessons);
+                await writeCollection('mocktests', SEED_DATA.mocktests);
+                await writeCollection('notifications', SEED_DATA.notifications);
+                await writeCollection('activities', SEED_DATA.activities);
+                
+                // Seed an initial payment verification record
+                await writeCollection('paymentRequests', [{
+                    id: "req-1",
+                    userId: user ? user.uid : "mock-admin-uid",
+                    courseId: "course-nimcet",
+                    name: "Aman Kumar",
+                    email: "aman@student.com",
+                    utrNumber: "409283741029",
+                    course: "NIMCET Complete Mastery 2025",
+                    amount: 4999,
+                    screenshotUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuCHETEPhulgoDshbuHG_rQTApWdOwQeBq9xR9rvLHDMeF9TXTk4VehAewZao3mxVVDwAW6mgsaXdMbnJU_YkCq24TKaSwoQAfbVYU0xSOXIRwsQTC8LOxz8e-R9HmibXFhsxDhgeQwlVllZTtB0b4TPI_Ge7T7M-uJE9aH2yZKRjqTNC0pxFUI0D730Ej7YZWpCPjKzy8-IbKqvQdbTRgorFDJ24tAjNrgDqmG51Lpv2ITdjCUUD59ToznVExqBze68zKjQuncXsRmO",
+                    status: "pending",
+                    submittedAt: new Date().toISOString(),
+                    createdAt: new Date().toISOString()
+                }]);
+
+                log("Database Seeding Finished!", "success");
+                
+                // Output updated config template for the user
+                const finalConfigJson = JSON.stringify(parsedConfig, null, 4);
+                log(`
+=== PLEASE UPDATE YOUR CONFIG.JS ===
+Open "js/config.js" and replace the "firebase" block with:
+${finalConfigJson}
+===================================
+`, "success");
+
+                showStatus("Seeding complete! See log at bottom for the config snippet to copy to js/config.js.", "success");
+            } catch (seedErr) {
+                log(`Seeding aborted due to error: ${seedErr.message}`, "error");
+                showStatus("Seeding Aborted. Permissions error?", "error");
+            }
+        });
+    </script>
+</body>
+</html>

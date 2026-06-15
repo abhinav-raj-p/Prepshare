@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MCA Ace | Premier MCA Entrance &amp; Placement Coaching</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-subtle": "#F8FAFC",
+                    "on-secondary-fixed": "#140067",
+                    "surface-tint": "#4d5d8b",
+                    "on-primary-fixed": "#051944",
+                    "surface-container-high": "#e3e9ed",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#6d5fee",
+                    "border-light": "#E2E8F0",
+                    "on-primary": "#ffffff",
+                    "error": "#EF4444",
+                    "primary": "#021541",
+                    "pending": "#F59E0B",
+                    "surface-dim": "#d5dbdf",
+                    "surface": "#f5fafe",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed": "#360f00",
+                    "surface-container": "#e9eff3",
+                    "tertiary-fixed": "#ffdbcd",
+                    "tertiary": "#310c00",
+                    "inverse-surface": "#2b3134",
+                    "inverse-primary": "#b5c5f9",
+                    "inverse-on-surface": "#ecf1f5",
+                    "on-tertiary-fixed-variant": "#7e2c00",
+                    "on-secondary-fixed-variant": "#3d28be",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#f5fafe",
+                    "tertiary-fixed-dim": "#ffb597",
+                    "surface-container-low": "#eff4f8",
+                    "background": "#f5fafe",
+                    "secondary": "#5344d3",
+                    "surface-container-highest": "#dee3e7",
+                    "on-error-container": "#93000a",
+                    "on-background": "#161c1f",
+                    "on-secondary-container": "#fffbff",
+                    "outline": "#757680",
+                    "primary-container": "#1a2b56",
+                    "surface-variant": "#dee3e7",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-container": "#531b00",
+                    "outline-variant": "#c5c6d0",
+                    "secondary-fixed-dim": "#c5c0ff",
+                    "primary-fixed-dim": "#b5c5f9",
+                    "primary-fixed": "#dae1ff",
+                    "on-primary-fixed-variant": "#354572",
+                    "secondary-fixed": "#e4dfff",
+                    "success": "#10B981",
+                    "on-tertiary-container": "#fb6514",
+                    "on-surface": "#161c1f",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#8393c5",
+                    "on-surface-variant": "#45464f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "40px",
+                    "base": "8px",
+                    "margin-mobile": "16px",
+                    "gutter": "24px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "title-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "title-lg": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        .custom-shadow {
+            shadow-[0px_4px_20px_rgba(26,43,86,0.06)];
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 bg-surface shadow-[0px_4px_20px_rgba(26,43,86,0.06)] h-20 flex items-center transition-all duration-300">
+<div class="flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto">
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md font-bold text-primary">MCA Ace</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="font-body-md text-body-md text-primary border-b-2 border-primary font-bold pb-1 transition-colors" href="#courses">Courses</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#demo">Demo Classes</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#success">Success Stories</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#contact">Contact</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-primary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container transition-all active:scale-95">Login/Signup</button>
+<button class="bg-on-tertiary-container text-white font-label-md text-label-md px-6 py-2.5 rounded-lg font-bold shadow-md hover:brightness-110 transition-all active:scale-95">Enroll Now</button>
+</div>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative overflow-hidden bg-surface py-20 lg:py-32">
+
+<div class="max-w-container-max mx-auto px-margin-desktop grid lg:grid-cols-2 gap-12 items-center relative z-10">
+<div class="space-y-8">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[16px]">stars</span>
+                        India's Top-Rated MCA Coaching
+                    </div>
+<h1 class="font-display-lg text-display-lg text-primary leading-tight">
+                        Master MCA Entrance &amp; Placements with <span class="text-on-tertiary-container">MCA Ace</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+                        Experience a structured path to success with expert guidance, premium resources, and a supportive community designed specifically for MCA aspirants.
+                    </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="bg-on-tertiary-container text-white font-label-md text-label-md px-8 py-4 rounded-lg font-bold shadow-lg hover:brightness-110 transition-all active:scale-95 flex items-center gap-2">
+                            Enroll Now
+                            <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="bg-surface-container-lowest border border-border-light text-primary font-label-md text-label-md px-8 py-4 rounded-lg font-bold hover:bg-surface-container-low transition-all active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+                            Watch Demo
+                        </button>
+</div>
+<div class="flex items-center gap-6 pt-6 border-t border-border-light">
+<div>
+<div class="text-headline-md font-headline-md text-primary">500+</div>
+<div class="text-label-sm text-on-surface-variant">Top Rankers</div>
+</div>
+<div class="w-px h-10 bg-border-light"></div>
+<div>
+<div class="text-headline-md font-headline-md text-primary">98%</div>
+<div class="text-label-sm text-on-surface-variant">Success Rate</div>
+</div>
+<div class="w-px h-10 bg-border-light"></div>
+<div>
+<div class="text-headline-md font-headline-md text-primary">24/7</div>
+<div class="text-label-sm text-on-surface-variant">Expert Support</div>
+</div>
+</div>
+</div>
+<div class="relative group">
+<div class="absolute -inset-4 bg-secondary/10 rounded-3xl blur-2xl group-hover:bg-secondary/20 transition-all"></div>
+<div class="relative rounded-2xl overflow-hidden shadow-2xl border border-white/50">
+<img alt="Students learning" class="w-full h-full object-cover" data-alt="A group of diverse, enthusiastic Indian university students in a high-tech, modern classroom setting, collaborating on coding projects on high-end laptops. The room is filled with soft natural light from large windows, creating a bright, professional, and aspirational atmosphere. They are dressed in smart-casual attire, and the environment reflects a prestigious, elite coaching institute with premium furniture and subtle blue-toned lighting accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXt55hjI8hnb5XGFb6WnIvNp1Nt3utGAtkGoppD1YXOXO0U4acSTLgP7JwPJuuLevKtGQAwd36CcO3Dpz4c5BqFYOVDub8sbKgj8XSMhNeXUCw9ygqQa2vMcJvuEWHUQsUy_Kx4uZMtVnBAnVDl7Dt3M4ZnCiina97gcmN9m8zS66f9mESwS_ptcU1BjiOl6itLKX8NEZo9ToiBniaKY4hnZ5tI-GR7TDG-gh4wYf46l_TS0WKnQFClJfV9lOIPg9z-1xaiutbMpQJ"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Why Choose Us -->
+<section class="py-24 bg-surface-subtle">
+<div class="max-w-container-max mx-auto px-margin-desktop text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-4">Why MCA Ace stands out?</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">We don't just teach subjects; we build careers with a meticulously crafted curriculum and industry-expert mentors.</p>
+</div>
+<div class="max-w-container-max mx-auto px-margin-desktop grid md:grid-cols-3 gap-8">
+<div class="glass-card p-8 rounded-xl shadow-[0px_4px_20px_rgba(26,43,86,0.06)] hover:translate-y-[-8px] transition-transform duration-300">
+<div class="w-14 h-14 bg-primary rounded-lg flex items-center justify-center text-white mb-6">
+<span class="material-symbols-outlined text-[32px]">school</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-primary mb-3">Expert Guidance</h3>
+<p class="text-on-surface-variant">Learn from Nimcet toppers and experienced developers who have been in your shoes and know the road to success.</p>
+</div>
+<div class="glass-card p-8 rounded-xl shadow-[0px_4px_20px_rgba(26,43,86,0.06)] hover:translate-y-[-8px] transition-transform duration-300">
+<div class="w-14 h-14 bg-secondary-container rounded-lg flex items-center justify-center text-white mb-6">
+<span class="material-symbols-outlined text-[32px]">menu_book</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-primary mb-3">Structured Learning</h3>
+<p class="text-on-surface-variant">A modular course structure that covers every fundamental concept from scratch, ensuring no student is left behind.</p>
+</div>
+<div class="glass-card p-8 rounded-xl shadow-[0px_4px_20px_rgba(26,43,86,0.06)] hover:translate-y-[-8px] transition-transform duration-300">
+<div class="w-14 h-14 bg-on-tertiary-container rounded-lg flex items-center justify-center text-white mb-6">
+<span class="material-symbols-outlined text-[32px]">payments</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-primary mb-3">Affordable Excellence</h3>
+<p class="text-on-surface-variant">Premium quality education at a fraction of the cost, making world-class coaching accessible to every deserving student.</p>
+</div>
+</div>
+</section>
+<!-- Featured Courses (Bento Grid) -->
+<section class="py-24" id="courses">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-16">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary mb-4">Featured Courses</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xl">Tailored programs designed to tackle entrance exams and high-paying placement rounds with confidence.</p>
+</div>
+<button class="text-primary font-bold hover:underline flex items-center gap-1">View All Courses <span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Major Card -->
+<div class="md:col-span-8 bg-primary rounded-2xl overflow-hidden text-white flex flex-col md:flex-row shadow-xl">
+<div class="p-10 flex-1 flex flex-col justify-center">
+<span class="bg-on-tertiary-container text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded mb-6 w-fit">Flagship Program</span>
+<h3 class="font-headline-lg text-headline-lg mb-4">NIMCET Complete Mastery 2025</h3>
+<p class="text-primary-fixed opacity-80 mb-8 max-w-md">The most comprehensive guide to cracking India's top MCA entrance exam. Includes live classes, 500+ mock tests, and personal mentoring.</p>
+<div class="flex items-center gap-4">
+<button class="bg-white text-primary px-6 py-3 rounded-lg font-bold hover:bg-white/90 transition-all">Enroll Now</button>
+<span class="font-headline-md">₹14,999 <span class="text-sm opacity-60 line-through">₹24,999</span></span>
+</div>
+</div>
+<div class="md:w-1/3 h-64 md:h-auto">
+<img alt="Coding class" class="w-full h-full object-cover" data-alt="A top-down view of a modern developer workstation with multiple monitors displaying complex code architectures in a dark-themed IDE. The setting is professionally lit with soft blue and orange neon highlights, reflecting a high-end coding environment. In the background, a whiteboard with technical diagrams and flowcharts for an MCA entrance curriculum is visible, emphasizing technical rigor and professional preparation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALEXXXyISFGFvWY4LYQ1SR0f0gOi5QEAwsF0jldhvdJjfDP3WyUk59MI9enbNc0LgvUAs_Rz736Vq1dc2mBRDj499nGvpbwmL3AEvzPPVPtH0upBva9o5wPN4dYf-j62VG1sQeuhBFQzyTvqM0XAV1-wmxgDoEThz1rXaIhN2lcGVodFwMzBmkA3j2NiEMfdxQ_x_ORdD94kTlPeMsAVQn6trDrzPE6k9-YxuvKMDXwEQ3zPTq3oI-CQwO0y9ioFQj3lNphSxaSf18"/>
+</div>
+</div>
+<!-- Small Card 1 -->
+<div class="md:col-span-4 bg-white border border-border-light rounded-2xl p-8 flex flex-col shadow-sm hover:shadow-lg transition-shadow">
+<div class="w-12 h-12 bg-secondary/10 text-secondary rounded-lg flex items-center justify-center mb-6">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-primary mb-3">Placement Bootcamp</h3>
+<p class="text-on-surface-variant mb-auto">Master Data Structures, Algorithms, and Interview Skills for Tier-1 companies.</p>
+<div class="mt-8 pt-6 border-t border-border-light flex justify-between items-center">
+<span class="font-bold text-primary">₹7,999</span>
+<button class="text-secondary font-bold flex items-center gap-1">Details <span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>
+</div>
+</div>
+<!-- Small Card 2 -->
+<div class="md:col-span-4 bg-white border border-border-light rounded-2xl p-8 flex flex-col shadow-sm hover:shadow-lg transition-shadow">
+<div class="w-12 h-12 bg-on-tertiary-container/10 text-on-tertiary-container rounded-lg flex items-center justify-center mb-6">
+<span class="material-symbols-outlined">calculate</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-primary mb-3">Maths Special Batch</h3>
+<p class="text-on-surface-variant mb-auto">Dedicated focus on MCA-specific Mathematics and Logical Reasoning topics.</p>
+<div class="mt-8 pt-6 border-t border-border-light flex justify-between items-center">
+<span class="font-bold text-primary">₹4,999</span>
+<button class="text-on-tertiary-container font-bold flex items-center gap-1">Details <span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>
+</div>
+</div>
+<!-- Horizontal Secondary Card -->
+<div class="md:col-span-8 bg-surface-container rounded-2xl p-8 flex items-center justify-between shadow-sm">
+<div class="max-w-md">
+<h3 class="font-title-lg text-title-lg text-primary mb-2">CUET PG Quick Revision</h3>
+<p class="text-on-surface-variant">Last-minute 45-day crash course to boost your rank in the CUET PG exam.</p>
+</div>
+<button class="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:brightness-110 transition-all">Join Crash Course</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Learning Journey (Timeline) -->
+<section class="py-24 bg-primary text-white relative overflow-hidden">
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+
+</div>
+<div class="max-w-container-max mx-auto px-margin-desktop relative z-10">
+<h2 class="font-headline-lg text-headline-lg text-center mb-20">Your Path to Excellence</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-8 relative">
+<!-- Timeline Connector (Desktop) -->
+<div class="hidden lg:block absolute top-12 left-0 w-full h-[2px] bg-white/20 -z-10"></div>
+<!-- Step 1 -->
+<div class="text-center group">
+<div class="w-16 h-16 bg-on-tertiary-container rounded-full flex items-center justify-center mx-auto mb-6 relative z-20 group-hover:scale-110 transition-transform shadow-xl">
+<span class="material-symbols-outlined">touch_app</span>
+</div>
+<h4 class="font-bold mb-2">Choose</h4>
+<p class="text-sm opacity-60">Select your target exam and course.</p>
+</div>
+<!-- Step 2 -->
+<div class="text-center group">
+<div class="w-16 h-16 bg-on-tertiary-container rounded-full flex items-center justify-center mx-auto mb-6 relative z-20 group-hover:scale-110 transition-transform shadow-xl">
+<span class="material-symbols-outlined">app_registration</span>
+</div>
+<h4 class="font-bold mb-2">Enroll</h4>
+<p class="text-sm opacity-60">Instant access after secure payment.</p>
+</div>
+<!-- Step 3 -->
+<div class="text-center group">
+<div class="w-16 h-16 bg-on-tertiary-container rounded-full flex items-center justify-center mx-auto mb-6 relative z-20 group-hover:scale-110 transition-transform shadow-xl">
+<span class="material-symbols-outlined">visibility</span>
+</div>
+<h4 class="font-bold mb-2">Watch</h4>
+<p class="text-sm opacity-60">Live classes &amp; recorded modules.</p>
+</div>
+<!-- Step 4 -->
+<div class="text-center group">
+<div class="w-16 h-16 bg-on-tertiary-container rounded-full flex items-center justify-center mx-auto mb-6 relative z-20 group-hover:scale-110 transition-transform shadow-xl">
+<span class="material-symbols-outlined">edit_note</span>
+</div>
+<h4 class="font-bold mb-2">Practice</h4>
+<p class="text-sm opacity-60">Quizzes &amp; full-length mock tests.</p>
+</div>
+<!-- Step 5 -->
+<div class="text-center group">
+<div class="w-16 h-16 bg-on-tertiary-container rounded-full flex items-center justify-center mx-auto mb-6 relative z-20 group-hover:scale-110 transition-transform shadow-xl">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<h4 class="font-bold mb-2">Track</h4>
+<p class="text-sm opacity-60">AI-powered performance analytics.</p>
+</div>
+<!-- Step 6 -->
+<div class="text-center group">
+<div class="w-16 h-16 bg-secondary-container rounded-full flex items-center justify-center mx-auto mb-6 relative z-20 group-hover:scale-110 transition-transform shadow-xl">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+</div>
+<h4 class="font-bold mb-2">Achieve</h4>
+<p class="text-sm opacity-60">Secure your dream rank &amp; job.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Demo Classes Section -->
+<section class="py-24" id="demo">
+<div class="max-w-container-max mx-auto px-margin-desktop text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-4">See Us In Action</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Quality speaks for itself. Watch our sample lessons to understand our unique teaching pedagogy.</p>
+</div>
+<div class="max-w-container-max mx-auto px-margin-desktop grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Video Card 1 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-video rounded-xl overflow-hidden mb-4 shadow-lg">
+<img alt="Programming lesson" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional high-definition video frame showing an expert instructor explaining complex C++ algorithms on a sleek digital lightboard. The instructor is visible in the corner, while the vibrant, glowing digital ink highlights key logic flow. The overall aesthetic is clean, academic, and highly professional, with the MCA Ace brand logo subtly visible in the top corner." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAp_-DFOZiBGltisK3RQqtCTgnsCQDQRzoXEHSBjyzfPvexH6vGPFyAA0-qWMALV_tV-cdNBeljp3epYRCPyf1yfSNTRb8X1kcwPr3TMGcu7jKf-s-wlOY_wMQu6v0nLmLTUvbIgf4T1WDg5d1L3K_HtnoYzXZgRYvLtgXBZe6IqXDyDLHTTMSErzxLTFSVbErbU291UzXZhaIpRzxKdxWa_XPy_WC9hL6Im_ly37s7fdL-CSB4720H_BHSqf5D0UjZYDlVzwd-O00j"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
+<span class="material-symbols-outlined text-white text-[64px] opacity-80" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+</div>
+<h4 class="font-bold text-primary group-hover:text-secondary transition-colors">Mastering Pointers in C++ - Demo</h4>
+<p class="text-sm text-on-surface-variant">25,000+ Students watched</p>
+</div>
+<!-- Video Card 2 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-video rounded-xl overflow-hidden mb-4 shadow-lg">
+<img alt="Math lesson" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A focused close-up of a high-quality classroom tablet where a teacher is drawing colorful probability trees for a NIMCET entrance preparation video. The lighting is bright and crisp, emphasizing the educational clarity. The screen is filled with neat, handwritten mathematical notation that feels accessible yet rigorous." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADCSB2ixGimaMIM7js0SJyGeOU9ILdNDophkyu5JfnKHv1GwgnYOFLL9m2eOobQcywObH1Vs09RzExZD31IBeXq6Q8nUefoijINmZWJB9AWoudnDlVplHmG5RWWQCLMLCpPH1uIRMg565wvR3l0y7X915G_gWmds50GXysw3cpS7ZNXr1TNx0TTetnKnE-lOSNjzvZGzkmL1Lc7yUnQ2SCgYKLH0FFo1DxV4dEQD5rEtCIhCCbnNKb-b7wGUfH-wtbGgPzcmTHMyeK"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
+<span class="material-symbols-outlined text-white text-[64px] opacity-80" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+</div>
+<h4 class="font-bold text-primary group-hover:text-secondary transition-colors">Probability &amp; Permutations - NIMCET Special</h4>
+<p class="text-sm text-on-surface-variant">18,500+ Students watched</p>
+</div>
+<!-- Video Card 3 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-video rounded-xl overflow-hidden mb-4 shadow-lg">
+<img alt="Interview prep" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A split-screen view of a professional mock interview session. One side shows an industry expert from a top tech company asking questions, and the other shows an engaged student responding confidently. The environment is a clean, corporate virtual meeting interface, representing the high standard of placement training at MCA Ace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1ezTdMtnsXiFGZgWzld5R3ApLieaXPkghb8FLDntigo2_3y6cdaOs6SAnJZwh-8evp1AGNbcwKt8HzPMLVcnXUZa6-sUPDLbKtU17Lup4zHGp57ouDKj1W0mohJhdlyL7KH9GzMsY9DVliWDgPXzsrReDDC89KhcSsc-inwQJDQ1qAiDxW2yHfbhxSfQMahj1-GAgEamwyxUNPW8z_19gW01V1KxsRmL1e3vmutaXsSnDtA8Y_MSdk6k4AMB0aKu-rkSkCnYAHX6k"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
+<span class="material-symbols-outlined text-white text-[64px] opacity-80" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+</div>
+<h4 class="font-bold text-primary group-hover:text-secondary transition-colors">How to Crack Amazon Interview - Tips</h4>
+<p class="text-sm text-on-surface-variant">32,000+ Students watched</p>
+</div>
+</div>
+</section>
+<!-- Success Stories -->
+<section class="py-24 bg-surface-subtle overflow-hidden" id="success">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-4">Our Hall of Fame</h2>
+<p class="text-on-surface-variant">Real stories from students who transformed their careers with us.</p>
+</div>
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Student 1 -->
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-border-light">
+<div class="flex items-center gap-4 mb-6">
+<img alt="Rahul" class="w-16 h-16 rounded-full object-cover shadow-md" data-alt="A portrait of a young, successful Indian man in his early 20s, wearing a smart casual polo shirt. He has a bright, confident smile and is standing in a modern office lobby with soft, out-of-focus plants and architectural glass in the background. The lighting is warm and natural, conveying a story of career achievement and personal growth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBx09e0QkUAFSfTMH3JflAuweBI5V8KwMK661K2TvfjQvO41IVPiv44VFvCggqlXsqaM0etTykVFXmLeuk7QKM7lziIidzsrLn0T1sj7hQpOq0C1HyzT5bjILJwNofUZW3Y_alqef6HzaT294kQYC4KaB22eV1rE8dlYRlJo8ArVRb7SOOiDyIXvvSypbKBf8zydlo9b7iKAv3oJy2BRPY5DlyMf85S3wc7mFMyPShC1gahhq321aXzwK9tC_6oFzj1YVxKc7cz5MAW"/>
+<div>
+<h4 class="font-bold text-primary">Rahul Sharma</h4>
+<p class="text-label-sm text-on-tertiary-container font-bold">AIR 12 - NIMCET 2024</p>
+</div>
+</div>
+<p class="italic text-on-surface-variant mb-6 text-sm">"The structure at MCA Ace is unmatched. The math shortcuts and the daily test series were the game changers for me. Secured NIT Trichy thanks to the mentorship!"</p>
+<div class="flex items-center gap-2 text-xs text-secondary-container font-bold uppercase tracking-wide">
+<span class="material-symbols-outlined text-[14px]">apartment</span>
+                            NIT Trichy
+                        </div>
+</div>
+<!-- Student 2 -->
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-border-light">
+<div class="flex items-center gap-4 mb-6">
+<img alt="Priya" class="w-16 h-16 rounded-full object-cover shadow-md" data-alt="A professional headshot of a young Indian woman smiling warmly, wearing a professional blazer. She is standing in front of a sleek, minimalist tech office background with soft lighting. Her expression radiates intelligence and success, embodying the result of high-quality placement coaching." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASMYQ4e-201YmnHFbhraQ0nxkEdqoQZUhtWmztECIfpG2DutngXCwxM1dvAPiaK7PWqdKid3UTGH4C-xCZZfMTrPl7Is78of6Nrxx8jsoCCxCGGcqi6pJrAJyj5s7wOgsTGDNZwJZqT4SA6HfIl1Aun5vcSFYoP7ngM48QNN57ABDJr-fXJTAgpLVTrHq8AneEbs5PtDajzoE3kMIovtnLw1kyOQIUCAPX16bFQg5Um9HjVvNyKNNLS0f_B-ixHChnZyAv5TQAdZJF"/>
+<div>
+<h4 class="font-bold text-primary">Priya Patel</h4>
+<p class="text-label-sm text-on-tertiary-container font-bold">Placed at Microsoft</p>
+</div>
+</div>
+<p class="italic text-on-surface-variant mb-6 text-sm">"I was struggling with DSA, but the Placement Prep module simplified everything. The mock interviews felt exactly like the real thing. Highly recommend!"</p>
+<div class="flex items-center gap-2 text-xs text-secondary-container font-bold uppercase tracking-wide">
+<span class="material-symbols-outlined text-[14px]">apartment</span>
+                            Microsoft - 45 LPA
+                        </div>
+</div>
+<!-- Student 3 -->
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-border-light">
+<div class="flex items-center gap-4 mb-6">
+<img alt="Anuj" class="w-16 h-16 rounded-full object-cover shadow-md" data-alt="A portrait of a confident young South Asian man in a smart shirt, with a clean and professional appearance. He is outdoors in a campus-like setting with lush greenery and modern university buildings in the blurred background. The evening sun provides a golden hour glow, symbolizing a bright future and academic success." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDiyyt3F2S-Ka2Tc1FwqKHZWVTi-yCG9H5Vurg-g9zi1WGqi1S1s0fHEBJk3P9wEEeo9n2_Da-eXP_CbzeFwBdqESzHVy_-S7W14kQqwbWosifumqfgkPv6fuU8CN-osa5hZOa4oTYOj8gfMBdsvPMvFQ9NScXYvTxdQcP3tHgw8yOFMBNgp-Rumg9uSSu5Bc6rBljlKj3pcidTxMLNUp9Go0SAwagQ4SY6Kx9YzHvc7y1c6HiHpC5Oscknrz_pE5TtWX6-IJgZ0TI"/>
+<div>
+<h4 class="font-bold text-primary">Anuj Verma</h4>
+<p class="text-label-sm text-on-tertiary-container font-bold">AIR 45 - CUET PG</p>
+</div>
+</div>
+<p class="italic text-on-surface-variant mb-6 text-sm">"The recorded lectures were a lifesaver for me as a final year student. I could learn at my own pace and still crack a top rank. Best affordable course out there."</p>
+<div class="flex items-center gap-2 text-xs text-secondary-container font-bold uppercase tracking-wide">
+<span class="material-symbols-outlined text-[14px]">apartment</span>
+                            DU - MCA
+                        </div>
+</div>
+</div>
+</div>
+</section>
+<!-- How to Enroll (Video Tutorial Section) -->
+<section class="py-24">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="flex flex-col lg:flex-row items-center gap-16">
+<div class="lg:w-1/2">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-6">Start Your Journey Today</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-8">Not sure how to get started? Watch this quick 2-minute guide on how to choose the right plan and begin your learning adventure.</p>
+<ul class="space-y-4 mb-10">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-success">check_circle</span>
+<span class="text-on-surface-variant">Step-by-step registration guide.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-success">check_circle</span>
+<span class="text-on-surface-variant">Easy payment methods (UPI, Cards, EMI).</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-success">check_circle</span>
+<span class="text-on-surface-variant">Instant dashboard access tutorial.</span>
+</li>
+</ul>
+<button class="bg-primary text-white px-10 py-4 rounded-lg font-bold shadow-lg hover:brightness-125 transition-all">Enroll Now</button>
+</div>
+<div class="lg:w-1/2 w-full">
+<div class="relative bg-surface-container rounded-3xl overflow-hidden shadow-2xl p-4">
+<div class="aspect-video bg-black rounded-2xl overflow-hidden relative group">
+<img alt="Enrollment guide" class="w-full h-full object-cover opacity-60" data-alt="A clean, minimalist workspace with a laptop open showing the MCA Ace enrollment portal. A pair of hands is shown typing on the keyboard, with soft, diffused desk lighting creating a warm and inviting productivity vibe. The screen interface is clear, displaying the intuitive user experience of the coaching platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZHqdO0atNPfQw4XmIXgTaCDV7jSioiETV_jw6cuPfLN2JhxO-DhZB9-QErZVjHskkbuW62im58xLazRCaLgv4DglBjTheyrew3qZr8BBTW3aMUzN_WymaCW-rXIrQXkBiPB4x6EQ0UDeQLvxQF6CUFA4S6RUvhEXBnuoliHUbLkmC4bSS1NyNRB5ogKLNUMZmPZOe0SLOjFDm8Vi8xLo6ChQdCRQRIKpUEAIetMdIdLFErEaYO2JTG5I22BzXif-sKwp9TFoUykzj"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<button class="w-20 h-20 bg-on-tertiary-container text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-2xl">
+<span class="material-symbols-outlined text-[40px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FAQ Accordion -->
+<section class="py-24 bg-surface-subtle">
+<div class="max-w-3xl mx-auto px-margin-desktop">
+<h2 class="font-headline-lg text-headline-lg text-primary text-center mb-12">Frequently Asked Questions</h2>
+<div class="space-y-4">
+<!-- FAQ 1 -->
+<div class="bg-white rounded-xl border border-border-light overflow-hidden shadow-sm">
+<button class="w-full flex items-center justify-between p-6 text-left hover:bg-surface transition-colors" onclick="toggleFaq(this)">
+<span class="font-bold text-primary">Are the classes live or recorded?</span>
+<span class="material-symbols-outlined transition-transform">expand_more</span>
+</button>
+<div class="faq-content hidden p-6 pt-0 text-on-surface-variant border-t border-border-light/50">
+                            We offer both. Core sessions are conducted live to allow for real-time doubt clearing, and recordings are uploaded immediately for lifetime access and revision.
+                        </div>
+</div>
+<!-- FAQ 2 -->
+<div class="bg-white rounded-xl border border-border-light overflow-hidden shadow-sm">
+<button class="w-full flex items-center justify-between p-6 text-left hover:bg-surface transition-colors" onclick="toggleFaq(this)">
+<span class="font-bold text-primary">Do I get test series included in the course?</span>
+<span class="material-symbols-outlined transition-transform">expand_more</span>
+</button>
+<div class="faq-content hidden p-6 pt-0 text-on-surface-variant border-t border-border-light/50">
+                            Yes, every comprehensive course includes our premium test series consisting of topic-wise, section-wise, and full-length mock tests designed after rigorous research.
+                        </div>
+</div>
+<!-- FAQ 3 -->
+<div class="bg-white rounded-xl border border-border-light overflow-hidden shadow-sm">
+<button class="w-full flex items-center justify-between p-6 text-left hover:bg-surface transition-colors" onclick="toggleFaq(this)">
+<span class="font-bold text-primary">Can I pay in installments?</span>
+<span class="material-symbols-outlined transition-transform">expand_more</span>
+</button>
+<div class="faq-content hidden p-6 pt-0 text-on-surface-variant border-t border-border-light/50">
+                            Absolutely. For our flagship NIMCET and Placement courses, we offer flexible 3-month and 6-month EMI options through our payment partners.
+                        </div>
+</div>
+</div>
+</div>
+</section>
+<!-- Contact Section -->
+<section class="py-24" id="contact">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="bg-primary-container rounded-3xl p-12 text-white flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden">
+
+<div class="relative z-10">
+<h2 class="font-headline-lg text-headline-lg mb-4">Still have doubts?</h2>
+<p class="text-on-primary-container max-w-md">Connect with our counselors directly on social apps for instant resolution of your queries.</p>
+</div>
+<div class="flex flex-col sm:flex-row gap-4 relative z-10">
+<a class="bg-[#25D366] text-white px-8 py-4 rounded-xl font-bold flex items-center gap-3 hover:brightness-110 transition-all shadow-lg" href="#">
+<svg class="w-6 h-6 fill-current" viewbox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.284l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.768-5.764-5.768zm3.393 8.254c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-1.557-.599-2.636-1.571-.845-.76-1.426-1.53-1.611-1.849-.184-.319-.02-.49.137-.649.141-.143.314-.364.471-.546.157-.182.209-.312.313-.52.105-.208.052-.39-.026-.546-.078-.156-.704-1.703-.964-2.327-.253-.607-.512-.525-.704-.535-.182-.009-.39-.011-.598-.011-.208 0-.547.078-.833.39-.286.313-1.093 1.066-1.093 2.601 0 1.535 1.118 3.018 1.274 3.226.156.208 2.2 3.359 5.328 4.708.744.321 1.325.513 1.777.657.747.237 1.428.204 1.966.124.6-.089 1.848-.756 2.108-1.485.26-.729.26-1.355.182-1.485-.078-.13-.286-.208-.573-.351z"></path></svg>
+                            WhatsApp Us
+                        </a>
+<a class="bg-[#0088cc] text-white px-8 py-4 rounded-xl font-bold flex items-center gap-3 hover:brightness-110 transition-all shadow-lg" href="#">
+<svg class="w-6 h-6 fill-current" viewbox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.96-.75 3.78-1.65 6.31-2.74 7.58-3.27 3.61-1.51 4.36-1.77 4.85-1.78.11 0 .35.03.51.17.14.12.18.28.19.45.01.07.01.2.01.26z"></path></svg>
+                            Join Telegram
+                        </a>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-primary text-on-primary py-20">
+<div class="max-w-container-max mx-auto px-margin-desktop grid md:grid-cols-4 gap-12 mb-16">
+<div class="md:col-span-1">
+<span class="font-headline-md text-headline-md text-on-primary font-bold mb-6 block">MCA Ace</span>
+<p class="text-on-primary-container opacity-80 mb-6">India's leading coaching platform for MCA aspirants, focusing on results, clarity, and success.</p>
+<div class="flex gap-4">
+<a class="text-on-primary-container opacity-60 hover:opacity-100" href="#"><span class="material-symbols-outlined">face_nod</span></a>
+<a class="text-on-primary-container opacity-60 hover:opacity-100" href="#"><span class="material-symbols-outlined">alternate_email</span></a>
+</div>
+</div>
+<div>
+<h5 class="font-bold mb-6">Quick Links</h5>
+<ul class="space-y-4 text-on-primary-container opacity-80">
+<li><a class="hover:text-white transition-colors" href="#">Courses</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Demo Classes</a></li>
+<li><a class="hover:text-white transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Contact</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold mb-6">Support</h5>
+<ul class="space-y-4 text-on-primary-container opacity-80">
+<li><a class="hover:text-white transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Terms of Service</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Refund Policy</a></li>
+<li><a class="hover:text-white transition-colors" href="#">FAQ</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold mb-6">Newsletter</h5>
+<p class="text-on-primary-container opacity-80 text-sm mb-4">Get exam updates and free prep materials directly in your inbox.</p>
+<div class="flex gap-2">
+<input class="bg-primary-container border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-on-tertiary-container w-full" placeholder="Your email" type="email"/>
+<button class="bg-on-tertiary-container text-white px-4 py-2 rounded-lg font-bold"><span class="material-symbols-outlined">send</span></button>
+</div>
+</div>
+</div>
+<div class="max-w-container-max mx-auto px-margin-desktop pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-on-primary-container opacity-60">
+<p>© 2024 MCA Entrance Prep. All rights reserved.</p>
+<p>Made with love for MCA Aspirants</p>
+</div>
+</footer>
+<!-- AI Assistant Widget -->
+<div class="fixed bottom-8 right-8 z-[60]">
+<button class="w-16 h-16 bg-on-tertiary-container text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform active:scale-95" onclick="toggleChat()">
+<span class="material-symbols-outlined text-[32px]">smart_toy</span>
+</button>
+<div class="hidden absolute bottom-20 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-border-light overflow-hidden animate-in slide-in-from-bottom-4 duration-300" id="chat-box">
+<div class="bg-primary p-4 text-white flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined">rocket_launch</span>
+<span class="font-bold">Ace Assistant</span>
+</div>
+<button class="material-symbols-outlined text-sm" onclick="toggleChat()">close</button>
+</div>
+<div class="p-4 h-64 overflow-y-auto bg-surface-subtle text-sm space-y-4">
+<div class="bg-white p-3 rounded-lg rounded-tl-none shadow-sm text-on-surface-variant max-w-[85%]">
+                    Hello! I'm Ace. How can I help you with your MCA journey today?
+                </div>
+<div class="bg-secondary-container text-white p-3 rounded-lg rounded-tr-none shadow-sm ml-auto max-w-[85%]">
+                    Tell me about NIMCET batch.
+                </div>
+</div>
+<div class="p-4 border-t border-border-light flex gap-2">
+<input class="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary" placeholder="Type your doubt..." type="text"/>
+<button class="text-primary font-bold"><span class="material-symbols-outlined">send</span></button>
+</div>
+</div>
+</div>
+<script>
+        function toggleChat() {
+            const chat = document.getElementById('chat-box');
+            chat.classList.toggle('hidden');
+        }
+
+        function toggleFaq(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('.material-symbols-outlined');
+            
+            // Toggle current
+            const isHidden = content.classList.contains('hidden');
+            
+            // Close all others
+            document.querySelectorAll('.faq-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('.material-symbols-outlined').forEach(i => {
+                if(i.textContent === 'expand_more') i.classList.remove('rotate-180');
+            });
+
+            if (isHidden) {
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        // Simple scroll spy for navbar shadow
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 20) {
+                nav.classList.add('py-2');
+                nav.classList.remove('h-20');
+                nav.classList.add('h-16');
+            } else {
+                nav.classList.remove('py-2');
+                nav.classList.add('h-20');
+                nav.classList.remove('h-16');
+            }
+        });
+    </script>
+</body></html>

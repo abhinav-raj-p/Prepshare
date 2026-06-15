@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Student Dashboard | MCA Ace</title>
+    
+    <!-- Google Fonts & Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind Play CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="js/tailwind-config.js"></script>
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="bg-[#f8fafc] text-on-surface font-body-md selection:bg-secondary-fixed-dim">
+
+    <!-- Navbar Custom Element -->
+    <custom-navbar></custom-navbar>
+
+    <!-- Main Container -->
+    <main class="pt-28 pb-20 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <!-- Student Hero welcome card with gradient background -->
+        <header class="relative overflow-hidden bg-gradient-to-r from-primary to-[#1e3a8a] text-white rounded-3xl p-8 md:p-10 shadow-xl mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div class="absolute -right-16 -top-16 w-64 h-64 bg-[#FB6514] opacity-20 rounded-full blur-3xl"></div>
+            <div class="relative z-10 space-y-2">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FB6514] text-white text-xs font-bold uppercase tracking-wider">
+                    Student Portal
+                </div>
+                <h1 class="font-display-lg text-3xl md:text-4xl font-bold">Welcome Back, <span id="student-name">Aspirant</span>!</h1>
+                <p class="text-white/80 max-w-xl text-sm md:text-base">Track your NIMCET, CUET, and corporate placement goals. Keep up the high consistency!</p>
+            </div>
+            <div class="flex items-center gap-4 relative z-10 shrink-0">
+                <div id="stat-progress-summary" class="bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/10">
+                    <div class="text-2xl font-bold text-[#FB6514]" id="completed-badge">0 / 0</div>
+                    <div class="text-xs text-white/75">Lessons Completed</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats row -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-2xl border border-border-light shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined">school</span>
+                </div>
+                <div>
+                    <h3 class="text-xs text-on-surface-variant font-bold uppercase">Enrolled Programs</h3>
+                    <p class="text-2xl font-bold text-primary" id="stat-enrolled-count">0</p>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-border-light shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-success/10 text-success flex items-center justify-center">
+                    <span class="material-symbols-outlined">edit_note</span>
+                </div>
+                <div>
+                    <h3 class="text-xs text-on-surface-variant font-bold uppercase">Mock Exams Taken</h3>
+                    <p class="text-2xl font-bold text-primary" id="stat-mock-count">0</p>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-border-light shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
+                    <span class="material-symbols-outlined">schedule</span>
+                </div>
+                <div>
+                    <h3 class="text-xs text-on-surface-variant font-bold uppercase">Daily Limit Limit</h3>
+                    <p class="text-2xl font-bold text-primary">30 Syncs/Day</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enrolled Courses Grid Section -->
+        <section class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-headline-lg text-2xl font-bold text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined">school</span>
+                    My Learning Classrooms
+                </h2>
+                <span class="text-xs text-on-surface-variant font-semibold bg-white border border-border-light rounded-full px-3 py-1 shadow-sm">Active Enrolled Courses</span>
+            </div>
+            
+            <div id="enrolled-courses-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Loaded dynamically -->
+                <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-border-light">
+                    <span class="material-symbols-outlined animate-spin text-primary text-3xl">autorenew</span>
+                    <p class="text-xs text-on-surface-variant mt-2">Checking your active course credentials...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recommended / Browse Courses Grid Section -->
+        <section class="border-t border-border-light pt-12">
+            <h2 class="font-headline-lg text-2xl font-bold text-primary mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined">explore</span>
+                Recommended Prep Programs
+            </h2>
+            <div id="explore-courses-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Loaded dynamically -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Modular Footer & Chatbot -->
+    <custom-footer></custom-footer>
+    <ai-assistant></ai-assistant>
+
+    <!-- Core Scripts -->
+    <script src="js/config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="js/firebase-service.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/main.js"></script>
+
+    <!-- Dashboard Controller Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Authentication Guard
+            setTimeout(async () => {
+                const user = window.FirebaseService.getCurrentUser();
+                if (!user) {
+                    window.location.href = "index.html";
+                    return;
+                }
+                if (user.role === 'admin') {
+                    window.location.href = "admin-dashboard.html";
+                    return;
+                }
+                
+                // Banned user check
+                if (user.isActive === false) {
+                    document.body.innerHTML = `
+                        <div class="flex h-screen items-center justify-center bg-gray-100 p-6">
+                            <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md border border-border-light">
+                                <span class="material-symbols-outlined text-error text-6xl mb-4">block</span>
+                                <h2 class="text-2xl font-bold text-primary mb-2">Account Suspended</h2>
+                                <p class="text-sm text-on-surface-variant mb-6">Your account has been deactivated. Please contact support.</p>
+                                <a href="index.html" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition-all block w-full">Back to Home</a>
+                            </div>
+                        </div>`;
+                    return;
+                }
+
+                // Render student metadata
+                document.getElementById('student-name').innerText = user.name;
+                
+                // Fetch user statistics
+                const mockExamsCount = localStorage.getItem(`mca_mock_exams_taken_${user.uid}`) || 0;
+                document.getElementById('stat-mock-count').innerText = mockExamsCount;
+
+                // Load courses and check enrollments
+                await initializeDashboard(user.uid);
+            }, 600);
+        });
+
+        const initializeDashboard = async (userId) => {
+            try {
+                const courses = await window.FirebaseService.getCourses();
+                const enrolledGrid = document.getElementById('enrolled-courses-grid');
+                const exploreGrid = document.getElementById('explore-courses-grid');
+
+                let enrolledHTML = '';
+                let exploreHTML = '';
+                let enrolledCount = 0;
+                let totalCompleted = 0;
+                let totalSyllabusLessons = 0;
+
+                for (const course of courses) {
+                    const isEnrolled = await window.FirebaseService.checkEnrolled(userId, course.id);
+                    const { lessons } = await window.FirebaseService.getSyllabus(course.id);
+                    totalSyllabusLessons += lessons.length;
+
+                    // Fetch user's completion progress
+                    const progressList = await window.FirebaseService.getProgress(userId, course.id);
+                    const completedLessons = progressList.filter(p => p.status === 'completed').length;
+                    totalCompleted += completedLessons;
+
+                    const percent = lessons.length > 0 ? Math.round((completedLessons / lessons.length) * 100) : 0;
+
+                    if (isEnrolled) {
+                        enrolledCount++;
+                        enrolledHTML += `
+                            <div class="bg-white rounded-2xl border border-border-light shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+                                <div class="p-6 md:p-8 flex-1 flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-start mb-4">
+                                            <span class="bg-success/10 text-success text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full border border-success/20">Enrolled & Active</span>
+                                            <span class="text-xs text-on-surface-variant font-bold">${completedLessons}/${lessons.length} Completed</span>
+                                        </div>
+                                        <h3 class="font-headline-md text-xl text-primary font-bold mb-2 group-hover:text-secondary transition-colors">${course.title}</h3>
+                                        <p class="text-xs text-on-surface-variant mb-6 line-clamp-2">${course.description || 'Access full online curriculum resources, quiz libraries, and test keys.'}</p>
+                                    </div>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <div class="flex justify-between text-[11px] font-bold mb-1">
+                                                <span class="text-on-surface-variant">Course Progress</span>
+                                                <span class="text-primary">${percent}%</span>
+                                            </div>
+                                            <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+                                                <div class="bg-[#FB6514] h-full rounded-full" style="width: ${percent}%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-3 pt-2">
+                                            <a href="course-workspace.html?course=${course.id}" class="w-full bg-primary hover:bg-[#1e2b56] text-white text-center py-2.5 rounded-lg font-bold text-xs shadow transition-all active:scale-95 flex items-center justify-center gap-1">
+                                                <span class="material-symbols-outlined text-sm">play_circle</span>
+                                                Resume Learning
+                                            </a>
+                                            <a href="mocktest.html?course=${course.id}" class="w-full border border-border-light hover:bg-surface-subtle text-primary text-center py-2.5 rounded-lg font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1">
+                                                <span class="material-symbols-outlined text-sm">edit_note</span>
+                                                Take Mock Test
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        exploreHTML += `
+                            <div class="bg-white rounded-2xl border border-border-light shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+                                <div class="aspect-video w-full relative overflow-hidden bg-primary/5">
+                                    <div class="absolute inset-0 bg-[#021541]/10 z-10"></div>
+                                    <span class="absolute top-4 left-4 bg-[#FB6514] text-white text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded z-20">Premium Course</span>
+                                    <div class="w-full h-full flex items-center justify-center text-primary/10">
+                                        <span class="material-symbols-outlined text-[64px]" style="font-variation-settings: 'FILL' 1;">school</span>
+                                    </div>
+                                </div>
+                                <div class="p-5 flex-1 flex flex-col justify-between">
+                                    <div>
+                                        <h3 class="font-bold text-primary text-base mb-1.5 group-hover:text-[#FB6514] transition-colors">${course.title}</h3>
+                                        <p class="text-xs text-on-surface-variant line-clamp-2 mb-4">${course.description || 'Premium entrance curriculum with extensive modules and live revision mocks.'}</p>
+                                    </div>
+                                    <div class="pt-4 border-t border-border-light flex justify-between items-center">
+                                        <div class="flex flex-col">
+                                            <span class="text-xs text-on-surface-variant line-through">₹8,999</span>
+                                            <span class="font-bold text-primary text-sm">₹${course.price || '4,999'}</span>
+                                        </div>
+                                        <a href="upi-payment.html?course=${encodeURIComponent(course.title)}&courseId=${encodeURIComponent(course.id)}&price=${course.price || '4,999'}" class="bg-[#FB6514] hover:bg-[#e0560d] text-white font-bold text-xs px-4 py-2 rounded shadow transition-all active:scale-95">
+                                            Enroll Now
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                document.getElementById('stat-enrolled-count').innerText = enrolledCount;
+                document.getElementById('completed-badge').innerText = `${totalCompleted} / ${totalSyllabusLessons}`;
+
+                if (enrolledCount === 0) {
+                    const latestPayment = await window.FirebaseService.getLatestPaymentRequest(userId);
+                    
+                    if (latestPayment && latestPayment.status === 'pending') {
+                        document.body.innerHTML = `
+                            <div class="flex h-screen items-center justify-center bg-gray-100 p-6">
+                                <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md border border-border-light">
+                                    <span class="material-symbols-outlined text-pending text-6xl mb-4">hourglass_empty</span>
+                                    <h2 class="text-2xl font-bold text-primary mb-2">Payment Pending Approval</h2>
+                                    <p class="text-sm text-on-surface-variant mb-6">We have received your payment for <b>${latestPayment.course || 'a course'}</b> and it is currently under review by our admin. You will gain access soon.</p>
+                                    <button onclick="window.FirebaseService.logout().then(() => window.location.href='index.html')" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition-all block w-full">Logout</button>
+                                </div>
+                            </div>`;
+                        return;
+                    } else if (latestPayment && latestPayment.status === 'rejected') {
+                        document.body.innerHTML = `
+                            <div class="flex h-screen items-center justify-center bg-gray-100 p-6">
+                                <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md border border-border-light">
+                                    <span class="material-symbols-outlined text-error text-6xl mb-4">cancel</span>
+                                    <h2 class="text-2xl font-bold text-primary mb-2">Payment Rejected</h2>
+                                    <p class="text-sm text-on-surface-variant mb-6">Your recent payment request was rejected by the administrator. Please check your details or contact support.</p>
+                                    <a href="upi-payment.html" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition-all block w-full mb-3">Submit New Payment</a>
+                                    <button onclick="window.FirebaseService.logout().then(() => window.location.href='index.html')" class="text-on-surface-variant hover:text-primary font-bold text-sm">Logout</button>
+                                </div>
+                            </div>`;
+                        return;
+                    }
+                    
+                    // If no latest payment or it's something else, let them browse courses
+                    enrolledGrid.innerHTML = `
+                        <div class="col-span-full p-8 md:p-12 bg-white border border-border-light rounded-2xl text-center space-y-4 shadow-sm flex flex-col items-center">
+                            <span class="material-symbols-outlined text-on-surface-variant text-5xl">warning</span>
+                            <div class="space-y-1">
+                                <h3 class="font-bold text-primary text-lg">No Active Enrollments</h3>
+                                <p class="text-xs text-on-surface-variant max-w-sm">You are currently registered on the platform but have no course credentials. Pick a program below to enroll and verify payment.</p>
+                            </div>
+                            <a href="#explore-courses-grid" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-3 rounded-lg font-bold text-sm shadow-md active:scale-95 transition-all">Browse Prep Programs</a>
+                        </div>
+                    `;
+                } else {
+                    enrolledGrid.innerHTML = enrolledHTML;
+                }
+
+                exploreGrid.innerHTML = exploreHTML || `
+                    <div class="col-span-full py-8 text-center text-xs text-on-surface-variant">
+                        You have unlocked access to all programs! Excellent work.
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error("Dashboard initialize error:", error);
+            }
+        };
+    </script>
+</body>
+</html>

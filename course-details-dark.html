@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Placement Preparation Program (Dark Mode) | MCA Ace</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind Play CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="js/tailwind-config.js"></script>
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="bg-[#0d1322] text-[#dde2f8] font-body-md selection:bg-secondary-fixed-dim">
+
+    <!-- Modular Header Component (will render in Dark Mode automatically) -->
+    <custom-navbar></custom-navbar>
+
+    <!-- Dark Header Hero -->
+    <header class="bg-[#080e1d] border-b border-[#1f293d]/50 pt-32 pb-16 relative">
+        <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-7 space-y-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#cd4802]/20 text-[#ffb59a] text-label-sm font-label-sm border border-[#cd4802]/30">
+                    <span class="material-symbols-outlined text-[16px]">stars</span>
+                    Top Placement Choice
+                </div>
+                <h1 class="font-display-lg text-4xl lg:text-5xl font-extrabold leading-tight text-white mb-6">Placement Preparation Program</h1>
+                <p class="text-[#c5c5d3] text-body-lg font-body-lg mb-8 max-w-2xl">
+                    A comprehensive 6-month career track designed to help MCA students crack placements at Tier-1 tech companies. Covers DSA, System Design, and Aptitude.
+                </p>
+                <div class="flex flex-wrap gap-6 items-center">
+                    <div class="flex items-center gap-3">
+                        <img alt="Instructor Profile" class="w-12 h-12 rounded-full border-2 border-[#ffb59a]/30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgqwoxyVPEOsqMCysPJAy2YHScoIqtHXmtwyiBcy664phfO8o6w8QiVj3qt0AUJoFDWznMhITqTnkR-NInuxQ_u74QxzCnJ-V1AUk49claQiSS1A6zwKd-9_ekyp-5B5JhcAPsVXHyh4QyIdOPuJm6-2b1sZAbILo2lWYV1OXIeD51A--EissSbPlJJXK2HyCmVjNSUOuRAQxaW4ytdHNMfpeSro658AlFWEF6BIOXj8xVLW-Jt7NShA87zU18av8Sq_ZsBkmyV9Kl"/>
+                        <div>
+                            <p class="font-semibold text-white">Dr. Rajesh Kumar</p>
+                            <p class="text-[11px] text-[#c5c5d3]">Ex-Amazon, 15+ Yrs Exp</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#ffb59a]" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="font-semibold text-[#dde2f8]">4.9 (2.4k Reviews)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#c5c5d3]">group</span>
+                        <span class="font-semibold text-[#dde2f8]">12,450 Students</span>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-5 relative group">
+                <div class="rounded-2xl overflow-hidden shadow-2xl shadow-primary-container/10 border border-[#444651] relative">
+                    <img class="w-full aspect-video object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPB_Wuu4-i7gEvTQtlPHVYD5pu8Bd_0U7CxDziHl8QqXOFF9-R0axU19EITsUZEhl5YvWRycWg3Wi2samP0H6k0rRH5Ljob4GL50x8w7dQnIXaHLfdiFXwICoDSk8Evff8hb4f-LIFpZOyT8_dpQypNLnmaxpW4hupPd-auS2ypi6ubiHz-yURMYxBzVG23xfdSMEYbusD4IdQM7TkmyfcP4I6dF8KZiJVD6-mkJK82NRGHjDggxpBbI2LYYVTBAhZXgm7OLndxLBt"/>
+                    <div class="absolute inset-0 bg-[#0d1322]/40 flex items-center justify-center">
+                        <button class="w-16 h-16 bg-[#b5c4ff] text-[#00287c] rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Details Split -->
+    <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-16 grid grid-cols-1 lg:grid-cols-12 gap-12">
+        
+        <!-- Left Column: Details & Accordion Curriculum -->
+        <div class="lg:col-span-8 space-y-12">
+            <!-- Description -->
+            <section>
+                <h2 class="font-headline-lg text-headline-lg text-white mb-4">Course Description</h2>
+                <div class="text-[#c5c5d3] leading-relaxed text-body-md space-y-4">
+                    <p>Our Placement Preparation Program is meticulously crafted for MCA students aiming for high-paying roles in the software industry. We understand that the recruitment landscape is changing, and mere coding skills are no longer enough.</p>
+                    <p>This program bridges the gap between academic learning and industry expectations, focusing on problem-solving strategies, algorithmic thinking, and professional communication. From Mock Interviews to Live Coding sessions, we cover everything.</p>
+                </div>
+            </section>
+
+            <!-- Learning outcomes grid -->
+            <section>
+                <h2 class="font-headline-lg text-headline-lg text-white mb-6">What you'll learn</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-6 bg-[#151b2b] border border-[#2f3445] rounded-xl flex gap-4 hover:bg-[#191f2f] transition-colors">
+                        <span class="material-symbols-outlined text-[#b5c4ff] text-2xl" style="font-variation-settings: 'FILL' 1;">code</span>
+                        <div>
+                            <h4 class="font-bold text-white mb-1">Advanced DSA</h4>
+                            <p class="text-sm text-[#c5c5d3]">Master Recursion, Trees, Graphs, and Dynamic Programming.</p>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-[#151b2b] border border-[#2f3445] rounded-xl flex gap-4 hover:bg-[#191f2f] transition-colors">
+                        <span class="material-symbols-outlined text-[#b5c4ff] text-2xl" style="font-variation-settings: 'FILL' 1;">architecture</span>
+                        <div>
+                            <h4 class="font-bold text-white mb-1">System Design</h4>
+                            <p class="text-sm text-[#c5c5d3]">Learn LLD and HLD concepts used in scalable enterprise apps.</p>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-[#151b2b] border border-[#2f3445] rounded-xl flex gap-4 hover:bg-[#191f2f] transition-colors">
+                        <span class="material-symbols-outlined text-[#b5c4ff] text-2xl" style="font-variation-settings: 'FILL' 1;">psychology</span>
+                        <div>
+                            <h4 class="font-bold text-white mb-1">Aptitude & Reasoning</h4>
+                            <p class="text-sm text-[#c5c5d3]">Quantitative and Logical reasoning for initial screening rounds.</p>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-[#151b2b] border border-[#2f3445] rounded-xl flex gap-4 hover:bg-[#191f2f] transition-colors">
+                        <span class="material-symbols-outlined text-[#b5c4ff] text-2xl" style="font-variation-settings: 'FILL' 1;">forum</span>
+                        <div>
+                            <h4 class="font-bold text-white mb-1">Mock Interviews</h4>
+                            <p class="text-sm text-[#c5c5d3]">Regular 1-on-1 sessions with industry experts from top tech MNCs.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Accordion Modules -->
+            <section>
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="font-headline-lg text-headline-lg text-white">Course Content</h2>
+                    <span class="text-label-sm text-[#c5c5d3] bg-[#151b2b] px-3 py-1 rounded-full border border-[#2f3445]">4 Modules • 80h Total Length</span>
+                </div>
+                
+                <div class="space-y-4 accordion-container">
+                    <!-- Module 1 -->
+                    <div class="accordion-item border border-[#2f3445] rounded-xl overflow-hidden bg-[#151b2b]">
+                        <button class="w-full flex items-center justify-between p-5 text-left hover:bg-[#191f2f] transition-colors outline-none font-bold text-white" onclick="toggleAccordion(this)">
+                            <div class="flex items-center gap-4">
+                                <span class="font-mono text-[#b5c4ff] bg-[#b5c4ff]/10 w-10 h-10 rounded-lg flex items-center justify-center">01</span>
+                                <span class="font-title-lg text-title-lg">Mathematics & Logic Foundations</span>
+                            </div>
+                            <span class="material-symbols-outlined rotate-icon transition-transform text-[#c5c5d3]">expand_more</span>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-5 border-t border-[#2f3445] space-y-3 bg-[#0d1322] text-sm text-[#c5c5d3]">
+                                <p class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">play_circle</span> Permutations & Combinations</p>
+                                <p class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">play_circle</span> Logic Trees & Induction</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Module 2 -->
+                    <div class="accordion-item border border-[#2f3445] rounded-xl overflow-hidden bg-[#151b2b]">
+                        <button class="w-full flex items-center justify-between p-5 text-left hover:bg-[#191f2f] transition-colors outline-none font-bold text-white" onclick="toggleAccordion(this)">
+                            <div class="flex items-center gap-4">
+                                <span class="font-mono text-[#b5c4ff] bg-[#b5c4ff]/10 w-10 h-10 rounded-lg flex items-center justify-center">02</span>
+                                <span class="font-title-lg text-title-lg">Advanced Data Structures</span>
+                            </div>
+                            <span class="material-symbols-outlined rotate-icon transition-transform text-[#c5c5d3]">expand_more</span>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-5 border-t border-[#2f3445] space-y-3 bg-[#0d1322] text-sm text-[#c5c5d3]">
+                                <p class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">play_circle</span> Binary Trees, Heaps & AVL Trees</p>
+                                <p class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">play_circle</span> Graph Algorithms & Graph Traversals</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Module 3 -->
+                    <div class="accordion-item border border-[#2f3445] rounded-xl overflow-hidden bg-[#151b2b]">
+                        <button class="w-full flex items-center justify-between p-5 text-left hover:bg-[#191f2f] transition-colors outline-none font-bold text-white" onclick="toggleAccordion(this)">
+                            <div class="flex items-center gap-4">
+                                <span class="font-mono text-[#b5c4ff] bg-[#b5c4ff]/10 w-10 h-10 rounded-lg flex items-center justify-center">03</span>
+                                <span class="font-title-lg text-title-lg">Dynamic Programming</span>
+                            </div>
+                            <span class="material-symbols-outlined rotate-icon transition-transform text-[#c5c5d3]">expand_more</span>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-5 border-t border-[#2f3445] space-y-3 bg-[#0d1322] text-sm text-[#c5c5d3]">
+                                <p class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">play_circle</span> Top-down vs Bottom-up DP</p>
+                                <p class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">play_circle</span> Classical DP problems (Knapsack, LCS)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Column: Sticky Pricing Card -->
+        <div class="lg:col-span-4">
+            <div class="sticky top-24 bg-[#151b2b] border border-[#2f3445] rounded-2xl p-6 shadow-xl flex flex-col gap-6">
+                <div>
+                    <span class="bg-[#cd4802]/20 text-[#ffb59a] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-[#cd4802]/30">Course Pricing</span>
+                    <div class="flex items-baseline gap-2 mt-4">
+                        <span class="text-3xl font-extrabold text-white">₹7,499</span>
+                        <span class="text-sm text-[#c5c5d3] line-through">₹12,499</span>
+                    </div>
+                    <p class="text-xs text-[#c5c5d3] mt-1">Single-time payment. All features included.</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <a href="upi-payment.html?course=Placement%20Prep%20Program&price=7499" class="w-full bg-[#cd4802] hover:bg-[#b03d00] text-white py-3.5 rounded-lg font-bold shadow-md hover:shadow-lg active:scale-95 transition-all text-center block">Enroll Now</a>
+                </div>
+
+                <div class="border-t border-[#2f3445] pt-6 space-y-4 text-sm text-[#c5c5d3]">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-success">check_circle</span>
+                        <span>Lifetime Course Access</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-success">check_circle</span>
+                        <span>Expert Mentorship Support</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-success">check_circle</span>
+                        <span>Completion Credentials</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modular Footer & Chatbot (auto-styles as Dark Mode) -->
+    <custom-footer></custom-footer>
+    <ai-assistant></ai-assistant>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="js/firebase-service.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

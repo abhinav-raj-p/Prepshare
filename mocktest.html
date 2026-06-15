@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Mock Test Portal | PrepShare</title>
+    
+    <!-- Google Fonts & Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind Play CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="js/tailwind-config.js"></script>
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="bg-[#f8fafc] text-on-surface font-body-md selection:bg-secondary-fixed-dim">
+
+    <!-- Navbar Custom Element -->
+    <custom-navbar></custom-navbar>
+
+    <!-- Main Container -->
+    <main class="pt-24 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- back navigation -->
+        <div class="mb-4">
+            <a href="student-dashboard.html" class="inline-flex items-center gap-1.5 text-sm font-bold text-[#FB6514] hover:underline transition-all">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <!-- LOADING SCREEN -->
+        <div id="loading-screen" class="bg-white rounded-2xl border border-border-light shadow-sm p-12 text-center my-10">
+            <span class="material-symbols-outlined animate-spin text-primary text-4xl">autorenew</span>
+            <p class="text-sm text-on-surface-variant mt-4 font-semibold">Loading Test Portal resources...</p>
+        </div>
+
+        <!-- TEST SELECTOR SCREEN (IF MULTIPLE TESTS AVAILABLE) -->
+        <div id="selector-screen" class="hidden bg-white rounded-2xl border border-border-light shadow-sm p-8 max-w-2xl mx-auto my-6">
+            <h2 class="text-2xl font-extrabold text-primary mb-2 flex items-center gap-2">
+                <span class="material-symbols-outlined text-3xl text-[#FB6514]">quiz</span>
+                Available Mock Tests
+            </h2>
+            <p class="text-sm text-on-surface-variant mb-6">Select a mock test below to start your practice session.</p>
+            <div id="test-list" class="space-y-4">
+                <!-- Dynamically filled -->
+            </div>
+        </div>
+
+        <!-- DISCLAIMER / INSTRUCTIONS SCREEN -->
+        <div id="disclaimer-screen" class="hidden bg-white rounded-2xl border border-border-light shadow-lg overflow-hidden max-w-3xl mx-auto my-6">
+            <div class="p-6 bg-gradient-to-r from-primary to-[#1e2b56] text-white">
+                <h2 class="text-2xl font-extrabold" id="disc-course-title">Course Preparation</h2>
+                <h3 class="text-lg text-white/80 font-semibold mt-1" id="disc-test-title">Mock Test Title</h3>
+            </div>
+            <div class="p-6 space-y-6">
+                <div>
+                    <h4 class="text-base font-bold text-primary mb-3 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-xl text-[#FB6514]">info</span>
+                        General Instructions
+                    </h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="text-xs text-on-surface-variant font-bold uppercase block">Duration</span>
+                            <span class="text-xl font-extrabold text-primary mt-1 block" id="disc-duration">60 Mins</span>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="text-xs text-on-surface-variant font-bold uppercase block">Questions</span>
+                            <span class="text-xl font-extrabold text-primary mt-1 block" id="disc-total-q">0 Questions</span>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 col-span-2 sm:col-span-1">
+                            <span class="text-xs text-on-surface-variant font-bold uppercase block">Marking Scheme</span>
+                            <span class="text-xl font-extrabold text-emerald-600 mt-1 block" id="disc-marking">+4 / -1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-5 space-y-3">
+                    <h4 class="text-sm font-bold text-primary">Guidelines & Rules:</h4>
+                    <ul class="list-disc pl-5 text-xs text-on-surface-variant space-y-2">
+                        <li>Ensure you have a stable internet connection. If the network drops, your local state remains temporarily preserved.</li>
+                        <li>Do not click reload or navigation links during the exam, as it might submit your current answers.</li>
+                        <li>Only one active session is permitted per student account. Logging in on another device will terminate this test immediately.</li>
+                        <li>The countdown timer starts the moment you click the button below and cannot be paused.</li>
+                    </ul>
+                </div>
+
+                <div class="border-t border-slate-100 pt-5 space-y-3">
+                    <h4 class="text-sm font-bold text-primary">Question Status Color Guide:</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-center">
+                        <div class="flex flex-col items-center p-2 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="w-8 h-8 rounded-lg bg-slate-200 text-slate-700 font-bold text-sm flex items-center justify-center">1</span>
+                            <span class="text-[10px] font-bold text-slate-500 mt-1">Not Visited</span>
+                        </div>
+                        <div class="flex flex-col items-center p-2 bg-rose-50 rounded-lg border border-rose-100">
+                            <span class="w-8 h-8 rounded-lg bg-rose-500 text-white font-bold text-sm flex items-center justify-center">2</span>
+                            <span class="text-[10px] font-bold text-rose-500 mt-1">Not Answered</span>
+                        </div>
+                        <div class="flex flex-col items-center p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                            <span class="w-8 h-8 rounded-lg bg-emerald-500 text-white font-bold text-sm flex items-center justify-center">3</span>
+                            <span class="text-[10px] font-bold text-emerald-600 mt-1">Answered</span>
+                        </div>
+                        <div class="flex flex-col items-center p-2 bg-purple-50 rounded-lg border border-purple-100">
+                            <span class="w-8 h-8 rounded-lg bg-purple-500 text-white font-bold text-sm flex items-center justify-center">4</span>
+                            <span class="text-[10px] font-bold text-purple-600 mt-1">Marked Review</span>
+                        </div>
+                        <div class="flex flex-col items-center p-2 bg-amber-50 rounded-lg border border-amber-100">
+                            <span class="w-8 h-8 rounded-lg bg-amber-500 text-white font-bold text-sm flex items-center justify-center">5</span>
+                            <span class="text-[10px] font-bold text-amber-600 mt-1 font-semibold">Answered & MR</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex flex-col gap-4">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="agree-checkbox" class="mt-0.5 rounded text-[#FB6514] focus:ring-[#FB6514] border-slate-300"/>
+                        <span class="text-xs text-on-surface-variant font-medium leading-relaxed">
+                            I have read, understood, and agree to abide by all the instructions, guidelines, and rules specified above. I will complete this test honestly.
+                        </span>
+                    </label>
+                    
+                    <button id="start-test-btn" disabled class="w-full bg-[#FB6514] hover:bg-[#e0560d] disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold text-sm py-4 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">play_arrow</span>
+                        Agree & Start Mock Test
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MOCK TEST EXAM WORKSPACE (DISCLAIMER GATED) -->
+        <div id="test-workspace" class="hidden">
+            <!-- Test Title Banner & Timer Banner -->
+            <div class="bg-white p-5 rounded-2xl border border-border-light shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div>
+                    <span class="bg-primary/10 text-primary text-[10px] uppercase font-bold px-2.5 py-1 rounded-full border border-primary/20" id="workspace-course-badge">Course Mock</span>
+                    <h2 class="font-headline-md text-xl font-bold text-primary mt-2" id="workspace-test-title">Topic Practice Test</h2>
+                </div>
+                <!-- Live Timer Countdown -->
+                <div class="flex items-center gap-3 bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/30 px-5 py-3 rounded-xl shrink-0 text-rose-600 dark:text-rose-400" id="timer-box">
+                    <span class="material-symbols-outlined animate-pulse text-2xl" style="font-variation-settings: 'FILL' 1;">alarm</span>
+                    <div>
+                        <div class="text-[10px] font-bold uppercase tracking-wider leading-none">Time Remaining</div>
+                        <div class="text-2xl font-mono font-bold leading-none mt-1" id="timer-display">60:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Responsive Columns Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                
+                <!-- Left Section: Question Viewport & Actions (2 cols on large screen) -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Current Question Panel -->
+                    <div class="bg-white rounded-2xl border border-border-light shadow-sm overflow-hidden">
+                        <!-- Top Header bar -->
+                        <div class="bg-slate-50 border-b border-border-light px-6 py-4 flex justify-between items-center">
+                            <span class="text-sm font-bold text-primary" id="question-index-label">Question 1 of 10</span>
+                            <div class="flex items-center gap-3">
+                                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-0.5 rounded border border-emerald-100" id="correct-marks-badge">+4 Correct</span>
+                                <span class="bg-rose-50 text-rose-700 text-[10px] font-bold px-2.5 py-0.5 rounded border border-rose-100" id="wrong-marks-badge">-1 Wrong</span>
+                            </div>
+                        </div>
+
+                        <!-- Question Text Content -->
+                        <div class="p-6 md:p-8 space-y-6">
+                            <div class="prose max-w-none">
+                                <p class="text-base md:text-lg font-bold text-primary leading-relaxed" id="question-text">
+                                    Question statement placeholder?
+                                </p>
+                            </div>
+
+                            <!-- Options Form -->
+                            <div class="space-y-3" id="options-container">
+                                <!-- Loaded dynamically as beautiful choice cards -->
+                            </div>
+                        </div>
+
+                        <!-- Bottom Action Navigation Bar -->
+                        <div class="bg-slate-50 border-t border-border-light px-6 py-4 flex flex-wrap justify-between items-center gap-3">
+                            <button id="clear-resp-btn" class="px-5 py-2.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 font-bold text-xs transition-colors active:scale-95">
+                                Clear Response
+                            </button>
+                            <div class="flex gap-2">
+                                <button id="mark-review-btn" class="px-5 py-2.5 rounded-lg bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 font-bold text-xs transition-colors active:scale-95">
+                                    Mark for Review & Next
+                                </button>
+                                <button id="save-next-btn" class="px-6 py-2.5 rounded-lg bg-primary hover:bg-[#1a2b56] text-white font-bold text-xs shadow-md transition-colors active:scale-95">
+                                    Save & Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Section: Question Palette Sidebar -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- Palette Card -->
+                    <div class="bg-white rounded-2xl border border-border-light shadow-sm p-5 space-y-6">
+                        <h3 class="text-sm font-bold text-primary uppercase tracking-wide border-b border-slate-100 pb-3 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-lg text-[#FB6514]">apps</span>
+                            Question Palette
+                        </h3>
+
+                        <!-- Statistics Counter Panel -->
+                        <div class="grid grid-cols-3 gap-2 text-center text-[10px] font-bold">
+                            <div class="p-2 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100">
+                                <div class="text-lg font-extrabold" id="stat-answered">0</div>
+                                <div>Answered</div>
+                            </div>
+                            <div class="p-2 bg-rose-50 text-rose-700 rounded-lg border border-rose-100">
+                                <div class="text-lg font-extrabold" id="stat-unanswered">0</div>
+                                <div>Not Answered</div>
+                            </div>
+                            <div class="p-2 bg-purple-50 text-purple-700 rounded-lg border border-purple-100">
+                                <div class="text-lg font-extrabold" id="stat-marked">0</div>
+                                <div>Marked Review</div>
+                            </div>
+                            <div class="p-2 bg-slate-50 text-slate-700 rounded-lg border border-slate-200">
+                                <div class="text-lg font-extrabold" id="stat-notvisited">0</div>
+                                <div>Not Visited</div>
+                            </div>
+                            <div class="p-2 bg-amber-50 text-amber-700 rounded-lg border border-amber-200 col-span-2">
+                                <div class="text-lg font-extrabold" id="stat-answered-marked">0</div>
+                                <div>Answered & Marked</div>
+                            </div>
+                        </div>
+
+                        <!-- Question Numbers Palette Grid -->
+                        <div class="grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-5 gap-2.5 pt-2" id="palette-grid">
+                            <!-- Question Number Buttons filled dynamically -->
+                        </div>
+
+                        <!-- early submit button -->
+                        <div class="pt-4 border-t border-slate-100">
+                            <button id="submit-test-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-3 rounded-lg shadow-md transition-all active:scale-95 flex items-center justify-center gap-1.5">
+                                <span class="material-symbols-outlined text-[18px]">done_all</span>
+                                Submit Test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- RESULTS MODAL -->
+        <div id="results-modal" class="fixed inset-0 bg-[#021541]/75 backdrop-blur-sm hidden items-center justify-center z-[160] p-4">
+            <div class="bg-white rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl border border-border-light flex flex-col animate-slide-up">
+                <div class="p-6 bg-gradient-to-br from-primary to-[#1e2b56] text-white text-center">
+                    <span class="material-symbols-outlined text-6xl text-amber-400" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+                    <h3 class="font-extrabold text-2xl mt-2">Test Results Compiled!</h3>
+                    <p class="text-xs text-white/70 mt-1">Review your performance summary metrics below.</p>
+                </div>
+                
+                <div class="p-6 space-y-6">
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="text-2xl font-black text-primary" id="res-score">0/0</div>
+                            <div class="text-[10px] text-on-surface-variant font-bold uppercase mt-1">Total Score</div>
+                        </div>
+                        <div class="p-4 bg-success/5 rounded-xl border border-success/20">
+                            <div class="text-2xl font-black text-success" id="res-pct">0%</div>
+                            <div class="text-[10px] text-success font-bold uppercase mt-1">Accuracy</div>
+                        </div>
+                        <div class="p-4 bg-secondary/5 rounded-xl border border-secondary/20">
+                            <div class="text-2xl font-black text-secondary" id="res-grade">F</div>
+                            <div class="text-[10px] text-secondary font-bold uppercase mt-1">Grade</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-on-surface-variant leading-relaxed">
+                        <p class="font-bold text-primary mb-1">Feedback Report:</p>
+                        <span id="feedback-text">Fetching analysis...</span>
+                    </div>
+
+                    <!-- Details table -->
+                    <div class="border border-slate-200 rounded-lg overflow-hidden text-xs">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-100 border-b border-slate-200">
+                                <tr>
+                                    <th class="p-2.5 font-bold text-primary">Metric</th>
+                                    <th class="p-2.5 font-bold text-primary text-right">Value</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr>
+                                    <td class="p-2.5 text-on-surface-variant">Correct Answers</td>
+                                    <td class="p-2.5 text-right font-semibold text-emerald-600" id="res-correct-count">0</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 text-on-surface-variant">Incorrect Answers</td>
+                                    <td class="p-2.5 text-right font-semibold text-rose-600" id="res-incorrect-count">0</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 text-on-surface-variant">Unanswered Questions</td>
+                                    <td class="p-2.5 text-right font-semibold text-slate-500" id="res-unanswered-count">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 border-t border-border-light flex gap-3 justify-end">
+                    <a href="student-dashboard.html" class="px-5 py-2.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 font-bold text-xs transition-colors">Go to Dashboard</a>
+                    <button id="modal-retry-btn" class="px-5 py-2.5 rounded-lg bg-primary hover:bg-[#1a2b56] text-white font-bold text-xs shadow-md transition-colors">Retake Exam</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modular Footer & Chatbot -->
+    <custom-footer></custom-footer>
+    <ai-assistant></ai-assistant>
+
+    <!-- Core Scripts -->
+    <script src="js/config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="js/firebase-service.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/main.js"></script>
+
+    <!-- Mock Test Portal Logic Script -->
+    <script>
+        // Engine state variables
+        let courseId = "";
+        let mockTests = [];
+        let activeTest = null;
+        let questions = [];
+        
+        let currentQuestionIdx = 0;
+        let selectedAnswers = {}; // questionIdx -> selectedOptionString (e.g. "A", "B", "C", "D")
+        let questionStates = {};  // questionIdx -> "visited" | "not_visited" | "answered" | "marked" | "answered_marked"
+        
+        let timeRemaining = 0; // in seconds
+        let timerInterval = null;
+        let userId = "";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait briefly for firebase initials
+            setTimeout(async () => {
+                const user = window.FirebaseService.getCurrentUser();
+                if (!user) {
+                    window.location.href = "index.html";
+                    return;
+                }
+                userId = user.uid;
+
+                // Load URL params
+                const params = new URLSearchParams(window.location.search);
+                const pCourseId = params.get('course') || '';
+                const pTestId = params.get('testId') || '';
+                courseId = pCourseId;
+
+                // Load tests from service
+                try {
+                    mockTests = await window.FirebaseService.getMockTests(courseId || null);
+                    document.getElementById('loading-screen').classList.add('hidden');
+                    
+                    if (pTestId) {
+                        activeTest = mockTests.find(t => t.id === pTestId);
+                    }
+                    
+                    if (!activeTest && mockTests.length === 1) {
+                        activeTest = mockTests[0];
+                    }
+
+                    if (activeTest) {
+                        showDisclaimer(activeTest);
+                    } else if (mockTests.length > 1) {
+                        showTestSelector(mockTests);
+                    } else {
+                        // Fallback fallback if no tests seed found
+                        showFallbackWarning();
+                    }
+                } catch (e) {
+                    console.error("Error starting mock portal:", e);
+                    showFallbackWarning();
+                }
+            }, 600);
+
+            // Bind disclaimer Start button
+            const agreeCheckbox = document.getElementById('agree-checkbox');
+            const startBtn = document.getElementById('start-test-btn');
+            
+            agreeCheckbox.addEventListener('change', () => {
+                startBtn.disabled = !agreeCheckbox.checked;
+            });
+
+            startBtn.addEventListener('click', () => {
+                startMockTestSession();
+            });
+
+            // Bind bottom workspace navigation buttons
+            document.getElementById('clear-resp-btn').addEventListener('click', clearCurrentResponse);
+            document.getElementById('mark-review-btn').addEventListener('click', markCurrentForReview);
+            document.getElementById('save-next-btn').addEventListener('click', saveAndNextQuestion);
+            
+            // Bind submit test actions
+            document.getElementById('submit-test-btn').addEventListener('click', () => {
+                if (confirm("Are you sure you want to submit your answers early? You cannot edit them after submitting.")) {
+                    submitMockTest();
+                }
+            });
+
+            // Bind modal action triggers
+            document.getElementById('modal-retry-btn').addEventListener('click', () => {
+                document.getElementById('results-modal').classList.add('hidden');
+                document.getElementById('results-modal').classList.remove('flex');
+                
+                // Reset state
+                selectedAnswers = {};
+                questionStates = {};
+                currentQuestionIdx = 0;
+                
+                showDisclaimer(activeTest);
+            });
+        });
+
+        // Test selector rendering
+        const showTestSelector = (tests) => {
+            const selectorScreen = document.getElementById('selector-screen');
+            const listContainer = document.getElementById('test-list');
+            selectorScreen.classList.remove('hidden');
+            
+            listContainer.innerHTML = tests.map(test => `
+                <div class="p-5 border border-border-light hover:border-primary/40 rounded-xl bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+                    <div>
+                        <h4 class="font-bold text-primary text-base">${test.title}</h4>
+                        <p class="text-xs text-on-surface-variant mt-1">
+                            ${test.questions ? test.questions.length : 0} Questions • ${test.durationMinutes} Minutes
+                        </p>
+                    </div>
+                    <button onclick="selectAndStart('${test.id}')" class="bg-[#FB6514] hover:bg-[#e0560d] text-white font-bold text-xs px-5 py-2.5 rounded-lg shadow-sm transition-all active:scale-95 shrink-0">
+                        Select Test
+                    </button>
+                </div>
+            `).join('');
+        };
+
+        const selectAndStart = (testId) => {
+            activeTest = mockTests.find(t => t.id === testId);
+            document.getElementById('selector-screen').classList.add('hidden');
+            showDisclaimer(activeTest);
+        };
+
+        const showFallbackWarning = () => {
+            document.getElementById('loading-screen').classList.add('hidden');
+            const screen = document.getElementById('selector-screen');
+            screen.classList.remove('hidden');
+            screen.innerHTML = `
+                <div class="text-center py-6">
+                    <span class="material-symbols-outlined text-rose-500 text-5xl">warning</span>
+                    <h3 class="font-extrabold text-primary text-lg mt-3">No Mock Tests Available</h3>
+                    <p class="text-xs text-on-surface-variant mt-1.5">There are no mock tests matching this course currently. Check back later or create one as admin.</p>
+                    <a href="student-dashboard.html" class="inline-block mt-4 bg-primary text-white text-xs font-bold px-6 py-2.5 rounded-lg">Return to Dashboard</a>
+                </div>
+            `;
+        };
+
+        // Disclaimer phase
+        const showDisclaimer = (test) => {
+            document.getElementById('disclaimer-screen').classList.remove('hidden');
+            
+            // Set course title if present
+            let badgeText = "GENERAL PREPARATION";
+            if (test.courseId === "course-nimcet") {
+                badgeText = "NIMCET COMPLETE MASTERY";
+            } else if (test.courseId === "course-placement") {
+                badgeText = "PLACEMENT READINESS PROGRAM";
+            }
+            
+            document.getElementById('disc-course-title').innerText = badgeText;
+            document.getElementById('disc-test-title').innerText = test.title;
+            document.getElementById('disc-duration').innerText = `${test.durationMinutes} Mins`;
+            document.getElementById('disc-total-q').innerText = `${test.questions ? test.questions.length : 0} Questions`;
+            document.getElementById('disc-marking').innerText = `+${test.marksCorrect || 4} / ${test.marksWrong || -1}`;
+            
+            // reset checkbox
+            document.getElementById('agree-checkbox').checked = false;
+            document.getElementById('start-test-btn').disabled = true;
+        };
+
+        // Exam execution phase
+        const startMockTestSession = () => {
+            document.getElementById('disclaimer-screen').classList.add('hidden');
+            document.getElementById('test-workspace').classList.remove('hidden');
+            
+            questions = activeTest.questions || [];
+            timeRemaining = (activeTest.durationMinutes || 60) * 60;
+            
+            // Set workspace headers
+            let badgeText = "GENERAL MOCK";
+            if (activeTest.courseId === "course-nimcet") badgeText = "NIMCET";
+            else if (activeTest.courseId === "course-placement") badgeText = "PLACEMENT READY";
+            
+            document.getElementById('workspace-course-badge').innerText = badgeText;
+            document.getElementById('workspace-test-title').innerText = activeTest.title;
+            document.getElementById('correct-marks-badge').innerText = `+${activeTest.marksCorrect || 4} Correct`;
+            document.getElementById('wrong-marks-badge').innerText = `${activeTest.marksWrong || -1} Wrong`;
+
+            // Initialize question states
+            for (let i = 0; i < questions.length; i++) {
+                questionStates[i] = i === 0 ? "visited" : "not_visited";
+            }
+
+            renderQuestionViewport();
+            renderQuestionPalette();
+            startTimer();
+        };
+
+        const renderQuestionViewport = () => {
+            if (questions.length === 0) return;
+            const q = questions[currentQuestionIdx];
+            
+            // Render indexes
+            document.getElementById('question-index-label').innerText = `Question ${currentQuestionIdx + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerText = q.questionText;
+
+            // Render options
+            const optionsContainer = document.getElementById('options-container');
+            const savedAns = selectedAnswers[currentQuestionIdx];
+
+            // Options are usually A, B, C, D
+            const labels = ["A", "B", "C", "D"];
+            optionsContainer.innerHTML = q.options.map((opt, idx) => {
+                const optLetter = labels[idx];
+                const isSelected = savedAns === optLetter;
+                
+                return `
+                    <label onclick="selectOption('${optLetter}')" class="flex items-center gap-3.5 p-4 rounded-xl border ${isSelected ? 'border-[#FB6514] bg-[#FB6514]/5 text-primary' : 'border-border-light hover:bg-slate-50 text-on-surface-variant'} active:scale-[0.99] transition-all cursor-pointer">
+                        <div class="w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold shrink-0 ${isSelected ? 'bg-[#FB6514] text-white border-transparent' : 'border-slate-300 text-slate-500'}">
+                            ${optLetter}
+                        </div>
+                        <span class="text-sm font-semibold">${opt}</span>
+                    </label>
+                `;
+            }).join('');
+        };
+
+        const selectOption = (optLetter) => {
+            selectedAnswers[currentQuestionIdx] = optLetter;
+            
+            // Mark state as answered (or answered & marked if it was marked)
+            if (questionStates[currentQuestionIdx] === "marked" || questionStates[currentQuestionIdx] === "answered_marked") {
+                questionStates[currentQuestionIdx] = "answered_marked";
+            } else {
+                questionStates[currentQuestionIdx] = "answered";
+            }
+
+            renderQuestionViewport();
+            renderQuestionPalette();
+        };
+
+        const clearCurrentResponse = () => {
+            delete selectedAnswers[currentQuestionIdx];
+            
+            // Mark state back
+            if (questionStates[currentQuestionIdx] === "answered_marked" || questionStates[currentQuestionIdx] === "marked") {
+                questionStates[currentQuestionIdx] = "marked";
+            } else {
+                questionStates[currentQuestionIdx] = "visited";
+            }
+
+            renderQuestionViewport();
+            renderQuestionPalette();
+        };
+
+        const markCurrentForReview = () => {
+            const hasAns = selectedAnswers[currentQuestionIdx];
+            if (hasAns) {
+                questionStates[currentQuestionIdx] = "answered_marked";
+            } else {
+                questionStates[currentQuestionIdx] = "marked";
+            }
+
+            // Move next
+            navigateNext();
+        };
+
+        const saveAndNextQuestion = () => {
+            const hasAns = selectedAnswers[currentQuestionIdx];
+            if (hasAns) {
+                if (questionStates[currentQuestionIdx] !== "answered_marked") {
+                    questionStates[currentQuestionIdx] = "answered";
+                }
+            } else {
+                questionStates[currentQuestionIdx] = "visited"; // Visited but not answered
+            }
+
+            // Move next
+            navigateNext();
+        };
+
+        const navigateNext = () => {
+            if (currentQuestionIdx < questions.length - 1) {
+                currentQuestionIdx++;
+                // If not visited before, mark as visited
+                if (questionStates[currentQuestionIdx] === "not_visited") {
+                    questionStates[currentQuestionIdx] = "visited";
+                }
+                renderQuestionViewport();
+                renderQuestionPalette();
+            } else {
+                alert("You are on the last question. You can review your answers or submit the test.");
+                renderQuestionPalette();
+            }
+        };
+
+        const renderQuestionPalette = () => {
+            const paletteGrid = document.getElementById('palette-grid');
+            
+            // Generate grid numbers
+            paletteGrid.innerHTML = questions.map((_, idx) => {
+                const state = questionStates[idx];
+                let btnClass = "bg-slate-200 text-slate-700 border-slate-300"; // default not visited
+                
+                if (idx === currentQuestionIdx) {
+                    btnClass += " ring-2 ring-[#FB6514] ring-offset-2";
+                }
+
+                if (state === "visited") {
+                    btnClass = "bg-rose-100 text-rose-700 border-rose-200"; // Visited but unanswered (red outline/fill)
+                } else if (state === "answered") {
+                    btnClass = "bg-emerald-500 text-white border-transparent"; // Answered (Green)
+                } else if (state === "marked") {
+                    btnClass = "bg-purple-500 text-white border-transparent"; // Marked for review (Purple)
+                } else if (state === "answered_marked") {
+                    btnClass = "bg-amber-500 text-white border-transparent"; // Answered and Marked (Orange)
+                }
+
+                return `
+                    <button onclick="jumpToQuestion(${idx})" class="w-10 h-10 rounded-lg font-bold text-xs flex items-center justify-center border transition-all active:scale-95 ${btnClass}">
+                        ${idx + 1}
+                    </button>
+                `;
+            }).join('');
+
+            // Calculate metrics
+            let answered = 0;
+            let unanswered = 0;
+            let marked = 0;
+            let notvisited = 0;
+            let answeredMarked = 0;
+
+            for (let i = 0; i < questions.length; i++) {
+                const s = questionStates[i];
+                if (s === "not_visited") notvisited++;
+                else if (s === "visited") unanswered++;
+                else if (s === "answered") answered++;
+                else if (s === "marked") marked++;
+                else if (s === "answered_marked") answeredMarked++;
+            }
+
+            document.getElementById('stat-answered').innerText = answered;
+            document.getElementById('stat-unanswered').innerText = unanswered;
+            document.getElementById('stat-marked').innerText = marked;
+            document.getElementById('stat-notvisited').innerText = notvisited;
+            document.getElementById('stat-answered-marked').innerText = answeredMarked;
+        };
+
+        const jumpToQuestion = (idx) => {
+            currentQuestionIdx = idx;
+            if (questionStates[currentQuestionIdx] === "not_visited") {
+                questionStates[currentQuestionIdx] = "visited";
+            }
+            renderQuestionViewport();
+            renderQuestionPalette();
+        };
+
+        // Timer control
+        const startTimer = () => {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                
+                const mins = Math.floor(timeRemaining / 60);
+                const secs = timeRemaining % 60;
+                
+                document.getElementById('timer-display').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                if (timeRemaining <= 180) { // Under 3 mins red alert
+                    const timerBox = document.getElementById('timer-box');
+                    timerBox.className = "flex items-center gap-3 bg-rose-600 text-white px-5 py-3 rounded-xl shrink-0 animate-pulse";
+                }
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Time is up! Submitting your mock test answers.");
+                    submitMockTest();
+                }
+            }, 1000);
+        };
+
+        // Scoring & submission
+        const submitMockTest = async () => {
+            clearInterval(timerInterval);
+            
+            const totalQ = questions.length;
+            const marksCorrect = activeTest.marksCorrect || 4;
+            const marksWrong = activeTest.marksWrong || -1;
+            const maxScore = totalQ * marksCorrect;
+
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let unansweredCount = 0;
+
+            const labels = ["A", "B", "C", "D"];
+            
+            // Format answered log for attempt save
+            const userAnswers = [];
+
+            questions.forEach((q, idx) => {
+                const userChoice = selectedAnswers[idx] || null; // e.g. "A"
+                const state = questionStates[idx];
+                
+                userAnswers.push({
+                    questionIndex: idx,
+                    questionText: q.questionText,
+                    correctAnswer: q.correctAnswer, // e.g. "C"
+                    userAnswer: userChoice,
+                    state: state
+                });
+
+                if (!userChoice) {
+                    unansweredCount++;
+                } else if (userChoice === q.correctAnswer) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            });
+
+            // Calculate negative marking
+            const score = (correctCount * marksCorrect) + (incorrectCount * marksWrong);
+            const pct = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+            
+            let grade = 'F';
+            let feedback = 'Need more preparation. Revise topics from learning modules and take class quiz series.';
+            
+            if (pct >= 85) {
+                grade = 'A+';
+                feedback = 'Superb accuracy! You have solid placement skills and concepts are perfectly locked.';
+            } else if (pct >= 70) {
+                grade = 'A';
+                feedback = 'Great score! Identify weak sub-sections to push your score to the absolute top tier.';
+            } else if (pct >= 50) {
+                grade = 'B';
+                feedback = 'Passable effort. Practice standard math problems and review your logic loops.';
+            }
+
+            // Save Attempt in backend database
+            const attemptData = {
+                userId: userId,
+                testId: activeTest.id,
+                testTitle: activeTest.title,
+                courseId: activeTest.courseId,
+                score: score,
+                maxScore: maxScore,
+                percent: pct,
+                correctCount: correctCount,
+                incorrectCount: incorrectCount,
+                unansweredCount: unansweredCount,
+                answers: userAnswers,
+                takenAt: new Date().toISOString()
+            };
+
+            try {
+                await window.FirebaseService.saveMockAttempt(attemptData);
+            } catch (e) {
+                console.error("Failed to write mock attempt to server, saving locally:", e);
+            }
+
+            // Update user taken metrics locally
+            const currentExams = parseInt(localStorage.getItem(`mca_mock_exams_taken_${userId}`) || 0, 10);
+            localStorage.setItem(`mca_mock_exams_taken_${userId}`, currentExams + 1);
+
+            // Render stats on Results dialog
+            document.getElementById('res-score').innerText = `${score}/${maxScore}`;
+            document.getElementById('res-pct').innerText = `${pct}%`;
+            document.getElementById('res-grade').innerText = grade;
+            document.getElementById('feedback-text').innerText = feedback;
+            
+            document.getElementById('res-correct-count').innerText = correctCount;
+            document.getElementById('res-incorrect-count').innerText = incorrectCount;
+            document.getElementById('res-unanswered-count').innerText = unansweredCount;
+
+            // Hide workspace, show results modal
+            document.getElementById('test-workspace').classList.add('hidden');
+            
+            const resultsModal = document.getElementById('results-modal');
+            resultsModal.classList.remove('hidden');
+            resultsModal.classList.add('flex');
+        };
+    </script>
+</body>
+</html>

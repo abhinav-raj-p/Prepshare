@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>MCA Ace Admin Portal</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind Play CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="js/tailwind-config.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="overflow-x-hidden text-on-surface bg-background min-h-screen selection:bg-secondary-fixed-dim">
+
+    <!-- Admin Sidebar Component -->
+    <admin-sidebar></admin-sidebar>
+
+    <!-- Main Content Panel -->
+    <main class="ml-64 min-h-screen p-6 md:p-margin-desktop bg-background transition-all duration-300">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="font-headline-lg text-headline-lg text-primary">Dashboard Overview</h2>
+                <p class="font-body-md text-sm text-on-surface-variant">Welcome back, Administrator. Real-time updates from Firestore queue.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant transition-colors relative active:scale-95">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-error rounded-full border-2 border-background"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <!-- Total Students -->
+            <div class="bg-white p-5 rounded-2xl shadow-[0px_4px_20px_rgba(26,43,86,0.03)] border border-border-light">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="p-2 bg-primary-container/10 rounded-lg text-primary shrink-0">
+                        <span class="material-symbols-outlined">group</span>
+                    </div>
+                </div>
+                <p class="text-on-surface-variant font-label-md text-xs uppercase tracking-wider font-bold mb-1">Total Students</p>
+                <h3 class="font-headline-md text-2xl text-primary font-extrabold" id="stat-total-students">0</h3>
+            </div>
+            <!-- Active Cohort -->
+            <div class="bg-white p-5 rounded-2xl shadow-[0px_4px_20px_rgba(26,43,86,0.03)] border border-border-light">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="p-2 bg-secondary-container/10 rounded-lg text-secondary shrink-0">
+                        <span class="material-symbols-outlined">bolt</span>
+                    </div>
+                </div>
+                <p class="text-on-surface-variant font-label-md text-xs uppercase tracking-wider font-bold mb-1">Active Students</p>
+                <h3 class="font-headline-md text-2xl text-primary font-extrabold" id="stat-active-students">0</h3>
+            </div>
+            <!-- Pending Verification Queue -->
+            <div class="bg-white p-5 rounded-2xl border border-border-light shadow-[0px_4px_20px_rgba(26,43,86,0.03)]">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="p-2 bg-pending/10 rounded-lg text-pending shrink-0">
+                        <span class="material-symbols-outlined">verified_user</span>
+                    </div>
+                    <span class="bg-pending text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse">LIVE</span>
+                </div>
+                <p class="text-on-surface-variant font-label-md text-xs uppercase tracking-wider font-bold mb-1">Pending Requests</p>
+                <h3 class="font-headline-md text-2xl text-pending font-extrabold animate-pulse" id="stat-pending">0</h3>
+            </div>
+        </section>
+
+        <!-- PANEL: Payment Verification -->
+        <div id="panel-payments" class="w-full">
+            <!-- Verification Queue table -->
+            <section class="bg-white rounded-2xl border border-border-light overflow-hidden flex flex-col shadow-sm">
+                <div class="p-5 border-b border-border-light flex justify-between items-center bg-surface-subtle">
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-title-lg text-title-lg text-primary font-bold">Verification Queue</h3>
+                        <span class="px-2.5 py-0.5 rounded-full bg-pending text-white font-label-sm text-xs font-bold" id="queue-badge">0 Pending</span>
+                    </div>
+                    <button class="px-4 py-2 rounded-lg border border-border-light font-label-md text-xs font-bold text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all">Export CSV</button>
+                </div>
+                
+                <!-- Table View -->
+                <div class="overflow-x-auto custom-scrollbar min-h-[300px]">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-surface-container-low border-b border-border-light">
+                            <tr>
+                                <th class="px-6 py-4 font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-bold">Student Identity</th>
+                                <th class="px-6 py-4 font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-bold">Associated Course</th>
+                                <th class="px-6 py-4 font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-bold">Transaction Details</th>
+                                <th class="px-6 py-4 font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-bold">Amount Paid</th>
+                                <th class="px-6 py-4 font-label-md text-xs text-on-surface-variant uppercase tracking-wider font-bold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border-light font-medium" id="payments-tbody">
+                            <!-- Filled dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="p-4 flex justify-center border-t border-border-light hidden" id="load-more-container">
+                    <button id="load-more-btn" class="px-6 py-2 bg-surface-container-low hover:bg-surface-subtle text-primary font-bold text-sm rounded-lg border border-border-light transition-all active:scale-95">Load More</button>
+                </div>
+            </section>
+        </div>
+
+    <!-- Screenshot Review Modal Overlay -->
+    <div id="receipt-modal" class="fixed inset-0 bg-[#021541]/75 backdrop-blur-sm hidden items-center justify-center z-[150] p-4">
+        <div class="bg-white rounded-2xl overflow-hidden max-w-2xl w-full shadow-2xl border border-border-light flex flex-col animate-slide-up">
+            <div class="p-4 bg-surface-subtle border-b border-border-light flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-primary" id="modal-student-name">Receipt Preview</h3>
+                    <p class="text-xs text-on-surface-variant" id="modal-student-utr">UTR: 409283741029</p>
+                </div>
+                <button class="material-symbols-outlined p-1 rounded-lg hover:bg-surface-container text-on-surface-variant outline-none" id="close-modal-btn">close</button>
+            </div>
+            <div class="p-6 bg-[#f5fafe] flex items-center justify-center min-h-[300px] max-h-[500px] overflow-y-auto">
+                <img id="receipt-image" alt="UPI Receipt Proof" class="max-w-full max-h-[400px] object-contain rounded-xl border border-border-light shadow-md"/>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-border-light flex justify-end gap-3">
+                <button id="modal-reject-btn" class="px-5 py-2 rounded-lg border border-border-light text-error hover:bg-error/5 font-bold text-sm transition-colors">Reject Proof</button>
+                <button id="modal-approve-btn" class="px-5 py-2 rounded-lg bg-primary text-white hover:opacity-90 font-bold text-sm shadow-md transition-all">Approve & Grant</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core configurations and services -->
+    <script src="js/config.js"></script>
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="js/firebase-service.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/main.js"></script>
+    
+    <!-- Load Firestore Real-time synchronization -->
+    <script>
+        // Check Admin Authorization
+        (function() {
+            const currentUser = window.FirebaseService.getCurrentUser();
+            if (!currentUser || currentUser.role !== 'admin') {
+                alert("Access Denied: Admin privileges are required to view the management console.");
+                window.location.href = "index.html";
+                return;
+            }
+        })();
+
+        const tbody = document.getElementById('payments-tbody');
+        const queueBadge = document.getElementById('queue-badge');
+        const statPending = document.getElementById('stat-pending');
+        const statTotal = document.getElementById('stat-total-students');
+        const statActive = document.getElementById('stat-active-students');
+        
+        // Modal elements
+        const receiptModal = document.getElementById('receipt-modal');
+        const receiptImage = document.getElementById('receipt-image');
+        const modalName = document.getElementById('modal-student-name');
+        const modalUtr = document.getElementById('modal-student-utr');
+        const modalApprove = document.getElementById('modal-approve-btn');
+        const modalReject = document.getElementById('modal-reject-btn');
+        const closeModal = document.getElementById('close-modal-btn');
+        
+        let activeReviewId = null;
+
+        // Realtime stats listener
+        window.FirebaseService.getMetrics((metrics) => {
+            statTotal.innerText = metrics.totalStudents;
+            statActive.innerText = metrics.activeStudents;
+            statPending.innerText = metrics.pendingCount;
+            queueBadge.innerText = `${metrics.pendingCount} Pending`;
+        });
+
+        // Paginated Queue fetching
+        let lastVisibleDoc = null;
+        let isFetchingPayments = false;
+
+        const renderPayments = (payments) => {
+            payments.forEach((p) => {
+                const dateStr = p.createdAt ? new Date(p.createdAt.seconds ? p.createdAt.seconds * 1000 : p.createdAt).toLocaleString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : 'Just Now';
+                
+                const initials = p.name ? p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'ST';
+                
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-surface-subtle transition-colors group border-b border-border-light';
+                tr.innerHTML = `
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-secondary-fixed flex items-center justify-center font-bold text-on-secondary-fixed text-xs shrink-0">${initials}</div>
+                        <div>
+                            <p class="font-label-md text-sm text-primary font-bold">${p.name}</p>
+                            <p class="text-[10px] text-on-surface-variant truncate max-w-[150px]">${p.email}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4">
+                    <span class="px-3 py-1 rounded-full bg-surface-container text-primary font-label-sm text-xs font-bold whitespace-nowrap">${p.course}</span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex flex-col gap-1">
+                        <span class="font-mono text-xs text-on-surface-variant">UTR: ${p.utr || p.utrNumber}</span>
+                        <button class="flex items-center gap-1 text-xs text-secondary hover:text-primary transition-colors select-utr-btn w-max" data-id="${p.id}" data-name="${p.name}" data-utr="${p.utr || p.utrNumber}" data-image="${p.screenshotUrl}">
+                            <span class="material-symbols-outlined text-[14px]">image</span>
+                            <span class="underline font-bold">View Screenshot</span>
+                        </button>
+                    </div>
+                </td>
+                <td class="px-6 py-4 font-bold text-primary text-sm">₹${parseFloat(p.amount || 0).toLocaleString('en-IN')}</td>
+                <td class="px-6 py-4 text-right whitespace-nowrap">
+                    <div class="flex justify-end gap-2">
+                        <button class="p-2 rounded-lg text-success hover:bg-success/10 transition-colors approve-btn active:scale-90" data-id="${p.id}" data-name="${p.name}">
+                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        </button>
+                        <button class="p-2 rounded-lg text-error hover:bg-error/10 transition-colors reject-btn active:scale-90" data-id="${p.id}" data-name="${p.name}">
+                            <span class="material-symbols-outlined">cancel</span>
+                        </button>
+                    </div>
+                </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Re-bind click events
+            document.querySelectorAll('.select-utr-btn').forEach(btn => {
+                btn.replaceWith(btn.cloneNode(true)); // clear old listeners
+            });
+            document.querySelectorAll('.select-utr-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    activeReviewId = btn.dataset.id;
+                    modalName.innerText = `Verify Payment: ${btn.dataset.name}`;
+                    modalUtr.innerText = `UTR Reference ID: ${btn.dataset.utr}`;
+                    receiptImage.src = btn.dataset.image;
+                    receiptModal.classList.remove('hidden');
+                    receiptModal.classList.add('flex');
+                });
+            });
+
+            document.querySelectorAll('.approve-btn').forEach(btn => {
+                btn.replaceWith(btn.cloneNode(true));
+            });
+            document.querySelectorAll('.approve-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    btn.disabled = true;
+                    await handleApprove(btn.dataset.id, btn.dataset.name);
+                    // Hide the row optimisticly
+                    btn.closest('tr').style.display = 'none';
+                });
+            });
+
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.replaceWith(btn.cloneNode(true));
+            });
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    btn.disabled = true;
+                    await handleReject(btn.dataset.id, btn.dataset.name);
+                    btn.closest('tr').style.display = 'none';
+                });
+            });
+        };
+
+        const loadPayments = async (isLoadMore = false) => {
+            if (isFetchingPayments) return;
+            isFetchingPayments = true;
+            
+            if (!isLoadMore) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10"><span class="material-symbols-outlined animate-spin text-primary text-3xl">autorenew</span></td></tr>';
+            } else {
+                document.getElementById('load-more-btn').innerText = 'Loading...';
+            }
+            
+            try {
+                const payments = await window.FirebaseService.fetchPendingPayments(isLoadMore ? lastVisibleDoc : null, 10);
+                
+                if (!isLoadMore) tbody.innerHTML = '';
+                
+                if (payments.length === 0 && !isLoadMore) {
+                    tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-20 text-on-surface-variant bg-white">
+                            <div class="flex flex-col items-center gap-2">
+                                <span class="material-symbols-outlined text-success text-5xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                <p class="text-sm font-bold text-primary">All Caught Up!</p>
+                                <p class="text-xs">No pending verification transactions in queue.</p>
+                            </div>
+                        </td>
+                    </tr>`;
+                    document.getElementById('load-more-container').classList.add('hidden');
+                } else {
+                    if (payments.length > 0) {
+                        lastVisibleDoc = payments[payments.length - 1].docSnapshot;
+                        renderPayments(payments);
+                    }
+                    if (payments.length < 10) {
+                        document.getElementById('load-more-container').classList.add('hidden');
+                    } else {
+                        document.getElementById('load-more-container').classList.remove('hidden');
+                    }
+                }
+            } catch(e) {
+                console.error("Failed to load queue", e);
+                if (!isLoadMore) tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-error">Failed to load payments.</td></tr>';
+            } finally {
+                if (isLoadMore) document.getElementById('load-more-btn').innerText = 'Load More';
+                isFetchingPayments = false;
+            }
+        };
+
+        // Initial load
+        loadPayments();
+
+        // Load More button click
+        document.getElementById('load-more-btn').addEventListener('click', () => loadPayments(true));
+
+        // Approve transaction flow
+        const handleApprove = async (id, name) => {
+            try {
+                await window.FirebaseService.updatePaymentStatus(id, 'approved');
+            } catch (error) {
+                alert("Failed to approve payment: " + error.message);
+            }
+        };
+
+        // Reject transaction flow
+        const handleReject = async (id, name) => {
+            if (confirm(`Are you sure you want to reject the transaction proof for ${name}?`)) {
+                try {
+                    await window.FirebaseService.updatePaymentStatus(id, 'rejected');
+                } catch (error) {
+                    alert("Failed to reject payment: " + error.message);
+                }
+            }
+        };
+
+        // Modal Action Handlers
+        modalApprove.addEventListener('click', async () => {
+            if (activeReviewId) {
+                const nameText = modalName.innerText.replace("Verify Payment: ", "");
+                receiptModal.classList.add('hidden');
+                receiptModal.classList.remove('flex');
+                await handleApprove(activeReviewId, nameText);
+                const btn = document.querySelector(`.approve-btn[data-id="${activeReviewId}"]`);
+                if (btn) btn.closest('tr').style.display = 'none';
+                activeReviewId = null;
+            }
+        });
+
+        modalReject.addEventListener('click', async () => {
+            if (activeReviewId) {
+                const nameText = modalName.innerText.replace("Verify Payment: ", "");
+                receiptModal.classList.add('hidden');
+                receiptModal.classList.remove('flex');
+                await handleReject(activeReviewId, nameText);
+                const btn = document.querySelector(`.reject-btn[data-id="${activeReviewId}"]`);
+                if (btn) btn.closest('tr').style.display = 'none';
+                activeReviewId = null;
+            }
+        });
+
+        // Close Review Modals
+        const closeReview = () => {
+            receiptModal.classList.add('hidden');
+            receiptModal.classList.remove('flex');
+            activeReviewId = null;
+        };
+        closeModal.addEventListener('click', closeReview);
+        receiptModal.addEventListener('click', (e) => {
+            if (e.target === receiptModal) closeReview();
+        });
+    </script>
+</body>
+</html>
+

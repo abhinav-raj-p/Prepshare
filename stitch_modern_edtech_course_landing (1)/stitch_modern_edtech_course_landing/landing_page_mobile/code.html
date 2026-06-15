@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MCA Ace | Premium MCA Entrance Prep</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-subtle": "#F8FAFC",
+                    "on-secondary-fixed": "#140067",
+                    "surface-tint": "#4d5d8b",
+                    "on-primary-fixed": "#051944",
+                    "surface-container-high": "#e3e9ed",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#6d5fee",
+                    "border-light": "#E2E8F0",
+                    "on-primary": "#ffffff",
+                    "error": "#EF4444",
+                    "primary": "#021541",
+                    "pending": "#F59E0B",
+                    "surface-dim": "#d5dbdf",
+                    "surface": "#f5fafe",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed": "#360f00",
+                    "surface-container": "#e9eff3",
+                    "tertiary-fixed": "#ffdbcd",
+                    "tertiary": "#310c00",
+                    "inverse-surface": "#2b3134",
+                    "inverse-primary": "#b5c5f9",
+                    "inverse-on-surface": "#ecf1f5",
+                    "on-tertiary-fixed-variant": "#7e2c00",
+                    "on-secondary-fixed-variant": "#3d28be",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#f5fafe",
+                    "tertiary-fixed-dim": "#ffb597",
+                    "surface-container-low": "#eff4f8",
+                    "background": "#f5fafe",
+                    "secondary": "#5344d3",
+                    "surface-container-highest": "#dee3e7",
+                    "on-error-container": "#93000a",
+                    "on-background": "#161c1f",
+                    "on-secondary-container": "#fffbff",
+                    "outline": "#757680",
+                    "primary-container": "#1a2b56",
+                    "surface-variant": "#dee3e7",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-container": "#531b00",
+                    "outline-variant": "#c5c6d0",
+                    "secondary-fixed-dim": "#c5c0ff",
+                    "primary-fixed-dim": "#b5c5f9",
+                    "primary-fixed": "#dae1ff",
+                    "on-primary-fixed-variant": "#354572",
+                    "secondary-fixed": "#e4dfff",
+                    "success": "#10B981",
+                    "on-tertiary-container": "#fb6514",
+                    "on-surface": "#161c1f",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#8393c5",
+                    "on-surface-variant": "#45464f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "40px",
+                    "base": "8px",
+                    "margin-mobile": "16px",
+                    "gutter": "24px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "title-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "title-lg": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- Top App Bar (Shared Component Logic) -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-surface h-16 flex items-center justify-between px-4 shadow-[0px_4px_20px_rgba(26,43,86,0.06)]">
+<div class="font-headline-md text-headline-md font-bold text-primary">MCA Ace</div>
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 flex items-center justify-center text-primary rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-primary rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<main class="pt-16 pb-32">
+<!-- Hero Section -->
+<section class="relative px-4 py-8 overflow-hidden">
+<div class="relative z-10 space-y-6">
+<div class="inline-flex items-center gap-2 bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full border border-secondary-fixed">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span class="font-label-sm text-label-sm">#1 Ranked NIMCET Prep</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Master the MCA Entrance with India's Top Tutors.</h1>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                    Personalized learning paths, interactive live classes, and a community of 50,000+ aspirants. Start your journey to NITs today.
+                </p>
+<div class="flex flex-col gap-3">
+<button class="w-full h-14 bg-on-tertiary-container text-white font-bold rounded-lg shadow-lg active:scale-95 transition-transform">
+                        Enroll Now
+                    </button>
+<button class="w-full h-14 bg-white border border-border-light text-primary font-semibold rounded-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                        Watch Free Demo
+                        <span class="material-symbols-outlined">play_circle</span>
+</button>
+</div>
+<div class="pt-4 flex items-center gap-4">
+<div class="flex -space-x-3">
+<img alt="User 1" class="w-10 h-10 rounded-full border-2 border-white bg-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2q4fjw07y9k0cSbl9sUBjxnErv2CLdyIQwCv8aa_idmjvMLYJ5ww8013N5LTcxrBmhDDlwQ-EsTCJOhdL9TwZzO_qty6CJlNuAksMlXZ-u-sQCZt0zxz3Xle1t180QVil9liNlwE72bMDafBUvgXgFjvJfN0iOynf56h0ULdb0LiyyDlhICzmZtxcKp06kWlOvYTS0RbvlWqjhGKcw_wc--mpPfZaXESiQQ5R0detV0V5iWetfNTwt-7fRCed815Cfbtlmwwf9ex3"/>
+<img alt="User 2" class="w-10 h-10 rounded-full border-2 border-white bg-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj-Q4BfLZgAxoGQseLukth0ZUe9v0iiibxYIAu_Odl8T_yayZ79Ttze9L2XnmkY8UCMFuw1wdr_CTbr8J-TUuokSTUIS8zLoGmmUsQL4j_0pLzW0jRtZVBXzTiT219LlE7InqeAsvz10XL6veeslEoyvxROkR0ouxhIuuTP8OCI3aN57JKnNXIfNlJ9DF6TNXR5J7P_tY7MMtiDvi9uSP-SpO5y9ueu0JWS7bGYrm4aYq2BlryPMfqcDM709U7RHYnGCdNUJ6HpP7y"/>
+<img alt="User 3" class="w-10 h-10 rounded-full border-2 border-white bg-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDL8dCMEWU3Q8yt3TzCosOGs1hC8LoVBJpCVa9M69h-w93f5CM-0MB7SR1BKHr0iJeyazthIn1qG7QBZ90rdBkJohzhdB9axPtx2zEUomEnT15mMK45artOe4mBLfxySUezWa7OauL4FwQbi61b6XE3fmAZ9aRk-NRUFfTWGz4IvU9VVCAeh8DZJps3VCVXcbc_IKbvmkQm5shTc9hPyrwLE-kt0tUNNQqBu89bYMhHOK-Wvdx3gt7krR9_Zsv-L7A0tMErAbcjb4T1"/>
+<div class="w-10 h-10 rounded-full border-2 border-white bg-primary text-white flex items-center justify-center text-[12px] font-bold">+5k</div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Active students joined this week</span>
+</div>
+</div>
+<!-- Background Decoration -->
+<div class="absolute -top-10 -right-20 w-64 h-64 bg-secondary-fixed-dim/20 blur-[80px] rounded-full"></div>
+<div class="absolute -bottom-20 -left-10 w-48 h-48 bg-tertiary-fixed/20 blur-[60px] rounded-full"></div>
+</section>
+<!-- Stats Grid (Optimized for Mobile) -->
+<section class="px-4 py-6 grid grid-cols-2 gap-3">
+<div class="bg-white p-4 rounded-xl border border-border-light shadow-sm flex flex-col gap-1">
+<span class="text-secondary font-bold text-headline-md">98%</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Success Rate</span>
+</div>
+<div class="bg-white p-4 rounded-xl border border-border-light shadow-sm flex flex-col gap-1">
+<span class="text-secondary font-bold text-headline-md">1200+</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">NIT Admits</span>
+</div>
+<div class="bg-white p-4 rounded-xl border border-border-light shadow-sm flex flex-col gap-1">
+<span class="text-secondary font-bold text-headline-md">15k+</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Mock Tests</span>
+</div>
+<div class="bg-white p-4 rounded-xl border border-border-light shadow-sm flex flex-col gap-1">
+<span class="text-secondary font-bold text-headline-md">24/7</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Doubt Support</span>
+</div>
+</section>
+<!-- Course Cards (Vertical Stack) -->
+<section class="px-4 py-8 space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="font-title-lg text-title-lg text-primary">Featured Courses</h2>
+<button class="text-secondary font-label-md text-label-md flex items-center">
+                    See All <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+<!-- Card 1 -->
+<div class="bg-white rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(26,43,86,0.06)] border border-border-light group">
+<div class="relative h-48 w-full overflow-hidden">
+<img alt="NIMCET Mastery 2025" class="w-full h-full object-cover transition-transform duration-500 group-active:scale-105" data-alt="A professional digital studio setup with high-end computer screens displaying complex programming code and mathematical equations. The lighting is moody and focused with blue and orange accents reflecting the MCA Ace brand colors. The atmosphere is academic yet highly modern and technologically sophisticated." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGZC1-NUYF3WbLJWaPRrzBUdbzXf5aDZRm0vOIlcFEEN3cvkv3NVJdg0EVFsMyuCYQqnDRuGSlfCO886DbP9xpIpfNbD3Muchyp4PWeIluJqy3oCcTPmGFfvETn-Zc08oNcIgMPkqPriGZ0FtZEFrDcD_ZowVdYZs1uaN1ojmKtNUZ5QI7mJLaGELXrq6eILtq2S6N7Q3TEDC2pn2OBco34UP_gXSU1Ob5y8kTtP62Oh2Awjy40TCh9qcwvniBVtORSKIdnRv1mgfw"/>
+<div class="absolute top-3 left-3 bg-tertiary-container text-on-tertiary-container px-2 py-1 rounded font-label-sm text-label-sm">Best Seller</div>
+</div>
+<div class="p-5 space-y-3">
+<div class="flex items-center gap-1 text-pending">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.9 (2.4k reviews)</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-primary leading-snug">NIMCET Complete Mastery 2025</h3>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-subtle px-2 py-1 rounded text-on-surface-variant font-label-sm text-label-sm">Mathematics</span>
+<span class="bg-surface-subtle px-2 py-1 rounded text-on-surface-variant font-label-sm text-label-sm">Logical Reasoning</span>
+</div>
+<div class="pt-4 flex items-center justify-between border-t border-border-light">
+<div class="flex items-baseline gap-2">
+<span class="text-headline-md font-bold text-primary">₹14,999</span>
+<span class="text-on-surface-variant line-through text-label-sm">₹24,999</span>
+</div>
+<button class="bg-primary text-white p-3 rounded-lg active:scale-90 transition-transform">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(26,43,86,0.06)] border border-border-light group">
+<div class="relative h-48 w-full overflow-hidden">
+<img alt="Foundation Course" class="w-full h-full object-cover transition-transform duration-500 group-active:scale-105" data-alt="A clean, minimalist high-tech workspace featuring a sleek laptop on a white desk. In the background, a digital whiteboard shows logical flowcharts and algorithm diagrams. The lighting is soft and natural, emphasizing a premium educational environment with subtle deep blue shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoaKtpONuYW3LC8HnQdoiy2GSipYQ2ZQt-kPVW5LGfa7jVAOJQHKF-SCVoEQKtWY0868P5RDm_wJfo3-tZA2rlUwS8V_7d2VpVt1Lp32lOyYrSdMLSuJAK_oxgt3N6Ol5TE6P_39LxDrEaxILI76nqK0x7thqXniWi-_z6h-wEzS2QNC1mVzSzzWEge-hWY8AksoEocVz86q2BY91yW8t4P6KLyyJoLd7BpV0FV5-_As1skKR2guS4Phih7kYCvDZAG_Kkn6ptIW12"/>
+</div>
+<div class="p-5 space-y-3">
+<div class="flex items-center gap-1 text-pending">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.8 (1.1k reviews)</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-primary leading-snug">MCA Foundation: Maths & Logic</h3>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-subtle px-2 py-1 rounded text-on-surface-variant font-label-sm text-label-sm">Computer Awareness</span>
+</div>
+<div class="pt-4 flex items-center justify-between border-t border-border-light">
+<div class="flex items-baseline gap-2">
+<span class="text-headline-md font-bold text-primary">₹8,999</span>
+<span class="text-on-surface-variant line-through text-label-sm">₹15,000</span>
+</div>
+<button class="bg-primary text-white p-3 rounded-lg active:scale-90 transition-transform">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Testimonials Scroller -->
+<section class="bg-surface-subtle py-8">
+<div class="px-4 mb-6">
+<h2 class="font-title-lg text-title-lg text-primary">Success Stories</h2>
+<p class="text-on-surface-variant font-label-md text-label-md">Real results from MCA Ace Alumni</p>
+</div>
+<div class="flex gap-4 overflow-x-auto px-4 hide-scrollbar">
+<div class="min-w-[280px] bg-white p-6 rounded-xl shadow-sm border border-border-light space-y-4">
+<div class="flex items-center gap-3">
+<img alt="Alumni" class="w-12 h-12 rounded-full bg-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiCP_UDc7nhbTAZZFgcB_OTWcVpND6JBPjErEZC8__Zjp6UxGmDD1l5Mv1cRG6F5ZDvIZFpiunSdfYxjGdTgFUnCyTycakVGqRVLcWUFSp9enBMKkJcfvbDm3MAPeFDzMgB55lVQsD600ucsmrlluGaoaCn-Svk0NgPrRipDi3_zod1DXkg8lgk6CDbR2Obj8A-Ffu43CMByFA49ekydj7t4NMaJsy-czMPvsMBSe85chj0JYQyxI2DqI84RFSLW8YZsdD93ZH-q-Y"/>
+<div>
+<p class="font-label-md text-label-md text-primary">Rohit Sharma</p>
+<p class="text-[12px] text-success font-semibold">AIR 14, NIMCET 2024</p>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed">
+                        "The test series at MCA Ace is unmatched. The detailed analysis helped me identify my weak areas in Calculus."
+                    </p>
+</div>
+<div class="min-w-[280px] bg-white p-6 rounded-xl shadow-sm border border-border-light space-y-4">
+<div class="flex items-center gap-3">
+<img alt="Alumni" class="w-12 h-12 rounded-full bg-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGZto2GfsdKVsj_8U4tNxylytgxSZhE5q23bNUVLNqoasZ4GVR6dkYeElnR0kpcpuiimNfrtYau-sCp2YKe9MIb23iQdO2hooDbbda24QTt5VAVF3fF-Zu6Ldy95qPO4dbC6ZE5xuSHfyRECG4fAquwFKy6OZFezfaowZJgsVvOT6fdTp9EfsIKG-QyGxr9SEeVa8K9ZlApPPm1lWq075NHBwr1Rxe2rWB62V-oe_8dPUVGewdA8dQ9xW4MesU_cEEHVqTUSAYQsT4"/>
+<div>
+<p class="font-label-md text-label-md text-primary">Priya Patel</p>
+<p class="text-[12px] text-success font-semibold">NIT Trichy</p>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed">
+                        "Teachers here are very patient. The live doubt solving sessions made even the hardest topics easy to grasp."
+                    </p>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating AI Assistant Widget -->
+<div class="fixed bottom-24 right-4 z-40">
+<button class="w-14 h-14 bg-secondary text-white rounded-full shadow-xl flex items-center justify-center hover:scale-105 active:scale-90 transition-transform relative group" id="ai-trigger">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+<span class="absolute -top-1 -right-1 flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-success"></span>
+</span>
+</button>
+</div>
+<!-- Sticky Bottom Bar -->
+<div class="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-[0px_-4px_20px_rgba(26,43,86,0.08)] safe-bottom">
+<div class="px-4 py-3 flex items-center gap-4">
+<div class="flex-1">
+<p class="text-[12px] text-on-surface-variant font-medium">Starting at</p>
+<p class="text-headline-md font-bold text-primary">₹749/mo</p>
+</div>
+<button class="flex-[2] h-14 bg-on-tertiary-container text-white font-bold rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+                Enroll Now
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Footer (Shared Component Structure) -->
+<footer class="bg-primary text-on-primary py-12 px-6 space-y-8 mb-20">
+<div class="space-y-4">
+<h2 class="font-headline-md text-headline-md text-on-primary">MCA Ace</h2>
+<p class="text-on-primary-container opacity-80 font-body-md">Empowering the next generation of software leaders through elite entrance preparation.</p>
+</div>
+<div class="grid grid-cols-2 gap-8">
+<div class="space-y-4">
+<h3 class="font-label-md text-label-md uppercase tracking-wider text-on-primary-container">Company</h3>
+<ul class="space-y-3 font-body-md opacity-80">
+<li>About</li>
+<li>Contact</li>
+<li>Careers</li>
+</ul>
+</div>
+<div class="space-y-4">
+<h3 class="font-label-md text-label-md uppercase tracking-wider text-on-primary-container">Support</h3>
+<ul class="space-y-3 font-body-md opacity-80">
+<li>Privacy</li>
+<li>Terms</li>
+<li>Refunds</li>
+</ul>
+</div>
+</div>
+<div class="pt-8 border-t border-primary-container flex flex-col gap-4 items-center">
+<div class="flex gap-6">
+<span class="material-symbols-outlined opacity-80">public</span>
+<span class="material-symbols-outlined opacity-80">mail</span>
+<span class="material-symbols-outlined opacity-80">phone</span>
+</div>
+<p class="text-[12px] opacity-60 text-center">© 2024 MCA Entrance Prep. All rights reserved.</p>
+</div>
+</footer>
+<!-- Micro-interactions Script -->
+<script>
+        document.getElementById('ai-trigger').addEventListener('click', () => {
+            alert('AI Assistant: "Hi! How can I help you with your NIMCET preparation today?"');
+        });
+
+        // Simple scroll shadow for header
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 10) {
+                header.classList.add('shadow-md');
+            } else {
+                header.classList.remove('shadow-md');
+            }
+        });
+    </script>
+</body></html>

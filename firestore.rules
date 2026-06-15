@@ -1,0 +1,147 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if the user is authenticated
+    function isAuth() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if request is for own document
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+    
+    // Helper function to check if the user is an administrator
+    function isAdmin() {
+      return isAuth() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // --- Admin Collection ---
+    match /admin/{adminId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+
+    // --- Users Collection ---
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      // Allow creation during signup. Role must default to 'student' unless written by an admin or if email is in the admin list.
+      allow create: if isAuth() && 
+        (request.resource.data.role == 'student' || 
+         request.resource.data.email == 'admin@gmail.com' ||
+         exists(/databases/$(database)/documents/admin/$(request.resource.data.email)) ||
+         isAdmin()) &&
+        // profileImage must match Google photoURL or first-character avatar constraint
+        (request.resource.data.profileImage == request.auth.token.picture || 
+         request.resource.data.profileImage == request.resource.data.name.upperCase().subString(0, 1) ||
+         request.resource.data.profileImage == 'default');
+      
+      // Update rules: students cannot change their email, role, or profile image unless their email is in the admin list
+      allow update: if isAdmin() || (
+        isOwner(userId) && 
+        (request.resource.data.email == 'admin@gmail.com' ||
+         exists(/databases/$(database)/documents/admin/$(request.resource.data.email)) ||
+         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'email', 'profileImage']))
+      );
+      
+      allow delete: if isAdmin();
+    }
+
+    // --- Courses Collection ---
+    match /courses/{courseId} {
+      // Public can read published, non-deleted courses. Admins can read everything.
+      allow read: if (resource.data.isPublished == true && resource.data.isDeleted != true) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // --- Modules Collection ---
+    match /modules/{moduleId} {
+      allow read: if (resource.data.isDeleted != true) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // --- Topics Collection ---
+    match /topics/{topicId} {
+      allow read: if (resource.data.isDeleted != true) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // --- Lessons Collection ---
+    match /lessons/{lessonId} {
+      // Allow reading free preview lessons or if student is enrolled in the course. Admins can read all.
+      allow read: if resource.data.isFreePreview == true || 
+        isAdmin() || 
+        (isAuth() && exists(/databases/$(database)/documents/enrollments/$(request.auth.uid + '_' + resource.data.courseId)) && 
+         get(/databases/$(database)/documents/enrollments/$(request.auth.uid + '_' + resource.data.courseId)).data.status == 'active');
+      allow write: if isAdmin();
+    }
+
+    // --- Enrollments Collection ---
+    // Document ID = userId + "_" + courseId
+    match /enrollments/{enrollmentId} {
+      allow read: if isAdmin() || (isAuth() && resource.data.userId == request.auth.uid);
+      // Only admins can grant or modify enrollments (including payment approvals)
+      allow write: if isAdmin();
+    }
+
+    // --- Lesson Progress Collection ---
+    // Document ID = userId + "_" + lessonId
+    match /lessonProgress/{progressId} {
+      allow read: if isAdmin() || (isAuth() && resource.data.userId == request.auth.uid);
+      allow write: if isAdmin() || (isAuth() && request.resource.data.userId == request.auth.uid);
+    }
+
+    // --- Quizzes Collection ---
+    match /quizzes/{quizId} {
+      allow read: if isAdmin() || isAuth();
+      allow write: if isAdmin();
+    }
+
+    // --- Quiz Questions Collection ---
+    match /quizQuestions/{questionId} {
+      allow read: if isAdmin() || isAuth();
+      allow write: if isAdmin();
+    }
+
+    // --- Quiz Attempts Collection ---
+    match /quizAttempts/{attemptId} {
+      allow read: if isAdmin() || (isAuth() && resource.data.userId == request.auth.uid);
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // --- Payment Requests Collection ---
+    match /paymentRequests/{requestId} {
+      allow read: if isAdmin() || (isAuth() && resource.data.userId == request.auth.uid);
+      // Students can create pending payment requests.
+      allow create: if isAuth() && 
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.status == 'pending';
+      // Only admins can update the status (approve/reject)
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // --- Announcements Collection ---
+    match /announcements/{announcementId} {
+      allow read: if (resource.data.isDeleted != true) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // --- Mock Tests Collection ---
+    match /mocktests/{testId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+
+    // --- Mock Attempts Collection ---
+    match /mockAttempts/{attemptId} {
+      allow read: if isAdmin() || (isAuth() && resource.data.userId == request.auth.uid);
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+  }
+}

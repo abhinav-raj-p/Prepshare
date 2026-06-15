@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Placement Preparation Program | MCA Ace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-subtle": "#F8FAFC",
+                    "on-secondary-fixed": "#140067",
+                    "surface-tint": "#4d5d8b",
+                    "on-primary-fixed": "#051944",
+                    "surface-container-high": "#e3e9ed",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#6d5fee",
+                    "border-light": "#E2E8F0",
+                    "on-primary": "#ffffff",
+                    "error": "#EF4444",
+                    "primary": "#021541",
+                    "pending": "#F59E0B",
+                    "surface-dim": "#d5dbdf",
+                    "surface": "#f5fafe",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed": "#360f00",
+                    "surface-container": "#e9eff3",
+                    "tertiary-fixed": "#ffdbcd",
+                    "tertiary": "#310c00",
+                    "inverse-surface": "#2b3134",
+                    "inverse-on-surface": "#ecf1f5",
+                    "on-tertiary-fixed-variant": "#7e2c00",
+                    "on-secondary-fixed-variant": "#3d28be",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#f5fafe",
+                    "tertiary-fixed-dim": "#ffb597",
+                    "surface-container-low": "#eff4f8",
+                    "background": "#f5fafe",
+                    "secondary": "#5344d3",
+                    "surface-container-highest": "#dee3e7",
+                    "on-error-container": "#93000a",
+                    "on-background": "#161c1f",
+                    "on-secondary-container": "#fffbff",
+                    "outline": "#757680",
+                    "primary-container": "#1a2b56",
+                    "surface-variant": "#dee3e7",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-container": "#531b00",
+                    "outline-variant": "#c5c6d0",
+                    "secondary-fixed-dim": "#c5c0ff",
+                    "primary-fixed-dim": "#b5c5f9",
+                    "primary-fixed": "#dae1ff",
+                    "on-primary-fixed-variant": "#354572",
+                    "secondary-fixed": "#e4dfff",
+                    "success": "#10B981",
+                    "on-tertiary-container": "#fb6514",
+                    "on-surface": "#161c1f",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#8393c5",
+                    "on-surface-variant": "#45464f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "40px",
+                    "base": "8px",
+                    "margin-mobile": "16px",
+                    "gutter": "24px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "title-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "title-lg": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-active .accordion-content {
+            max-height: 1000px;
+        }
+        .accordion-active .rotate-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-secondary-fixed-dim">
+<!-- TopNavBar -->
+<nav class="fixed top-0 z-50 w-full bg-surface shadow-[0px_4px_20px_rgba(26,43,86,0.06)] h-20">
+<div class="flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto h-full">
+<div class="font-headline-md text-headline-md font-bold text-primary">MCA Ace</div>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-primary border-b-2 border-primary font-bold pb-1 font-body-md text-body-md" href="#">Courses</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Demo Classes</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Success Stories</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Contact</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-primary font-label-md px-4 py-2 hover:bg-surface-subtle rounded-lg transition-colors">Login/Signup</button>
+<button class="bg-[#FB6514] text-white font-label-md px-6 py-2.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all">Enroll Now</button>
+</div>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Hero Section -->
+<header class="bg-primary text-on-primary py-16 px-margin-desktop">
+<div class="max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<div class="lg:col-span-7">
+<div class="flex gap-2 mb-4">
+<span class="bg-secondary-container text-on-secondary-container text-label-sm font-label-sm px-3 py-1 rounded-full">Bestseller</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed text-label-sm font-label-sm px-3 py-1 rounded-full">Top Rated</span>
+</div>
+<h1 class="font-display-lg text-display-lg mb-6 leading-tight">Placement Preparation Program</h1>
+<p class="text-on-primary-container text-body-lg font-body-lg mb-8 max-w-2xl">
+                        A comprehensive 6-month career track designed to help MCA students crack placements at Tier-1 tech companies. Covers DSA, System Design, and Aptitude.
+                    </p>
+<div class="flex flex-wrap gap-8 items-center">
+<div class="flex items-center gap-3">
+<img alt="Instructor Profile" class="w-12 h-12 rounded-full border-2 border-on-primary-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgqwoxyVPEOsqMCysPJAy2YHScoIqtHXmtwyiBcy664phfO8o6w8QiVj3qt0AUJoFDWznMhITqTnkR-NInuxQ_u74QxzCnJ-V1AUk49claQiSS1A6zwKd-9_ekyp-5B5JhcAPsVXHyh4QyIdOPuJm6-2b1sZAbILo2lWYV1OXIeD51A--EissSbPlJJXK2HyCmVjNSUOuRAQxaW4ytdHNMfpeSro658AlFWEF6BIOXj8xVLW-Jt7NShA87zU18av8Sq_ZsBkmyV9Kl"/>
+<div>
+<p class="font-label-md text-label-md">Dr. Rajesh Kumar</p>
+<p class="text-label-sm opacity-70">Ex-Amazon, 15+ Yrs Exp</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed-dim" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md">4.9 (2.4k Reviews)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md">12,450 Students</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-5 relative group">
+<div class="rounded-xl overflow-hidden shadow-2xl relative">
+<img class="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional workspace with a clean laptop displaying complex code snippets and data structures in a modern dark-themed IDE. The environment is a sophisticated tech office with soft blue ambient lighting and ergonomic furniture, creating a premium and focused educational atmosphere. High-end photography style with shallow depth of field and vibrant corporate blue accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPB_Wuu4-i7gEvTQtlPHVYD5pu8Bd_0U7CxDziHl8QqXOFF9-R0axU19EITsUZEhl5YvWRycWg3Wi2samP0H6k0rRH5Ljob4GL50x8w7dQnIXaHLfdiFXwICoDSk8Evff8hb4f-LIFpZOyT8_dpQypNLnmaxpW4hupPd-auS2ypi6ubiHz-yURMYxBzVG23xfdSMEYbusD4IdQM7TkmyfcP4I6dF8KZiJVD6-mkJK82NRGHjDggxpBbI2LYYVTBAhZXgm7OLndxLBt"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+<button class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-primary shadow-xl hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="max-w-container-max mx-auto px-margin-desktop py-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Left Content -->
+<div class="lg:col-span-8 space-y-12">
+<!-- Description -->
+<section>
+<h2 class="font-headline-md text-headline-md text-primary mb-6">Course Description</h2>
+<div class="prose max-w-none text-on-surface-variant leading-relaxed">
+<p class="mb-4">Our Placement Preparation Program is meticulously crafted for MCA students aiming for high-paying roles in the software industry. We understand that the recruitment landscape is changing, and mere coding skills are no longer enough.</p>
+<p>This program bridges the gap between academic learning and industry expectations, focusing on problem-solving strategies, algorithmic thinking, and professional communication. From Mock Interviews to Live Coding sessions, we cover everything.</p>
+</div>
+</section>
+<!-- Learning Outcomes - Bento Grid Style -->
+<section>
+<h2 class="font-headline-md text-headline-md text-primary mb-6">What you'll learn</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="p-6 bg-surface-subtle border border-border-light rounded-xl flex gap-4">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">code</span>
+<div>
+<h4 class="font-title-lg text-title-lg mb-1">Advanced DSA</h4>
+<p class="text-label-md text-on-surface-variant">Master Recursion, Trees, Graphs, and Dynamic Programming.</p>
+</div>
+</div>
+<div class="p-6 bg-surface-subtle border border-border-light rounded-xl flex gap-4">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">architecture</span>
+<div>
+<h4 class="font-title-lg text-title-lg mb-1">System Design</h4>
+<p class="text-label-md text-on-surface-variant">Learn LLD and HLD concepts used in scalable enterprise apps.</p>
+</div>
+</div>
+<div class="p-6 bg-surface-subtle border border-border-light rounded-xl flex gap-4">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<div>
+<h4 class="font-title-lg text-title-lg mb-1">Aptitude &amp; Reasoning</h4>
+<p class="text-label-md text-on-surface-variant">Quantitative and Logical reasoning for initial screening rounds.</p>
+</div>
+</div>
+<div class="p-6 bg-surface-subtle border border-border-light rounded-xl flex gap-4">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">forum</span>
+<div>
+<h4 class="font-title-lg text-title-lg mb-1">Mock Interviews</h4>
+<p class="text-label-md text-on-surface-variant">Regular 1-on-1 sessions with industry experts from top tech MNCs.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Curriculum -->
+<section>
+<div class="flex justify-between items-end mb-6">
+<h2 class="font-headline-md text-headline-md text-primary">Course Content</h2>
+<span class="text-label-sm text-on-surface-variant">12 Modules • 145 Lessons • 80h Total Length</span>
+</div>
+<div class="space-y-4">
+<!-- Module 1 -->
+<div class="accordion-item border border-border-light rounded-xl overflow-hidden bg-white">
+<button class="w-full flex items-center justify-between p-5 text-left hover:bg-surface-subtle transition-colors" onclick="toggleAccordion(this)">
+<div class="flex items-center gap-4">
+<span class="text-label-md font-bold text-primary">01</span>
+<span class="font-title-lg text-title-lg">Mathematics for Programmers</span>
+</div>
+<span class="material-symbols-outlined rotate-icon transition-transform">expand_more</span>
+</button>
+<div class="accordion-content">
+<div class="p-5 border-t border-border-light space-y-4 bg-surface-container-lowest">
+<div class="flex justify-between items-center group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">play_circle</span>
+<span class="text-body-md">Number Systems &amp; Bit Manipulation</span>
+</div>
+<button class="text-primary font-label-md hover:underline">Preview</button>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">description</span>
+<span class="text-body-md">Combinatorics &amp; Probability Notes</span>
+</div>
+<span class="text-label-sm text-on-surface-variant">12 MB</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Module 2 -->
+<div class="accordion-item border border-border-light rounded-xl overflow-hidden bg-white accordion-active">
+<button class="w-full flex items-center justify-between p-5 text-left hover:bg-surface-subtle transition-colors" onclick="toggleAccordion(this)">
+<div class="flex items-center gap-4">
+<span class="text-label-md font-bold text-primary">02</span>
+<span class="font-title-lg text-title-lg">Data Structures - Part 1</span>
+</div>
+<span class="material-symbols-outlined rotate-icon transition-transform">expand_more</span>
+</button>
+<div class="accordion-content">
+<div class="p-5 border-t border-border-light space-y-4 bg-surface-container-lowest">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">play_circle</span>
+<span class="text-body-md">Introduction to Arrays &amp; Linked Lists</span>
+</div>
+<span class="text-label-sm text-on-surface-variant">45:00</span>
+</div>
+<div class="flex justify-between items-center group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">play_circle</span>
+<span class="text-body-md">Mastering Stack &amp; Queue Operations</span>
+</div>
+<button class="text-primary font-label-md hover:underline">Preview</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Module 3 -->
+<div class="accordion-item border border-border-light rounded-xl overflow-hidden bg-white">
+<button class="w-full flex items-center justify-between p-5 text-left hover:bg-surface-subtle transition-colors" onclick="toggleAccordion(this)">
+<div class="flex items-center gap-4">
+<span class="text-label-md font-bold text-primary">03</span>
+<span class="font-title-lg text-title-lg">Complexity Analysis</span>
+</div>
+<span class="material-symbols-outlined rotate-icon transition-transform">expand_more</span>
+</button>
+<div class="accordion-content">
+<div class="p-5 border-t border-border-light bg-surface-container-lowest text-center py-10 text-on-surface-variant">
+                                    Purchase course to unlock this module
+                                </div>
+</div>
+</div>
+</div>
+</section>
+<!-- Requirements -->
+<section>
+<h2 class="font-headline-md text-headline-md text-primary mb-6">Requirements</h2>
+<ul class="space-y-3 list-none">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-success">check_circle</span>
+<span class="text-body-md text-on-surface-variant">Basic understanding of at least one programming language (C/C++, Java, or Python).</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-success">check_circle</span>
+<span class="text-body-md text-on-surface-variant">Consistency to practice at least 2 hours daily.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-success">check_circle</span>
+<span class="text-body-md text-on-surface-variant">A laptop with an internet connection.</span>
+</li>
+</ul>
+</section>
+</div>
+<!-- Right Sidebar -->
+<div class="lg:col-span-4">
+<div class="sticky top-28 space-y-6">
+<div class="bg-white rounded-xl shadow-[0px_8px_30px_rgba(26,43,86,0.10)] border border-border-light p-6">
+<div class="flex items-baseline gap-2 mb-2">
+<span class="font-display-lg text-headline-lg text-primary">₹7,499</span>
+<span class="text-body-md text-on-surface-variant line-through">₹14,999</span>
+<span class="text-success font-bold text-label-md">50% OFF</span>
+</div>
+<p class="text-error text-label-sm font-bold mb-6 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">alarm</span>
+                            Offer ends in 14 hours!
+                        </p>
+<div class="space-y-4 mb-8">
+<button class="w-full bg-[#FB6514] text-white py-4 rounded-lg font-bold text-title-lg shadow-lg hover:shadow-xl active:scale-[0.98] transition-all">Buy Now</button>
+<button class="w-full bg-white text-primary border-2 border-primary py-4 rounded-lg font-bold text-title-lg hover:bg-surface-subtle active:scale-[0.98] transition-all">Add to Cart</button>
+</div>
+<div class="space-y-4 text-on-surface-variant">
+<p class="font-bold text-primary mb-2">This course includes:</p>
+<div class="flex items-center gap-3 text-label-md">
+<span class="material-symbols-outlined text-secondary">movie</span>
+                                80 hours on-demand video
+                            </div>
+<div class="flex items-center gap-3 text-label-md">
+<span class="material-symbols-outlined text-secondary">assignment</span>
+                                52 Coding Assignments
+                            </div>
+<div class="flex items-center gap-3 text-label-md">
+<span class="material-symbols-outlined text-secondary">all_inclusive</span>
+                                Lifetime access
+                            </div>
+<div class="flex items-center gap-3 text-label-md">
+<span class="material-symbols-outlined text-secondary">workspace_premium</span>
+                                Certificate of completion
+                            </div>
+</div>
+<div class="mt-8 pt-8 border-t border-border-light flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<span class="text-label-md font-bold">100% Refund Policy</span>
+<span class="material-symbols-outlined text-primary">info</span>
+</div>
+<p class="text-label-sm">No questions asked if cancelled within 7 days.</p>
+</div>
+</div>
+<div class="bg-primary-container text-on-primary-container p-6 rounded-xl">
+<h4 class="font-title-lg text-title-lg mb-4">For Institutions</h4>
+<p class="text-label-md opacity-80 mb-4">Want to train your entire batch? Get special discounts for 50+ students.</p>
+<button class="text-white border border-on-primary-container/30 w-full py-2 rounded-lg hover:bg-white/10 transition-colors">Contact Support</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Student Reviews -->
+<section class="bg-surface-subtle py-20">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<h2 class="font-headline-md text-headline-md text-primary mb-12 text-center">Loved by MCA Aspirants</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Review 1 -->
+<div class="bg-white p-8 rounded-xl shadow-sm border border-border-light">
+<div class="flex items-center gap-1 text-[#FFD700] mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-body-md text-on-surface-variant mb-6 italic">"The structure of this course is phenomenal. I went from zero coding knowledge to cracking a 12 LPA offer at Microsoft. The DSA modules are gold!"</p>
+<div class="flex items-center gap-4">
+<img alt="Student" class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOmrIswNlDGpAK7eJvH-6SQa3H8N150j17cvK-wHet_LML9fPaLC7DzJ58cuWp9dRBi9IAz6pJzYHwx_KG97gUic4-87U9aDedq6jLjpT5WJ3wv57dx_LsVewU4KzHS0ObBQsj2qBgVTeDXbzVH2FA9IF2ifeQLeVvchtI7rIAI3dcLujtcgus0GFh79-gsqB8jMqytV6flZmKfYv5B6Ap_amMSIgykjsIhcCUNH4QuzDwN-qMD9Lo2rkPZBo75U6q7fYeQ3cO-qLN"/>
+<div>
+<p class="font-label-md">Amit Verma</p>
+<p class="text-label-sm opacity-70">Placed at Microsoft</p>
+</div>
+</div>
+</div>
+<!-- Review 2 -->
+<div class="bg-white p-8 rounded-xl shadow-sm border border-border-light">
+<div class="flex items-center gap-1 text-[#FFD700] mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-body-md text-on-surface-variant mb-6 italic">"The mock interviews were exactly like the real ones. They helped me overcome my nervousness. Highly recommended for all MCA students."</p>
+<div class="flex items-center gap-4">
+<img alt="Student" class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABZq2QenHwtU-syC2GErRQBFp0XMNp_uyK_dFweAMPhR8Z_LOAD2DZN9tt-qxbKUV3V6_4iKMBPjkbZHGkm8j_YXt_zEpNbEYpq8Hz_0J-92H3XLfHzGj_5EQ9TlbVazeoIEBb5KcSL_LLZKTYZrgqg69lhgarp_cXeACjyp7FZq0_4TSunUucvuMtdsSkX5DI0Y4i2w7oE8owuKFtpmS_3n-NoWyNyD42u-K7OP7HmjXMOpcOIxv6cFA3b11bRQl-5cuQZWrkbaUh"/>
+<div>
+<p class="font-label-md">Sneha Kapur</p>
+<p class="text-label-sm opacity-70">Placed at Infosys</p>
+</div>
+</div>
+</div>
+<!-- Review 3 -->
+<div class="bg-white p-8 rounded-xl shadow-sm border border-border-light">
+<div class="flex items-center gap-1 text-[#FFD700] mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star_half</span>
+</div>
+<p class="text-body-md text-on-surface-variant mb-6 italic">"Great content quality and support. The community Slack channel is very active for doubt resolution. Worth every penny."</p>
+<div class="flex items-center gap-4">
+<img alt="Student" class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAw0fw_MVk2bc7Lao5DImnSGNBUZY8DOria6IqpUUONnPAatPpP-1qRmNedWW4aGzVJe2jc18bddjqU06pWj0TE-tma0u9VtfT76WCuJyCAAyMEUzc1LICMo6CgHGCiOTBc6dxuA-K-B-6hFt4iXH1MpEFaXsR8-lV-IZmcuNEArsQqNqp6GBkeL2RxfZo6HopXMM4z6cV2prWlyZqxPSRUXqR6wxCBa9S4FLe9ieDl5MMLlaxLKRnSbdDeNk_le_8qrFSZ7YJ_3WNj"/>
+<div>
+<p class="font-label-md">Rahul Singh</p>
+<p class="text-label-sm opacity-70">Placed at TCS Digital</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FAQ Section -->
+<section class="py-20 px-margin-desktop max-w-4xl mx-auto">
+<h2 class="font-headline-md text-headline-md text-primary mb-12 text-center">Frequently Asked Questions</h2>
+<div class="space-y-4">
+<div class="p-6 bg-white border border-border-light rounded-xl">
+<h4 class="font-title-lg text-title-lg mb-2">Is this course suitable for complete beginners?</h4>
+<p class="text-on-surface-variant">Yes, we start from the absolute basics of programming logic before moving to complex data structures.</p>
+</div>
+<div class="p-6 bg-white border border-border-light rounded-xl">
+<h4 class="font-title-lg text-title-lg mb-2">Will I get a certificate?</h4>
+<p class="text-on-surface-variant">Absolutely. You will receive a verified certificate from MCA Ace upon completing 80% of the course and passing the final project.</p>
+</div>
+<div class="p-6 bg-white border border-border-light rounded-xl">
+<h4 class="font-title-lg text-title-lg mb-2">Can I access the course on mobile?</h4>
+<p class="text-on-surface-variant">Yes, our platform is fully responsive and we have dedicated Android/iOS apps for offline viewing.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-primary text-on-primary">
+<div class="w-full py-12 px-margin-desktop max-w-container-max mx-auto flex flex-col md:flex-row justify-between border-b border-white/10">
+<div class="mb-8 md:mb-0">
+<div class="font-headline-md text-headline-md font-bold mb-4">MCA Ace</div>
+<p class="text-on-primary-container max-w-xs opacity-80">India's leading platform for MCA entrance and placement preparation. Trusted by 50k+ students.</p>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-12">
+<div class="flex flex-col gap-4">
+<h5 class="font-bold text-on-primary">Company</h5>
+<a class="text-on-primary-container opacity-80 hover:opacity-100 hover:text-white transition-opacity" href="#">About</a>
+<a class="text-on-primary-container opacity-80 hover:opacity-100 hover:text-white transition-opacity" href="#">Contact</a>
+<a class="text-on-primary-container opacity-80 hover:opacity-100 hover:text-white transition-opacity" href="#">Success Stories</a>
+</div>
+<div class="flex flex-col gap-4">
+<h5 class="font-bold text-on-primary">Resources</h5>
+<a class="text-on-primary-container opacity-80 hover:opacity-100 hover:text-white transition-opacity" href="#">Blog</a>
+<a class="text-on-primary-container opacity-80 hover:opacity-100 hover:text-white transition-opacity" href="#">Demo Classes</a>
+<a class="text-on-primary-container opacity-80 hover:opacity-100 hover:text-white transition-opacity" href="#">Privacy</a>
+</div>
+<div class="flex flex-col gap-4">
+<h5 class="font-bold text-on-primary">Support</h5>
+<a class="text-on-primary-container opacity-80 hover:opacity-100 hover:text-white transition-opacity" href="#">Help Center</a>
+<a class="text-on-primary-container opacity-80 hover:opacity-100 hover:text-white transition-opacity" href="#">Terms</a>
+<a class="text-on-primary-container opacity-80 hover:opacity-100 hover:text-white transition-opacity" href="#">Refund Policy</a>
+</div>
+</div>
+</div>
+<div class="max-w-container-max mx-auto py-6 px-margin-desktop flex justify-between items-center opacity-60 text-label-sm">
+<span>© 2024 MCA Entrance Prep. All rights reserved.</span>
+<div class="flex gap-4">
+<span class="material-symbols-outlined cursor-pointer hover:text-white">language</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-white">share</span>
+</div>
+</div>
+</footer>
+<!-- Floating AI Assistant -->
+<div class="fixed bottom-8 right-8 z-[100] group" id="ai-assistant">
+<div class="hidden absolute bottom-20 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-border-light overflow-hidden flex flex-col" id="chat-window">
+<div class="bg-primary p-4 text-white flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">smart_toy</span>
+</div>
+<div>
+<p class="font-bold text-label-md leading-none">Ace AI Bot</p>
+<p class="text-[10px] opacity-70">Online • Always Ready</p>
+</div>
+</div>
+<button class="material-symbols-outlined hover:bg-white/10 p-1 rounded" onclick="toggleChat()">close</button>
+</div>
+<div class="h-64 p-4 overflow-y-auto space-y-4 bg-surface-subtle">
+<div class="flex gap-2">
+<div class="w-6 h-6 bg-secondary rounded-full flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] text-white">smart_toy</span>
+</div>
+<div class="bg-white p-3 rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-sm text-label-md">
+                        Hi! I'm Ace Bot. Need help choosing the right plan?
+                    </div>
+</div>
+</div>
+<div class="p-4 border-t border-border-light bg-white">
+<div class="flex gap-2">
+<input class="flex-1 border-border-light rounded-lg text-label-md px-3 py-2 focus:ring-primary focus:border-primary" placeholder="Type a message..." type="text"/>
+<button class="bg-primary text-white p-2 rounded-lg material-symbols-outlined">send</button>
+</div>
+</div>
+</div>
+<button class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-110 active:scale-95 transition-all" onclick="toggleChat()">
+<span class="material-symbols-outlined text-3xl">smart_toy</span>
+</button>
+</div>
+<script>
+        function toggleAccordion(btn) {
+            const item = btn.parentElement;
+            const isActive = item.classList.contains('accordion-active');
+            
+            // Optional: close other accordions
+            // document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('accordion-active'));
+            
+            if (isActive) {
+                item.classList.remove('accordion-active');
+            } else {
+                item.classList.add('accordion-active');
+            }
+        }
+
+        function toggleChat() {
+            const chat = document.getElementById('chat-window');
+            chat.classList.toggle('hidden');
+        }
+
+        // Micro-interactions
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.add('scale-95');
+                setTimeout(() => this.classList.remove('scale-95'), 100);
+            });
+        });
+    </script>
+</body></html>

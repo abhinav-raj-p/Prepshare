@@ -1,0 +1,103 @@
+/* Shared CSS Styles for MCA Ace */
+
+/* Material Icons configuration */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+/* Glassmorphism Card Style */
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.dark .glass-card {
+    background: rgba(26, 30, 46, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Scrollbar Utility */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Custom Scrollbar for Dashboard */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+
+/* Accordion Transition Physics */
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-active .accordion-content {
+    max-height: 1000px;
+}
+
+.accordion-active .rotate-icon {
+    transform: rotate(180deg);
+}
+
+/* Step Connectors for Manual UPI Payment */
+.step-connector::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    bottom: -20px;
+    width: 2px;
+    background-color: #E2E8F0;
+}
+
+.dark .step-connector::after {
+    background-color: #334155;
+}
+
+.step-connector-last::after {
+    display: none;
+}
+
+/* Active Navigation highlight border */
+.nav-link-active {
+    border-bottom: 2px solid currentColor;
+    font-weight: 700;
+}
+
+/* AI Assistant Widget slide animation */
+@keyframes slideInUp {
+    from {
+        transform: translateY(16px) scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-slide-up {
+    animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

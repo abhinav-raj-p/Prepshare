@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Placement Preparation Program | MCA Ace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#dce1ff",
+                    "surface-bright": "#33394a",
+                    "on-background": "#dde2f8",
+                    "surface-container-low": "#151b2b",
+                    "primary": "#b5c4ff",
+                    "surface-container-high": "#242a3a",
+                    "on-secondary-container": "#fffbff",
+                    "tertiary-fixed-dim": "#b7c8e1",
+                    "on-secondary-fixed-variant": "#802900",
+                    "tertiary": "#b7c8e1",
+                    "on-secondary-fixed": "#380d00",
+                    "outline-variant": "#444651",
+                    "on-tertiary-fixed": "#0b1c30",
+                    "tertiary-fixed": "#d3e4fe",
+                    "on-tertiary-container": "#b3c3dd",
+                    "on-surface-variant": "#c5c5d3",
+                    "surface-tint": "#b5c4ff",
+                    "inverse-surface": "#dde2f8",
+                    "on-primary-container": "#afc0ff",
+                    "on-surface": "#dde2f8",
+                    "on-tertiary-fixed-variant": "#38485d",
+                    "inverse-primary": "#3e59ae",
+                    "outline": "#8e909d",
+                    "on-tertiary": "#213145",
+                    "background": "#0d1322",
+                    "on-primary-fixed-variant": "#234194",
+                    "on-error-container": "#ffdad6",
+                    "surface": "#0d1322",
+                    "surface-container-highest": "#2f3445",
+                    "tertiary-container": "#415167",
+                    "secondary-container": "#cd4802",
+                    "primary-fixed-dim": "#b5c4ff",
+                    "secondary-fixed-dim": "#ffb59a",
+                    "surface-container": "#191f2f",
+                    "on-error": "#690005",
+                    "on-primary-fixed": "#00164e",
+                    "on-secondary": "#5b1b00",
+                    "inverse-on-surface": "#2a3040",
+                    "surface-container-lowest": "#080e1d",
+                    "primary-container": "#2e4a9e",
+                    "on-primary": "#00287c",
+                    "surface-dim": "#0d1322",
+                    "error-container": "#93000a",
+                    "surface-variant": "#2f3445",
+                    "secondary-fixed": "#ffdbcf",
+                    "secondary": "#ffb59a",
+                    "error": "#ffb4ab"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "md": "24px",
+                    "lg": "48px",
+                    "xl": "80px",
+                    "gutter": "24px",
+                    "base": "8px",
+                    "container-max": "1200px",
+                    "sm": "12px"
+            },
+            "fontFamily": {
+                    "label-sm": ["JetBrains Mono"],
+                    "headline-xl": ["Manrope"],
+                    "button": ["Inter"],
+                    "headline-md": ["Manrope"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-lg-mobile": ["Manrope"],
+                    "headline-lg": ["Manrope"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-xl": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "button": ["14px", {"lineHeight": "1", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-active .accordion-content {
+            max-height: 1000px;
+        }
+        .accordion-active .rotate-icon {
+            transform: rotate(180deg);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, h4, .headline {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 z-50 w-full bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant h-20">
+<div class="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-full">
+<div class="text-headline-md font-bold text-primary tracking-tight">MCA Ace</div>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-primary border-b-2 border-primary font-semibold pb-1 text-button" href="#">Courses</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-button" href="#">Demo Classes</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-button" href="#">Success Stories</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-button" href="#">Contact</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface font-button px-4 py-2 hover:bg-surface-bright rounded-lg transition-colors">Login/Signup</button>
+<button class="bg-secondary-container text-on-secondary-container font-button px-6 py-2.5 rounded-full font-bold shadow-lg shadow-secondary-container/20 active:scale-95 transition-all">Enroll Now</button>
+</div>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Hero Section -->
+<header class="bg-surface-container-lowest text-on-surface py-16 px-gutter border-b border-outline-variant">
+<div class="max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<div class="lg:col-span-7">
+<div class="flex gap-2 mb-6">
+<span class="bg-primary-container text-on-primary-container text-label-sm px-3 py-1 rounded-full uppercase tracking-wider">Bestseller</span>
+<span class="bg-tertiary-container text-on-tertiary-container text-label-sm px-3 py-1 rounded-full uppercase tracking-wider">Top Rated</span>
+</div>
+<h1 class="text-headline-xl mb-6 leading-tight text-on-surface">Placement Preparation Program</h1>
+<p class="text-on-surface-variant text-body-lg mb-8 max-w-2xl">
+                    A comprehensive 6-month career track designed to help MCA students crack placements at Tier-1 tech companies. Covers DSA, System Design, and Aptitude.
+                </p>
+<div class="flex flex-wrap gap-8 items-center">
+<div class="flex items-center gap-3">
+<img alt="Instructor Profile" class="w-12 h-12 rounded-full border-2 border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgqwoxyVPEOsqMCysPJAy2YHScoIqtHXmtwyiBcy664phfO8o6w8QiVj3qt0AUJoFDWznMhITqTnkR-NInuxQ_u74QxzCnJ-V1AUk49claQiSS1A6zwKd-9_ekyp-5B5JhcAPsVXHyh4QyIdOPuJm6-2b1sZAbILo2lWYV1OXIeD51A--EissSbPlJJXK2HyCmVjNSUOuRAQxaW4ytdHNMfpeSro658AlFWEF6BIOXj8xVLW-Jt7NShA87zU18av8Sq_ZsBkmyV9Kl"/>
+<div>
+<p class="font-semibold text-on-surface">Dr. Rajesh Kumar</p>
+<p class="text-label-sm text-on-surface-variant">Ex-Amazon, 15+ Yrs Exp</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-semibold">4.9 (2.4k Reviews)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline">group</span>
+<span class="font-semibold">12,450 Students</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-5 relative group">
+<div class="rounded-2xl overflow-hidden shadow-2xl shadow-primary-container/10 border border-outline-variant relative">
+<img class="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional workspace with code" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPB_Wuu4-i7gEvTQtlPHVYD5pu8Bd_0U7CxDziHl8QqXOFF9-R0axU19EITsUZEhl5YvWRycWg3Wi2samP0H6k0rRH5Ljob4GL50x8w7dQnIXaHLfdiFXwICoDSk8Evff8hb4f-LIFpZOyT8_dpQypNLnmaxpW4hupPd-auS2ypi6ubiHz-yURMYxBzVG23xfdSMEYbusD4IdQM7TkmyfcP4I6dF8KZiJVD6-mkJK82NRGHjDggxpBbI2LYYVTBAhZXgm7OLndxLBt"/>
+<div class="absolute inset-0 bg-surface-container-low/40 flex items-center justify-center">
+<button class="w-20 h-20 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="max-w-container-max mx-auto px-gutter py-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Left Content -->
+<div class="lg:col-span-8 space-y-16">
+<!-- Description -->
+<section>
+<h2 class="text-headline-lg text-on-surface mb-6">Course Description</h2>
+<div class="text-on-surface-variant text-body-lg leading-relaxed space-y-4">
+<p>Our Placement Preparation Program is meticulously crafted for MCA students aiming for high-paying roles in the software industry. We understand that the recruitment landscape is changing, and mere coding skills are no longer enough.</p>
+<p>This program bridges the gap between academic learning and industry expectations, focusing on problem-solving strategies, algorithmic thinking, and professional communication. From Mock Interviews to Live Coding sessions, we cover everything.</p>
+</div>
+</section>
+<!-- Learning Outcomes -->
+<section>
+<h2 class="text-headline-lg text-on-surface mb-8">What you'll learn</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="p-8 bg-surface-container-low border border-outline-variant rounded-2xl flex gap-5 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">code</span>
+<div>
+<h4 class="text-headline-md mb-2 text-on-surface">Advanced DSA</h4>
+<p class="text-on-surface-variant">Master Recursion, Trees, Graphs, and Dynamic Programming.</p>
+</div>
+</div>
+<div class="p-8 bg-surface-container-low border border-outline-variant rounded-2xl flex gap-5 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">architecture</span>
+<div>
+<h4 class="text-headline-md mb-2 text-on-surface">System Design</h4>
+<p class="text-on-surface-variant">Learn LLD and HLD concepts used in scalable enterprise apps.</p>
+</div>
+</div>
+<div class="p-8 bg-surface-container-low border border-outline-variant rounded-2xl flex gap-5 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<div>
+<h4 class="text-headline-md mb-2 text-on-surface">Aptitude &amp; Reasoning</h4>
+<p class="text-on-surface-variant">Quantitative and Logical reasoning for initial screening rounds.</p>
+</div>
+</div>
+<div class="p-8 bg-surface-container-low border border-outline-variant rounded-2xl flex gap-5 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">forum</span>
+<div>
+<h4 class="text-headline-md mb-2 text-on-surface">Mock Interviews</h4>
+<p class="text-on-surface-variant">Regular 1-on-1 sessions with industry experts from top tech MNCs.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Curriculum -->
+<section>
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+<h2 class="text-headline-lg text-on-surface">Course Content</h2>
+<span class="text-label-sm text-on-surface-variant bg-surface-container px-3 py-1 rounded-full">12 Modules • 145 Lessons • 80h Total</span>
+</div>
+<div class="space-y-4">
+<!-- Module 1 -->
+<div class="accordion-item border border-outline-variant rounded-2xl overflow-hidden bg-surface-container-low">
+<button class="w-full flex items-center justify-between p-6 text-left hover:bg-surface-bright transition-colors" onclick="toggleAccordion(this)">
+<div class="flex items-center gap-4">
+<span class="font-mono text-primary bg-primary-container/20 w-10 h-10 rounded-lg flex items-center justify-center">01</span>
+<span class="text-headline-md text-on-surface">Mathematics for Programmers</span>
+</div>
+<span class="material-symbols-outlined rotate-icon transition-transform text-outline">expand_more</span>
+</button>
+<div class="accordion-content">
+<div class="p-6 border-t border-outline-variant space-y-4 bg-surface-container-lowest">
+<div class="flex justify-between items-center group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">play_circle</span>
+<span class="text-body-md">Number Systems &amp; Bit Manipulation</span>
+</div>
+<button class="text-primary font-button hover:underline">Preview</button>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline">description</span>
+<span class="text-body-md">Combinatorics &amp; Probability Notes</span>
+</div>
+<span class="text-label-sm text-on-surface-variant">12 MB</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Module 2 -->
+<div class="accordion-item border border-outline-variant rounded-2xl overflow-hidden bg-surface-container-low accordion-active">
+<button class="w-full flex items-center justify-between p-6 text-left hover:bg-surface-bright transition-colors" onclick="toggleAccordion(this)">
+<div class="flex items-center gap-4">
+<span class="font-mono text-primary bg-primary-container/20 w-10 h-10 rounded-lg flex items-center justify-center">02</span>
+<span class="text-headline-md text-on-surface">Data Structures - Part 1</span>
+</div>
+<span class="material-symbols-outlined rotate-icon transition-transform text-outline">expand_more</span>
+</button>
+<div class="accordion-content">
+<div class="p-6 border-t border-outline-variant space-y-4 bg-surface-container-lowest">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline">play_circle</span>
+<span class="text-body-md">Introduction to Arrays &amp; Linked Lists</span>
+</div>
+<span class="text-label-sm text-on-surface-variant">45:00</span>
+</div>
+<div class="flex justify-between items-center group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">play_circle</span>
+<span class="text-body-md">Mastering Stack &amp; Queue Operations</span>
+</div>
+<button class="text-primary font-button hover:underline">Preview</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Requirements -->
+<section>
+<h2 class="text-headline-lg text-on-surface mb-6">Requirements</h2>
+<ul class="space-y-4">
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary bg-primary-container/10 p-1 rounded-full">check</span>
+<span class="text-body-md text-on-surface-variant">Basic understanding of at least one programming language (C/C++, Java, or Python).</span>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary bg-primary-container/10 p-1 rounded-full">check</span>
+<span class="text-body-md text-on-surface-variant">Consistency to practice at least 2 hours daily.</span>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary bg-primary-container/10 p-1 rounded-full">check</span>
+<span class="text-body-md text-on-surface-variant">A laptop with an internet connection.</span>
+</li>
+</ul>
+</section>
+</div>
+<!-- Right Sidebar -->
+<div class="lg:col-span-4">
+<div class="sticky top-28 space-y-6">
+<div class="bg-surface-container-low rounded-2xl shadow-xl border border-outline-variant p-8">
+<div class="flex items-baseline gap-2 mb-2">
+<span class="text-headline-xl text-on-surface">₹7,499</span>
+<span class="text-body-md text-on-surface-variant line-through">₹14,999</span>
+<span class="text-secondary font-bold text-label-sm px-2 py-0.5 bg-secondary-fixed-dim/20 rounded">50% OFF</span>
+</div>
+<p class="text-error text-label-sm font-semibold mb-8 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">alarm</span>
+                        Offer ends in 14 hours!
+                    </p>
+<div class="space-y-4 mb-10">
+<button class="w-full bg-secondary-container text-on-secondary-container py-4 rounded-xl font-bold text-headline-md shadow-lg shadow-secondary-container/30 active:scale-[0.98] transition-all">Buy Now</button>
+<button class="w-full bg-transparent text-primary border-2 border-primary py-4 rounded-xl font-bold text-headline-md hover:bg-primary/10 active:scale-[0.98] transition-all">Add to Cart</button>
+</div>
+<div class="space-y-5 text-on-surface-variant">
+<p class="font-bold text-on-surface mb-1">This course includes:</p>
+<div class="flex items-center gap-3 text-body-md">
+<span class="material-symbols-outlined text-primary">movie</span>
+                            80 hours on-demand video
+                        </div>
+<div class="flex items-center gap-3 text-body-md">
+<span class="material-symbols-outlined text-primary">assignment</span>
+                            52 Coding Assignments
+                        </div>
+<div class="flex items-center gap-3 text-body-md">
+<span class="material-symbols-outlined text-primary">all_inclusive</span>
+                            Lifetime access
+                        </div>
+<div class="flex items-center gap-3 text-body-md">
+<span class="material-symbols-outlined text-primary">workspace_premium</span>
+                            Certificate of completion
+                        </div>
+</div>
+<div class="mt-10 pt-8 border-t border-outline-variant">
+<div class="flex justify-between items-center mb-2">
+<span class="text-body-md font-bold text-on-surface">100% Refund Policy</span>
+<span class="material-symbols-outlined text-primary">verified_user</span>
+</div>
+<p class="text-label-sm text-on-surface-variant">No questions asked if cancelled within 7 days.</p>
+</div>
+</div>
+<div class="bg-primary-container text-on-primary-container p-8 rounded-2xl border border-primary-container/20">
+<h4 class="text-headline-md mb-4">For Institutions</h4>
+<p class="text-body-md opacity-90 mb-6">Want to train your entire batch? Get special discounts for 50+ students.</p>
+<button class="text-on-primary-container border border-on-primary-container/30 w-full py-3 rounded-xl hover:bg-on-primary-container/10 transition-colors font-bold">Contact Support</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Student Reviews -->
+<section class="bg-surface-container-lowest py-20 mt-12 border-t border-outline-variant">
+<div class="max-w-container-max mx-auto px-gutter">
+<h2 class="text-headline-lg text-on-surface mb-16 text-center">Loved by MCA Aspirants</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Review 1 -->
+<div class="bg-surface-container-low p-8 rounded-2xl shadow-sm border border-outline-variant">
+<div class="flex items-center gap-1 text-secondary mb-6">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-body-md text-on-surface-variant mb-8 italic leading-relaxed">"The structure of this course is phenomenal. I went from zero coding knowledge to cracking a 12 LPA offer at Microsoft. The DSA modules are gold!"</p>
+<div class="flex items-center gap-4">
+<img alt="Student" class="w-12 h-12 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOmrIswNlDGpAK7eJvH-6SQa3H8N150j17cvK-wHet_LML9fPaLC7DzJ58cuWp9dRBi9IAz6pJzYHwx_KG97gUic4-87U9aDedq6jLjpT5WJ3wv57dx_LsVewU4KzHS0ObBQsj2qBgVTeDXbzVH2FA9IF2ifeQLeVvchtI7rIAI3dcLujtcgus0GFh79-gsqB8jMqytV6flZmKfYv5B6Ap_amMSIgykjsIhcCUNH4QuzDwN-qMD9Lo2rkPZBo75U6q7fYeQ3cO-qLN"/>
+<div>
+<p class="font-bold text-on-surface">Amit Verma</p>
+<p class="text-label-sm text-on-surface-variant">Placed at Microsoft</p>
+</div>
+</div>
+</div>
+<!-- Review 2 -->
+<div class="bg-surface-container-low p-8 rounded-2xl shadow-sm border border-outline-variant">
+<div class="flex items-center gap-1 text-secondary mb-6">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-body-md text-on-surface-variant mb-8 italic leading-relaxed">"The mock interviews were exactly like the real ones. They helped me overcome my nervousness. Highly recommended for all MCA students."</p>
+<div class="flex items-center gap-4">
+<img alt="Student" class="w-12 h-12 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABZq2QenHwtU-syC2GErRQBFp0XMNp_uyK_dFweAMPhR8Z_LOAD2DZN9tt-qxbKUV3V6_4iKMBPjkbZHGkm8j_YXt_zEpNbEYpq8Hz_0J-92H3XLfHzGj_5EQ9TlbVazeoIEBb5KcSL_LLZKTYZrgqg69lhgarp_cXeACjyp7FZq0_4TSunUucvuMtdsSkX5DI0Y4i2w7oE8owuKFtpmS_3n-NoWyNyD42u-K7OP7HmjXMOpcOIxv6cFA3b11bRQl-5cuQZWrkbaUh"/>
+<div>
+<p class="font-bold text-on-surface">Sneha Kapur</p>
+<p class="text-label-sm text-on-surface-variant">Placed at Infosys</p>
+</div>
+</div>
+</div>
+<!-- Review 3 -->
+<div class="bg-surface-container-low p-8 rounded-2xl shadow-sm border border-outline-variant">
+<div class="flex items-center gap-1 text-secondary mb-6">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star_half</span>
+</div>
+<p class="text-body-md text-on-surface-variant mb-8 italic leading-relaxed">"Great content quality and support. The community Slack channel is very active for doubt resolution. Worth every penny."</p>
+<div class="flex items-center gap-4">
+<img alt="Student" class="w-12 h-12 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAw0fw_MVk2bc7Lao5DImnSGNBUZY8DOria6IqpUUONnPAatPpP-1qRmNedWW4aGzVJe2jc18bddjqU06pWj0TE-tma0u9VtfT76WCuJyCAAyMEUzc1LICMo6CgHGCiOTBc6dxuA-K-B-6hFt4iXH1MpEFaXsR8-lV-IZmcuNEArsQqNqp6GBkeL2RxfZo6HopXMM4z6cV2prWlyZqxPSRUXqR6wxCBa9S4FLe9ieDl5MMLlaxLKRnSbdDeNk_le_8qrFSZ7YJ_3WNj"/>
+<div>
+<p class="font-bold text-on-surface">Rahul Singh</p>
+<p class="text-label-sm text-on-surface-variant">Placed at TCS Digital</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FAQ Section -->
+<section class="py-20 px-gutter max-w-3xl mx-auto">
+<h2 class="text-headline-lg text-on-surface mb-12 text-center">Frequently Asked Questions</h2>
+<div class="space-y-6">
+<div class="p-8 bg-surface-container-low border border-outline-variant rounded-2xl">
+<h4 class="text-headline-md mb-4 text-on-surface">Is this course suitable for complete beginners?</h4>
+<p class="text-on-surface-variant leading-relaxed">Yes, we start from the absolute basics of programming logic before moving to complex data structures.</p>
+</div>
+<div class="p-8 bg-surface-container-low border border-outline-variant rounded-2xl">
+<h4 class="text-headline-md mb-4 text-on-surface">Will I get a certificate?</h4>
+<p class="text-on-surface-variant leading-relaxed">Absolutely. You will receive a verified certificate from MCA Ace upon completing 80% of the course and passing the final project.</p>
+</div>
+<div class="p-8 bg-surface-container-low border border-outline-variant rounded-2xl">
+<h4 class="text-headline-md mb-4 text-on-surface">Can I access the course on mobile?</h4>
+<p class="text-on-surface-variant leading-relaxed">Yes, our platform is fully responsive and we have dedicated Android/iOS apps for offline viewing.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest text-on-surface border-t border-outline-variant">
+<div class="w-full py-20 px-gutter max-w-container-max mx-auto flex flex-col md:flex-row justify-between gap-16">
+<div class="max-w-sm">
+<div class="text-headline-md font-bold mb-6 text-primary">MCA Ace</div>
+<p class="text-on-surface-variant mb-8 leading-relaxed">India's leading platform for MCA entrance and placement preparation. Trusted by 50k+ students nationwide.</p>
+<div class="flex gap-4">
+<div class="w-10 h-10 bg-surface-container rounded-full flex items-center justify-center hover:bg-surface-bright cursor-pointer transition-colors border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface">language</span>
+</div>
+<div class="w-10 h-10 bg-surface-container rounded-full flex items-center justify-center hover:bg-surface-bright cursor-pointer transition-colors border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface">share</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-x-12 gap-y-10">
+<div class="flex flex-col gap-5">
+<h5 class="font-bold text-on-surface uppercase tracking-widest text-label-sm">Company</h5>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-md" href="#">About</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-md" href="#">Contact</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-md" href="#">Success Stories</a>
+</div>
+<div class="flex flex-col gap-5">
+<h5 class="font-bold text-on-surface uppercase tracking-widest text-label-sm">Resources</h5>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-md" href="#">Blog</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-md" href="#">Demo Classes</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-md" href="#">Privacy</a>
+</div>
+<div class="flex flex-col gap-5">
+<h5 class="font-bold text-on-surface uppercase tracking-widest text-label-sm">Support</h5>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-md" href="#">Help Center</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-md" href="#">Terms</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-md" href="#">Refund Policy</a>
+</div>
+</div>
+</div>
+<div class="max-w-container-max mx-auto py-8 px-gutter border-t border-outline-variant flex flex-col sm:flex-row justify-between items-center gap-4 text-label-sm text-on-surface-variant">
+<span>© 2024 MCA Entrance Prep. All rights reserved.</span>
+<div class="flex gap-6">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+<!-- Floating AI Assistant -->
+<div class="fixed bottom-8 right-8 z-[100] group" id="ai-assistant">
+<div class="hidden absolute bottom-20 right-0 w-80 bg-surface-container-high rounded-2xl shadow-2xl border border-outline-variant overflow-hidden flex flex-col" id="chat-window">
+<div class="bg-primary p-4 text-on-primary flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-on-primary text-primary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">smart_toy</span>
+</div>
+<div>
+<p class="font-bold text-label-md leading-none">Ace AI Bot</p>
+<p class="text-[10px] opacity-70">Online • Always Ready</p>
+</div>
+</div>
+<button class="material-symbols-outlined hover:bg-on-primary/10 p-1 rounded" onclick="toggleChat()">close</button>
+</div>
+<div class="h-64 p-4 overflow-y-auto space-y-4 bg-surface-container-low">
+<div class="flex gap-2">
+<div class="w-6 h-6 bg-primary rounded-full flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] text-on-primary">smart_toy</span>
+</div>
+<div class="bg-surface-container-highest p-3 rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-sm text-label-md text-on-surface">
+                    Hi! I'm Ace Bot. Need help choosing the right plan?
+                </div>
+</div>
+</div>
+<div class="p-4 border-t border-outline-variant bg-surface-container-high">
+<div class="flex gap-2">
+<input class="flex-1 border-outline-variant bg-surface-container-low text-on-surface placeholder:text-on-surface-variant rounded-lg text-label-md px-3 py-2 focus:ring-primary focus:border-primary" placeholder="Type a message..." type="text"/>
+<button class="bg-primary text-on-primary p-2 rounded-lg material-symbols-outlined">send</button>
+</div>
+</div>
+</div>
+<button class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-on-primary shadow-2xl shadow-primary/40 hover:scale-110 active:scale-95 transition-all" onclick="toggleChat()">
+<span class="material-symbols-outlined text-3xl">smart_toy</span>
+</button>
+</div>
+<script>
+    function toggleAccordion(btn) {
+        const item = btn.parentElement;
+        const isActive = item.classList.contains('accordion-active');
+        
+        if (isActive) {
+            item.classList.remove('accordion-active');
+        } else {
+            item.classList.add('accordion-active');
+        }
+    }
+
+    function toggleChat() {
+        const chat = document.getElementById('chat-window');
+        chat.classList.toggle('hidden');
+    }
+
+    // Micro-interactions
+    document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.classList.add('scale-95');
+            setTimeout(() => this.classList.remove('scale-95'), 100);
+        });
+    });
+</script>
+</body></html>
