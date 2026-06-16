@@ -76,12 +76,17 @@
         <div id="panel-payments" class="w-full">
             <!-- Verification Queue table -->
             <section class="bg-white rounded-2xl border border-border-light overflow-hidden flex flex-col shadow-sm">
-                <div class="p-5 border-b border-border-light flex justify-between items-center bg-surface-subtle">
+                <div class="p-5 border-b border-border-light flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface-subtle">
                     <div class="flex items-center gap-2">
                         <h3 class="font-title-lg text-title-lg text-primary font-bold">Verification Queue</h3>
                         <span class="px-2.5 py-0.5 rounded-full bg-pending text-white font-label-sm text-xs font-bold" id="queue-badge">0 Pending</span>
                     </div>
-                    <button class="px-4 py-2 rounded-lg border border-border-light font-label-md text-xs font-bold text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all">Export CSV</button>
+                    <div class="flex items-center gap-2">
+                        <input type="email" id="search-payment-email" placeholder="Search exact email..." class="border border-border-light rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-primary w-64">
+                        <button id="btn-search-payment" class="bg-[#191f2f] hover:bg-[#2f3445] text-white px-3 py-1.5 rounded-lg text-sm font-bold transition-colors">Search</button>
+                        <button id="btn-clear-payment-search" class="hidden text-error hover:bg-error/10 px-2 py-1.5 rounded-lg text-sm font-bold transition-colors">Clear</button>
+                        <button class="px-4 py-1.5 rounded-lg border border-border-light font-label-md text-xs font-bold text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all ml-2">Export</button>
+                    </div>
                 </div>
                 
                 <!-- Table View -->
@@ -101,8 +106,12 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="p-4 flex justify-center border-t border-border-light hidden" id="load-more-container">
-                    <button id="load-more-btn" class="px-6 py-2 bg-surface-container-low hover:bg-surface-subtle text-primary font-bold text-sm rounded-lg border border-border-light transition-all active:scale-95">Load More</button>
+                
+                <!-- Pagination Controls -->
+                <div class="p-4 border-t border-border-light bg-surface-subtle flex items-center justify-between hidden" id="pagination-controls">
+                    <button id="btn-prev-page" class="px-4 py-2 border border-border-light rounded-lg text-sm font-bold text-on-surface-variant hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled>Previous</button>
+                    <span class="text-xs text-on-surface-variant font-mono" id="page-indicator">Page 1</span>
+                    <button id="btn-next-page" class="px-4 py-2 border border-border-light rounded-lg text-sm font-bold text-on-surface-variant hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-colors">Next</button>
                 </div>
             </section>
         </div>
@@ -189,6 +198,8 @@
                 
                 const initials = p.name ? p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'ST';
                 
+                const isDiscrepancy = p.reportedAmount && parseFloat(p.amount) !== parseFloat(p.reportedAmount);
+                
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-surface-subtle transition-colors group border-b border-border-light';
                 tr.innerHTML = `
@@ -198,6 +209,7 @@
                         <div>
                             <p class="font-label-md text-sm text-primary font-bold">${p.name}</p>
                             <p class="text-[10px] text-on-surface-variant truncate max-w-[150px]">${p.email}</p>
+                            ${p.mobile !== 'No Mobile' ? `<p class="text-[10px] text-secondary font-mono">${p.mobile}</p>` : ''}
                         </div>
                     </div>
                 </td>
@@ -213,7 +225,12 @@
                         </button>
                     </div>
                 </td>
-                <td class="px-6 py-4 font-bold text-primary text-sm">₹${parseFloat(p.amount || 0).toLocaleString('en-IN')}</td>
+                <td class="px-6 py-4">
+                    <div class="flex flex-col gap-1">
+                        <span class="font-bold ${isDiscrepancy ? 'text-error' : 'text-primary'} text-sm">₹${parseFloat(p.amount || 0).toLocaleString('en-IN')} <span class="text-[10px] font-normal text-on-surface-variant">Expected</span></span>
+                        ${isDiscrepancy ? `<span class="text-[10px] font-bold text-white bg-error px-1.5 py-0.5 rounded uppercase flex items-center gap-1 w-max"><span class="material-symbols-outlined text-[12px]">warning</span> Payload: ₹${parseFloat(p.reportedAmount).toLocaleString('en-IN')}</span>` : ''}
+                    </div>
+                </td>
                 <td class="px-6 py-4 text-right whitespace-nowrap">
                     <div class="flex justify-end gap-2">
                         <button class="p-2 rounded-lg text-success hover:bg-success/10 transition-colors approve-btn active:scale-90" data-id="${p.id}" data-name="${p.name}">
@@ -267,22 +284,26 @@
             });
         };
 
-        const loadPayments = async (isLoadMore = false) => {
+        let currentPage = 1;
+        let lastVisibleDoc = null;
+        let currentPayments = [];
+        let isSearchMode = false;
+        let isFetchingPayments = false;
+
+        const fetchAndRenderPage = async (startAfterDoc) => {
             if (isFetchingPayments) return;
-            isFetchingPayments = true;
+            if (isSearchMode) return;
             
-            if (!isLoadMore) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10"><span class="material-symbols-outlined animate-spin text-primary text-3xl">autorenew</span></td></tr>';
-            } else {
-                document.getElementById('load-more-btn').innerText = 'Loading...';
-            }
+            isFetchingPayments = true;
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10"><span class="material-symbols-outlined animate-spin text-primary text-3xl">autorenew</span></td></tr>';
             
             try {
-                const payments = await window.FirebaseService.fetchPendingPayments(isLoadMore ? lastVisibleDoc : null, 10);
+                const payments = await window.FirebaseService.fetchPendingPayments(startAfterDoc, 10);
+                currentPayments = payments;
                 
-                if (!isLoadMore) tbody.innerHTML = '';
+                tbody.innerHTML = '';
                 
-                if (payments.length === 0 && !isLoadMore) {
+                if (payments.length === 0) {
                     tbody.innerHTML = `
                     <tr>
                         <td colspan="5" class="text-center py-20 text-on-surface-variant bg-white">
@@ -293,32 +314,81 @@
                             </div>
                         </td>
                     </tr>`;
-                    document.getElementById('load-more-container').classList.add('hidden');
                 } else {
-                    if (payments.length > 0) {
-                        lastVisibleDoc = payments[payments.length - 1].docSnapshot;
-                        renderPayments(payments);
-                    }
-                    if (payments.length < 10) {
-                        document.getElementById('load-more-container').classList.add('hidden');
-                    } else {
-                        document.getElementById('load-more-container').classList.remove('hidden');
-                    }
+                    lastVisibleDoc = payments[payments.length - 1].docSnapshot;
+                    renderPayments(payments);
                 }
+                updatePaginationUI(payments.length === 10);
             } catch(e) {
                 console.error("Failed to load queue", e);
-                if (!isLoadMore) tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-error">Failed to load payments.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-error">Failed to load payments.</td></tr>';
             } finally {
-                if (isLoadMore) document.getElementById('load-more-btn').innerText = 'Load More';
                 isFetchingPayments = false;
             }
         };
 
-        // Initial load
-        loadPayments();
+        const updatePaginationUI = (hasNext) => {
+            document.getElementById('page-indicator').innerText = `Page ${currentPage}`;
+            document.getElementById('btn-prev-page').disabled = currentPage === 1;
+            document.getElementById('btn-next-page').disabled = !hasNext;
+            
+            if (isSearchMode) {
+                document.getElementById('pagination-controls').classList.add('hidden');
+            } else {
+                document.getElementById('pagination-controls').classList.remove('hidden');
+            }
+        };
 
-        // Load More button click
-        document.getElementById('load-more-btn').addEventListener('click', () => loadPayments(true));
+        const setupEventListeners = () => {
+            document.getElementById('btn-next-page').addEventListener('click', async () => {
+                currentPage++;
+                await fetchAndRenderPage(lastVisibleDoc);
+            });
+
+            document.getElementById('btn-prev-page').addEventListener('click', async () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    alert("To go backwards, please refresh the page to restart the list. Bi-directional cursors are disabled to save memory.");
+                    currentPage++; // Revert
+                }
+            });
+
+            const searchInput = document.getElementById('search-payment-email');
+            const searchBtn = document.getElementById('btn-search-payment');
+            const clearBtn = document.getElementById('btn-clear-payment-search');
+
+            searchBtn.addEventListener('click', async () => {
+                const email = searchInput.value.trim();
+                if (!email) return;
+                
+                isSearchMode = true;
+                clearBtn.classList.remove('hidden');
+                
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10"><span class="material-symbols-outlined animate-spin text-primary text-3xl">autorenew</span></td></tr>';
+                const payments = await window.FirebaseService.searchPendingPayments(email);
+                tbody.innerHTML = '';
+                
+                if (payments.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-on-surface-variant bg-white">No pending payments found for this email.</td></tr>`;
+                } else {
+                    renderPayments(payments);
+                }
+                updatePaginationUI(false);
+            });
+
+            clearBtn.addEventListener('click', async () => {
+                isSearchMode = false;
+                searchInput.value = '';
+                clearBtn.classList.add('hidden');
+                currentPage = 1;
+                lastVisibleDoc = null;
+                await fetchAndRenderPage(null);
+            });
+        };
+
+        // Initialize queue
+        setupEventListeners();
+        fetchAndRenderPage(null);
 
         // Approve transaction flow
         const handleApprove = async (id, name) => {

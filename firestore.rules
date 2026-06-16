@@ -71,11 +71,9 @@ service cloud.firestore {
 
     // --- Lessons Collection ---
     match /lessons/{lessonId} {
-      // Allow reading free preview lessons or if student is enrolled in the course. Admins can read all.
-      allow read: if resource.data.isFreePreview == true || 
-        isAdmin() || 
-        (isAuth() && exists(/databases/$(database)/documents/enrollments/$(request.auth.uid + '_' + resource.data.courseId)) && 
-         get(/databases/$(database)/documents/enrollments/$(request.auth.uid + '_' + resource.data.courseId)).data.status == 'active');
+      // Plan B: Allow any authenticated user to read all lessons to show the full syllabus with locks.
+      // Note: This exposes youtubeVideoId and resources to DevTools for unenrolled users.
+      allow read: if isAuth();
       allow write: if isAdmin();
     }
 

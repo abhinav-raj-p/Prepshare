@@ -49,7 +49,7 @@ class CustomNavbar extends HTMLElement {
                 <!-- Action Buttons (Logged Out) -->
                 <div id="logged-out-actions" class="hidden sm:flex items-center gap-4">
                     <button id="login-btn-trigger" class="text-primary dark:text-[#b5c4ff] font-label-md px-4 py-2 hover:bg-surface-subtle dark:hover:bg-[#151b2b] rounded-lg transition-all active:scale-95 font-bold">Login/Signup</button>
-                    <a id="enroll-now-btn" href="upi-payment.html?course=Placement%20Prep%20Program&price=7499" class="bg-[#FB6514] text-white hover:bg-[#e0560d] font-label-md px-6 py-2.5 rounded-lg font-bold shadow-md hover:shadow-lg active:scale-95 transition-all">Enroll Now</a>
+                    <a id="enroll-now-btn" href="upi-payment.html?course=Placement%20Prep%20Program&courseId=course-placement&price=7499" class="bg-[#FB6514] text-white hover:bg-[#e0560d] font-label-md px-6 py-2.5 rounded-lg font-bold shadow-md hover:shadow-lg active:scale-95 transition-all">Enroll Now</a>
                 </div>
 
                 <!-- Action User Widget (Logged In) -->
@@ -111,7 +111,7 @@ class CustomNavbar extends HTMLElement {
                     
                     <div class="flex flex-col gap-4 mt-8 pt-6 border-t border-border-light dark:border-outline-variant/20" id="mobile-drawer-auth-block">
                         <button id="mobile-login-trigger" class="w-full text-center py-3 border border-border-light dark:border-outline-variant/30 rounded-lg text-primary dark:text-[#b5c4ff] hover:bg-surface-subtle dark:hover:bg-[#151b2b] font-bold">Login/Signup</button>
-                        <a id="mobile-enroll-now-btn" href="upi-payment.html?course=Placement%20Prep%20Program&price=7499" class="w-full text-center py-3 bg-[#FB6514] text-white rounded-lg hover:bg-[#e0560d] font-bold shadow-md">Enroll Now</a>
+                        <a id="mobile-enroll-now-btn" href="upi-payment.html?course=Placement%20Prep%20Program&courseId=course-placement&price=7499" class="w-full text-center py-3 bg-[#FB6514] text-white rounded-lg hover:bg-[#e0560d] font-bold shadow-md">Enroll Now</a>
                     </div>
                 </div>
             </div>
@@ -157,7 +157,7 @@ class CustomNavbar extends HTMLElement {
                     </form>
                     
                     <!-- Divider -->
-                    <div class="flex items-center my-6">
+                    <div id="auth-divider" class="flex items-center my-6">
                         <div class="flex-1 h-px bg-border-light dark:bg-outline-variant/10"></div>
                         <span class="px-3 text-xs text-on-surface-variant dark:text-on-surface/40 uppercase font-bold">OR</span>
                         <div class="flex-1 h-px bg-border-light dark:bg-outline-variant/10"></div>
@@ -175,7 +175,7 @@ class CustomNavbar extends HTMLElement {
                     </button>
                 </div>
                 
-                <div class="p-4 bg-surface-subtle dark:bg-[#0d1322] border-t border-border-light dark:border-outline-variant/10 text-center">
+                <div id="auth-footer" class="p-4 bg-surface-subtle dark:bg-[#0d1322] border-t border-border-light dark:border-outline-variant/10 text-center">
                     <button id="close-auth-modal" class="text-xs text-on-surface-variant dark:text-on-surface/60 hover:text-primary dark:hover:text-white font-bold">Cancel and Go Back</button>
                 </div>
             </div>
@@ -226,6 +226,17 @@ class CustomNavbar extends HTMLElement {
         const closeAuthBtn = this.querySelector('#close-auth-modal');
 
         const showAuthModal = () => {
+            // Reset to default login state
+            this.querySelector('#auth-form').classList.remove('hidden');
+            this.querySelector('#google-login-btn').classList.remove('hidden');
+            this.querySelector('#auth-divider').classList.remove('hidden');
+            this.querySelector('#tab-login').parentElement.classList.remove('hidden');
+            
+            // Trigger tab click to reset title/subtitle depending on current tab
+            const activeTab = this.querySelector('.border-primary.text-primary');
+            if (activeTab) activeTab.click();
+            else this.querySelector('#tab-login').click();
+            
             authModal.classList.remove('hidden');
             authModal.classList.add('flex');
             closeDrawer();
@@ -321,28 +332,19 @@ class CustomNavbar extends HTMLElement {
                     await window.FirebaseService.signupEmail(name, email, password);
                 } else {
                     await window.FirebaseService.forgotPassword(email);
-                    alert("Instructions to reset your password have been emailed.");
+                    alertBox.innerText = "Instructions to reset your password have been emailed.";
+                    alertBox.classList.remove('bg-[#3b171f]', 'text-[#ffb4ab]', 'border-[#ffb4ab]/30');
+                    alertBox.classList.add('bg-[#173b22]', 'text-[#abffb4]', 'border-[#abffb4]/30');
+                    alertBox.classList.remove('hidden');
+                    authSubmitBtn.innerText = "Check your email";
+                    setTimeout(() => {
+                        hideAuthModal();
+                    }, 3000);
+                    return;
                 }
                 
-                // Success! Close modal and redirect depending on role
-                hideAuthModal();
-                this.updateAuthState();
                 const loggedInUser = window.FirebaseService.getCurrentUser();
-                if (loggedInUser) {
-                    if (loggedInUser.role === 'admin') {
-                        window.location.href = "admin-dashboard.html";
-                    } else {
-                        if (window.location.pathname.includes('upi-payment.html')) {
-                            window.location.reload();
-                        } else if (currentMode === 'signup' || loggedInUser.isNewUser) {
-                            window.location.href = "upi-payment.html";
-                        } else {
-                            window.location.href = "student-dashboard.html";
-                        }
-                    }
-                } else {
-                    window.location.reload();
-                }
+                await handleAuthSuccess(loggedInUser, currentMode);
             } catch (err) {
                 alertBox.innerText = err.message;
                 alertBox.classList.remove('hidden');
@@ -359,30 +361,54 @@ class CustomNavbar extends HTMLElement {
             googleBtn.disabled = true;
             try {
                 await window.FirebaseService.loginGoogle();
-                hideAuthModal();
-                this.updateAuthState();
                 const loggedInUser = window.FirebaseService.getCurrentUser();
-                if (loggedInUser) {
-                    if (loggedInUser.role === 'admin') {
-                        window.location.href = "admin-dashboard.html";
-                    } else {
-                        if (window.location.pathname.includes('upi-payment.html')) {
-                            window.location.reload();
-                        } else if (loggedInUser.isNewUser) {
-                            window.location.href = "upi-payment.html";
-                        } else {
-                            window.location.href = "student-dashboard.html";
-                        }
-                    }
-                } else {
-                    window.location.reload();
-                }
+                await handleAuthSuccess(loggedInUser, 'google');
             } catch (err) {
                 alertBox.innerText = err.message;
                 alertBox.classList.remove('hidden');
                 googleBtn.disabled = false;
             }
         });
+
+        // Centralized Auth Success Handler
+        const handleAuthSuccess = async (loggedInUser, mode) => {
+            if (!loggedInUser) {
+                window.location.reload();
+                return;
+            }
+
+            // Check if mobile number is missing (skip for admins)
+            if (!loggedInUser.mobile && loggedInUser.role !== 'admin') {
+                hideAuthModal();
+                if (window.OnboardingService) {
+                    window.OnboardingService.requestMobileNumber(loggedInUser, () => {
+                        finalizeRedirect(loggedInUser, mode);
+                    });
+                } else {
+                    console.error("OnboardingService missing. Falling back to immediate redirect.");
+                    finalizeRedirect(loggedInUser, mode);
+                }
+                return; // Wait for onboarding submit
+            }
+
+            finalizeRedirect(loggedInUser, mode);
+        };
+
+        const finalizeRedirect = (loggedInUser, mode) => {
+            hideAuthModal();
+            this.updateAuthState();
+            if (loggedInUser.role === 'admin') {
+                window.location.href = "admin-dashboard.html";
+            } else {
+                if (window.location.pathname.includes('upi-payment.html')) {
+                    window.location.reload();
+                } else if (mode === 'signup' || loggedInUser.isNewUser) {
+                    window.location.href = "upi-payment.html";
+                } else {
+                    window.location.href = "student-dashboard.html";
+                }
+            }
+        };
 
         // Logout action
         const logoutTrigger = this.querySelector('#logout-btn-trigger');
@@ -513,7 +539,7 @@ class CustomNavbar extends HTMLElement {
             if (mobileDrawerAuth) {
                 mobileDrawerAuth.innerHTML = `
                     <button id="mobile-login-trigger" class="w-full text-center py-3 border border-border-light dark:border-outline-variant/30 rounded-lg text-primary dark:text-[#b5c4ff] hover:bg-surface-subtle dark:hover:bg-[#151b2b] font-bold">Login/Signup</button>
-                    <a id="mobile-enroll-now-btn" href="upi-payment.html?course=Placement%20Prep%20Program&price=7499" class="w-full text-center py-3 bg-[#FB6514] text-white rounded-lg hover:bg-[#e0560d] font-bold shadow-md ${isLandingPage ? '' : 'hidden'}">Enroll Now</a>
+                    <a id="mobile-enroll-now-btn" href="upi-payment.html?course=Placement%20Prep%20Program&courseId=course-placement&price=7499" class="w-full text-center py-3 bg-[#FB6514] text-white rounded-lg hover:bg-[#e0560d] font-bold shadow-md ${isLandingPage ? '' : 'hidden'}">Enroll Now</a>
                 `;
                 this.querySelector('#mobile-login-trigger').addEventListener('click', () => {
                     const modal = this.querySelector('#auth-modal');
@@ -753,8 +779,12 @@ class AdminSidebar extends HTMLElement {
                     <span class="font-label-md text-label-md">Course Curriculum</span>
                 </a>
                 <a class="sidebar-link flex items-center gap-3 rounded-lg px-4 py-3 mx-2 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-[#0d1322] hover:text-primary dark:hover:text-[#b5c4ff] transition-all" href="admin-students.html">
-                    <span class="material-symbols-outlined">group</span>
+                    <span class="material-symbols-outlined">how_to_reg</span>
                     <span class="font-label-md text-label-md">Student Access</span>
+                </a>
+                <a class="sidebar-link flex items-center gap-3 rounded-lg px-4 py-3 mx-2 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-[#0d1322] hover:text-primary dark:hover:text-[#b5c4ff] transition-all" href="admin-student-manager.html">
+                    <span class="material-symbols-outlined">group</span>
+                    <span class="font-label-md text-label-md">Student Manager</span>
                 </a>
                 <a class="sidebar-link flex items-center gap-3 rounded-lg px-4 py-3 mx-2 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-[#0d1322] hover:text-primary dark:hover:text-[#b5c4ff] transition-all" href="admin-mocktests.html">
                     <span class="material-symbols-outlined">quiz</span>

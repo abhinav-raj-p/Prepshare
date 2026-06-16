@@ -9,21 +9,7 @@ let useFallback = true;
 // 1. DYNAMIC SVG INITIALS AVATAR GENERATOR
 // -------------------------------------------------------------
 const getInitialsAvatar = (name) => {
-    const initial = (name || "?").trim().charAt(0).toUpperCase();
-    const colors = [
-        "#1e3a8a", "#0d9488", "#0891b2", "#4f46e5", "#7c3aed", 
-        "#c026d3", "#db2777", "#ea580c", "#eab308", "#16a34a"
-    ];
-    const charCode = initial.charCodeAt(0);
-    const color = colors[charCode % colors.length];
-    
-    const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-            <circle cx="50" cy="50" r="50" fill="${color}"/>
-            <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="bold" font-size="50" fill="#ffffff">${initial}</text>
-        </svg>
-    `;
-    return "data:image/svg+xml;utf8," + encodeURIComponent(svg.trim());
+    return (name || "?").trim().charAt(0).toUpperCase();
 };
 
 // Initialize Firebase using compat globals
@@ -63,9 +49,19 @@ const startDeviceSessionCheck = (uid) => {
             if (doc.exists) {
                 const data = doc.data();
                 if (data.currentDeviceId && data.currentDeviceId !== localDevId) {
-                    alert("You have been logged out because your account is logged in on another device.");
-                    window.FirebaseService.logout().then(() => {
-                        window.location.href = "index.html";
+                    const overlay = document.createElement('div');
+                    overlay.className = "fixed inset-0 bg-[#021541]/95 backdrop-blur-sm z-[9999] flex items-center justify-center p-4";
+                    overlay.innerHTML = `
+                        <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full">
+                            <span class="material-symbols-outlined text-error text-6xl mb-4">gpp_maybe</span>
+                            <h2 class="text-2xl font-bold text-primary mb-2">Session Terminated</h2>
+                            <p class="text-sm text-on-surface-variant mb-6">Your account was logged in from another device. For security reasons, this session has been terminated.</p>
+                            <button id="concurrent-logout-btn" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition-all block w-full">Return to Home</button>
+                        </div>
+                    `;
+                    document.body.appendChild(overlay);
+                    document.getElementById('concurrent-logout-btn').addEventListener('click', () => {
+                        window.FirebaseService.logout().then(() => window.location.href = "index.html");
                     });
                 }
             }
@@ -78,10 +74,21 @@ const startDeviceSessionCheck = (uid) => {
             const users = JSON.parse(localStorage.getItem('mca_users') || '[]');
             const user = users.find(u => u.uid === uid);
             if (user && user.currentDeviceId && user.currentDeviceId !== localDevId) {
-                alert("You have been logged out because your account is logged in on another device.");
-                window.FirebaseService.logout().then(() => {
-                    window.location.href = "index.html";
+                const overlay = document.createElement('div');
+                overlay.className = "fixed inset-0 bg-[#021541]/95 backdrop-blur-sm z-[9999] flex items-center justify-center p-4";
+                overlay.innerHTML = `
+                    <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full">
+                        <span class="material-symbols-outlined text-error text-6xl mb-4">gpp_maybe</span>
+                        <h2 class="text-2xl font-bold text-primary mb-2">Session Terminated</h2>
+                        <p class="text-sm text-on-surface-variant mb-6">Your account was logged in from another device. For security reasons, this session has been terminated.</p>
+                        <button id="concurrent-logout-btn-mock" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition-all block w-full">Return to Home</button>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+                document.getElementById('concurrent-logout-btn-mock').addEventListener('click', () => {
+                    window.FirebaseService.logout().then(() => window.location.href = "index.html");
                 });
+                clearInterval(deviceSessionListener);
             }
         }, 3000);
     }
@@ -441,6 +448,192 @@ const FirebaseService = {
         }
     },
 
+    async getUserByEmail(email) {
+        if (!useFallback && db) {
+            const snap = await db.collection("users").where("email", "==", email).limit(1).get();
+            let found = null;
+            if (!snap.empty) {
+                const doc = snap.docs[0];
+                found = { id: doc.id, uid: doc.id, ...doc.data() };
+            }
+            return found;
+        } else {
+            const users = getLocalData('mca_users');
+            return users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
+        }
+    },
+
+    async getAllUsers() {
+        if (!useFallback && db) {
+            const snap = await db.collection("users").get();
+            const list = [];
+            snap.forEach(doc => list.push({ id: doc.id, uid: doc.id, ...doc.data() }));
+            return list;
+        } else {
+            return getLocalData('mca_users');
+        }
+    },
+
+    // --- HIGH-SCALE ADMIN STUDENT MANAGEMENT ---
+    
+    async searchStudentsPaginated(filters, lastVisible = null, limitCount = 20) {
+        if (!useFallback && db) {
+            // Course-based search requires a join simulation
+            if (filters.searchType === "course" && filters.courseId) {
+                let eQuery = db.collection("enrollments").where("courseId", "==", filters.courseId);
+                // Simple pagination on enrollments
+                eQuery = eQuery.limit(limitCount);
+                if (lastVisible) eQuery = eQuery.startAfter(lastVisible);
+                
+                const eSnap = await eQuery.get();
+                const userIds = [];
+                eSnap.forEach(doc => userIds.push(doc.data().userId));
+                
+                if (userIds.length === 0) return { students: [], lastVisible: null, hasMore: false };
+                
+                const uSnap = await db.collection("users").where(firebase.firestore.FieldPath.documentId(), "in", userIds).get();
+                const students = [];
+                uSnap.forEach(doc => students.push({ id: doc.id, uid: doc.id, ...doc.data() }));
+                
+                // Maintain order of enrollments
+                const orderedStudents = userIds.map(uid => students.find(s => s.uid === uid)).filter(Boolean);
+                
+                return {
+                    students: orderedStudents,
+                    lastVisible: eSnap.docs.length > 0 ? eSnap.docs[eSnap.docs.length - 1] : null,
+                    hasMore: eSnap.docs.length === limitCount
+                };
+            }
+            
+            // Standard Single-Axis searches
+            let query = db.collection("users");
+            
+            if (filters.searchType === "email" && filters.queryStr) {
+                query = query.where("email", "==", filters.queryStr.toLowerCase());
+            } else if (filters.searchType === "name" && filters.queryStr) {
+                // Case sensitive prefix search (standard Firestore limitation)
+                query = query.orderBy("name")
+                             .startAt(filters.queryStr)
+                             .endAt(filters.queryStr + '\uf8ff');
+            } else {
+                // Default: Recent students
+                query = query.orderBy("createdAt", "desc");
+            }
+            
+            query = query.limit(limitCount);
+            if (lastVisible) {
+                query = query.startAfter(lastVisible);
+            }
+            
+            const snap = await query.get();
+            const students = [];
+            snap.forEach(doc => students.push({ id: doc.id, uid: doc.id, ...doc.data() }));
+            
+            return {
+                students: students,
+                lastVisible: snap.docs.length > 0 ? snap.docs[snap.docs.length - 1] : null,
+                hasMore: snap.docs.length === limitCount
+            };
+        } else {
+            // FALLBACK Logic
+            const users = getLocalData('mca_users').filter(u => u.role !== 'admin');
+            let filtered = users;
+            
+            if (filters.searchType === "email" && filters.queryStr) {
+                filtered = users.filter(u => u.email.toLowerCase() === filters.queryStr.toLowerCase());
+            } else if (filters.searchType === "name" && filters.queryStr) {
+                filtered = users.filter(u => u.name.toLowerCase().startsWith(filters.queryStr.toLowerCase()));
+            } else if (filters.searchType === "course" && filters.courseId) {
+                const enrollments = getLocalData('mca_enrollments');
+                const uids = enrollments.filter(e => e.courseId === filters.courseId).map(e => e.userId);
+                filtered = users.filter(u => uids.includes(u.uid));
+            }
+            
+            filtered.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            
+            let startIndex = 0;
+            if (lastVisible) {
+                startIndex = filtered.findIndex(u => u.uid === lastVisible) + 1;
+            }
+            
+            const paged = filtered.slice(startIndex, startIndex + limitCount);
+            
+            return {
+                students: paged,
+                lastVisible: paged.length > 0 ? paged[paged.length - 1].uid : null,
+                hasMore: startIndex + limitCount < filtered.length
+            };
+        }
+    },
+
+    async deleteStudentAndAssociatedData(userId) {
+        if (!useFallback && db) {
+            // Helper function to delete in batches of 500
+            const deleteQueryBatch = async (query) => {
+                const snapshot = await query.get();
+                if (snapshot.size === 0) return 0;
+                
+                const batch = db.batch();
+                snapshot.docs.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+                await batch.commit();
+                
+                // Recurse if there might be more (since we can only fetch so many at once)
+                // But for now, a single pass is usually enough if user records < 500 per collection
+                return snapshot.size;
+            };
+
+            // 1. Delete Enrollments
+            await deleteQueryBatch(db.collection("enrollments").where("userId", "==", userId));
+            // 2. Delete Lesson Progress
+            await deleteQueryBatch(db.collection("lessonProgress").where("userId", "==", userId));
+            // 3. Delete Mock Attempts
+            await deleteQueryBatch(db.collection("mockAttempts").where("userId", "==", userId));
+            // 4. Delete Payment Requests
+            await deleteQueryBatch(db.collection("paymentRequests").where("userId", "==", userId));
+            // 5. Delete User Document
+            await db.collection("users").doc(userId).delete();
+            
+        } else {
+            // Fallback deletion
+            const users = getLocalData('mca_users').filter(u => u.uid !== userId);
+            saveLocalData('mca_users', users);
+            
+            const enrollments = getLocalData('mca_enrollments').filter(e => e.userId !== userId);
+            saveLocalData('mca_enrollments', enrollments);
+            
+            const lp = getLocalData('mca_lessonprogress').filter(p => p.userId !== userId);
+            saveLocalData('mca_lessonprogress', lp);
+            
+            const ma = getLocalData('mca_mockattempts').filter(a => a.userId !== userId);
+            saveLocalData('mca_mockattempts', ma);
+            
+            const pr = getLocalData('mca_payments').filter(p => p.userId !== userId);
+            saveLocalData('mca_payments', pr);
+        }
+        
+        await this.logActivity("admin", "admin@gmail.com", "user_deleted", `Completely wiped user ${userId} and all associated data.`);
+        return { success: true };
+    },
+
+    async getUsersByIds(userIds) {
+        if (!userIds || userIds.length === 0) return [];
+        if (!useFallback && db) {
+            try {
+                const snap = await db.collection("users").where(firebase.firestore.FieldPath.documentId(), 'in', userIds).get();
+                const list = [];
+                snap.forEach(doc => list.push({ id: doc.id, uid: doc.id, ...doc.data() }));
+                return list;
+            } catch (e) {
+                console.error("Failed to fetch user batch:", e);
+                return [];
+            }
+        } else {
+            const users = getLocalData('mca_users');
+            return users.filter(u => userIds.includes(u.uid));
+        }
+    },
 
     async signupEmail(name, email, password) {
         if (!useFallback && auth && db) {
@@ -526,7 +719,7 @@ const FirebaseService = {
                     name: user.displayName || "Google User",
                     email: user.email,
                     role: targetRole,
-                    profileImage: user.photoURL || getInitialsAvatar(user.displayName),
+                    profileImage: user.photoURL || getInitialsAvatar(user.displayName || "Google User"),
                     isActive: true,
                     currentDeviceId: devId,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -593,6 +786,32 @@ const FirebaseService = {
             return foundUser;
         }
     },
+
+    async updateUserMobile(mobileNumber) {
+        const currentUser = this.getCurrentUser();
+        if (!currentUser) throw new Error("No user logged in.");
+        
+        if (!useFallback && db) {
+            await db.collection("users").doc(currentUser.uid).update({
+                mobile: mobileNumber,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } else {
+            const users = getLocalData('mca_users');
+            const idx = users.findIndex(u => u.uid === currentUser.uid);
+            if (idx !== -1) {
+                users[idx].mobile = mobileNumber;
+                users[idx].updatedAt = new Date().toISOString();
+                saveLocalData('mca_users', users);
+            }
+        }
+        
+        // Update local session
+        currentUser.mobile = mobileNumber;
+        localStorage.setItem('mca_current_user', JSON.stringify(currentUser));
+        return currentUser;
+    },
+
 
     async logout() {
         if (deviceSessionListener) {
@@ -686,12 +905,39 @@ const FirebaseService = {
 
     async saveMockAttempt(attemptData) {
         if (!useFallback && db) {
-            const docRef = await db.collection("mockAttempts").add({
-                ...attemptData,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            const attemptRef = db.collection("mockAttempts").doc();
+            const userRef = db.collection("users").doc(attemptData.userId);
+
+            await db.runTransaction(async (transaction) => {
+                const userDoc = await transaction.get(userRef);
+                
+                // Set the new mock attempt
+                transaction.set(attemptRef, {
+                    ...attemptData,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Update user profile metrics for Leaderboard
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    const currentHighest = userData.highestMockPercent || 0;
+                    const newPercent = attemptData.percent || 0;
+                    
+                    const updatePayload = {
+                        totalMockExamsTaken: firebase.firestore.FieldValue.increment(1),
+                        takenMockTestIds: firebase.firestore.FieldValue.arrayUnion(attemptData.testId)
+                    };
+                    
+                    if (newPercent > currentHighest) {
+                        updatePayload.highestMockPercent = newPercent;
+                    }
+                    
+                    transaction.update(userRef, updatePayload);
+                }
             });
+
             await this.logActivity(attemptData.userId, attemptData.email || "student", "mocktest_attempt", `Completed mock test attempt with score ${attemptData.score || 0}/${attemptData.totalMarks || 0}`);
-            return { id: docRef.id, ...attemptData };
+            return { id: attemptRef.id, ...attemptData };
         } else {
             const attempts = getLocalData('mca_mock_attempts');
             const attemptId = "attempt-" + Math.random().toString(36).substr(2, 9);
@@ -702,8 +948,53 @@ const FirebaseService = {
             };
             attempts.push(newAttempt);
             saveLocalData('mca_mock_attempts', attempts);
+            
+            // Also update local user object for Leaderboard fallback
+            const users = getLocalData('mca_users');
+            const userIdx = users.findIndex(u => u.uid === attemptData.userId);
+            if (userIdx !== -1) {
+                const u = users[userIdx];
+                u.totalMockExamsTaken = (u.totalMockExamsTaken || 0) + 1;
+                if ((attemptData.percent || 0) > (u.highestMockPercent || 0)) {
+                    u.highestMockPercent = attemptData.percent || 0;
+                }
+                if (!u.takenMockTestIds) u.takenMockTestIds = [];
+                if (!u.takenMockTestIds.includes(attemptData.testId)) {
+                    u.takenMockTestIds.push(attemptData.testId);
+                }
+                saveLocalData('mca_users', users);
+                
+                // Update current user if it's the logged in user
+                const currUser = getLocalData('mca_current_user');
+                if (currUser && currUser.uid === attemptData.userId) {
+                    currUser.totalMockExamsTaken = u.totalMockExamsTaken;
+                    currUser.highestMockPercent = u.highestMockPercent;
+                    currUser.takenMockTestIds = u.takenMockTestIds;
+                    saveLocalData('mca_current_user', currUser);
+                }
+            }
+
             await this.logActivity(attemptData.userId, attemptData.email || "student", "mocktest_attempt", `Completed mock test attempt with score ${attemptData.score || 0}/${attemptData.totalMarks || 0}`);
             return newAttempt;
+        }
+    },
+
+    async getAvailableMockTestCount(courseIds) {
+        if (!courseIds || courseIds.length === 0) return 0;
+        
+        if (!useFallback && db) {
+            try {
+                // Perform a highly efficient count query without downloading documents
+                const snapshot = await db.collection("mocktests").where("courseId", "in", courseIds).count().get();
+                return snapshot.data().count;
+            } catch (e) {
+                console.error("Error fetching mock test count:", e);
+                return 0;
+            }
+        } else {
+            const tests = getLocalData('mca_mocktests');
+            const filtered = tests.filter(t => courseIds.includes(t.courseId));
+            return filtered.length;
         }
     },
 
@@ -731,36 +1022,143 @@ const FirebaseService = {
 
     // --- CURRICULUM MANAGEMENT ---
     async getCourses() {
+        const currentUser = this.getCurrentUser();
+        const isAdmin = currentUser && currentUser.role === 'admin';
+        const cacheKey = 'mca_cache_courses';
+        const cached = localStorage.getItem(cacheKey);
+        
+        if (cached && !isAdmin) {
+            const parsed = JSON.parse(cached);
+            if (Date.now() - (parsed.timestamp || 0) < 30 * 60 * 1000) {
+                return parsed.data;
+            }
+        }
+
         if (!useFallback && db) {
             const q = await db.collection("courses").where("isDeleted", "!=", true).get();
             const list = [];
             q.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: list }));
             return list;
         } else {
-            return getLocalData('mca_courses').filter(c => !c.isDeleted);
+            const list = getLocalData('mca_courses').filter(c => !c.isDeleted);
+            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: list }));
+            return list;
+        }
+    },
+    async saveCourse(courseData) {
+        if (!useFallback && db) {
+            const ref = db.collection("courses").doc(courseData.id || undefined);
+            const docId = courseData.id || ref.id;
+            const payload = {
+                ...courseData,
+                isDeleted: false,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            if (!courseData.id) {
+                payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                await db.collection("courses").doc(docId).set(payload);
+            } else {
+                await db.collection("courses").doc(docId).update(payload);
+            }
+            return { success: true, id: docId };
+        } else {
+            const list = getLocalData('mca_courses');
+            const docId = courseData.id || "course-" + Math.random().toString(36).substr(2, 9);
+            const payload = { id: docId, ...courseData, isDeleted: false };
+            const idx = list.findIndex(c => c.id === docId);
+            if (idx !== -1) {
+                list[idx] = payload;
+            } else {
+                list.push(payload);
+            }
+            saveLocalData('mca_courses', list);
+            return { success: true, id: docId };
         }
     },
 
-    async getSyllabus(courseId) {
+    async deleteCourse(courseId) {
         if (!useFallback && db) {
-            const modulesSnap = await db.collection("modules").where("courseId", "==", courseId).get();
-            const lessonsSnap = await db.collection("lessons").where("courseId", "==", courseId).get();
+            await db.collection("courses").doc(courseId).update({
+                isDeleted: true,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } else {
+            const list = getLocalData('mca_courses');
+            const idx = list.findIndex(c => c.id === courseId);
+            if (idx !== -1) {
+                list[idx].isDeleted = true;
+                saveLocalData('mca_courses', list);
+            }
+        }
+        return { success: true };
+    },
+
+
+    async getSyllabus(courseId) {
+        const currentUser = this.getCurrentUser();
+        const isAdmin = currentUser && currentUser.role === 'admin';
+        const cacheKey = `mca_cache_syllabus_${courseId}`;
+        const cached = localStorage.getItem(cacheKey);
+        
+        if (cached && !isAdmin) {
+            const parsed = JSON.parse(cached);
+            if (Date.now() - (parsed.timestamp || 0) < 30 * 60 * 1000) {
+                return parsed.data;
+            }
+        }
+
+        if (!useFallback && db) {
+            const modulesSnap = await db.collection("modules").where("courseId", "==", courseId).where("isDeleted", "==", false).get();
+            const topicsSnap = await db.collection("topics").where("courseId", "==", courseId).where("isDeleted", "==", false).get();
+            const lessonsSnap = await db.collection("lessons").where("courseId", "==", courseId).where("isDeleted", "==", false).get();
             
-            const modules = [];
+            let modules = [];
             modulesSnap.forEach(d => modules.push({ id: d.id, ...d.data() }));
             modules.sort((a,b) => a.order - b.order);
             
-            const lessons = [];
+            let topics = [];
+            topicsSnap.forEach(d => topics.push({ id: d.id, ...d.data() }));
+            topics.sort((a,b) => a.order - b.order);
+
+            let lessons = [];
             lessonsSnap.forEach(d => lessons.push({ id: d.id, ...d.data() }));
             lessons.sort((a,b) => a.order - b.order);
             
-            return { modules, lessons };
+            // Assemble nested tree
+            modules = modules.map(mod => {
+                const modTopics = topics.filter(t => t.moduleId === mod.id).map(top => {
+                    const topLessons = lessons.filter(l => l.topicId === top.id);
+                    return { ...top, lessons: topLessons };
+                });
+                return { ...mod, topics: modTopics };
+            });
+
+            const result = { modules, topics, lessons };
+            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: result }));
+            return result;
         } else {
-            const modules = getLocalData('mca_modules').filter(m => m.courseId === courseId);
+            let modules = getLocalData('mca_modules').filter(m => m.courseId === courseId && !m.isDeleted);
             modules.sort((a,b) => a.order - b.order);
-            const lessons = getLocalData('mca_lessons').filter(l => l.courseId === courseId);
+            
+            let topics = getLocalData('mca_topics').filter(t => t.courseId === courseId && !t.isDeleted);
+            topics.sort((a,b) => a.order - b.order);
+            
+            let lessons = getLocalData('mca_lessons').filter(l => l.courseId === courseId && !l.isDeleted);
             lessons.sort((a,b) => a.order - b.order);
-            return { modules, lessons };
+            
+            // Assemble nested tree
+            modules = modules.map(mod => {
+                const modTopics = topics.filter(t => t.moduleId === mod.id).map(top => {
+                    const topLessons = lessons.filter(l => l.topicId === top.id);
+                    return { ...top, lessons: topLessons };
+                });
+                return { ...mod, topics: modTopics };
+            });
+
+            const result = { modules, topics, lessons };
+            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: result }));
+            return result;
         }
     },
 
@@ -813,28 +1211,134 @@ const FirebaseService = {
     async deleteModule(courseIdOrId, id) {
         const docId = id || courseIdOrId;
         if (!useFallback && db) {
-            await db.collection("modules").doc(docId).update({
+            const batch = db.batch();
+            
+            // Delete Module
+            const modRef = db.collection("modules").doc(docId);
+            batch.update(modRef, {
                 isDeleted: true,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
+            
+            // Cascade delete Topics
+            const topicsSnap = await db.collection("topics").where("moduleId", "==", docId).get();
+            topicsSnap.forEach(doc => {
+                batch.update(doc.ref, {
+                    isDeleted: true,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            });
+            
+            // Cascade delete Lessons
+            const lessonsSnap = await db.collection("lessons").where("moduleId", "==", docId).get();
+            lessonsSnap.forEach(doc => {
+                batch.update(doc.ref, {
+                    isDeleted: true,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            });
+            
+            await batch.commit();
         } else {
-            const list = getLocalData('mca_modules');
-            const idx = list.findIndex(m => m.id === docId);
+            const listM = getLocalData('mca_modules');
+            const idx = listM.findIndex(m => m.id === docId);
             if (idx !== -1) {
-                list[idx].isDeleted = true;
-                saveLocalData('mca_modules', list);
+                listM[idx].isDeleted = true;
+                saveLocalData('mca_modules', listM);
             }
+            
+            const listT = getLocalData('mca_topics');
+            let tChanged = false;
+            listT.forEach(t => { if (t.moduleId === docId) { t.isDeleted = true; tChanged = true; } });
+            if (tChanged) saveLocalData('mca_topics', listT);
+            
+            const listL = getLocalData('mca_lessons');
+            let lChanged = false;
+            listL.forEach(l => { if (l.moduleId === docId) { l.isDeleted = true; lChanged = true; } });
+            if (lChanged) saveLocalData('mca_lessons', listL);
+        }
+        return { success: true };
+    },
+
+    async saveTopic(topicData) {
+        if (!useFallback && db) {
+            const ref = db.collection("topics").doc(topicData.id || undefined);
+            const docId = topicData.id || ref.id;
+            const payload = {
+                courseId: topicData.courseId,
+                moduleId: topicData.moduleId,
+                title: topicData.title,
+                order: parseInt(topicData.order, 10),
+                isDeleted: false,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            if (!topicData.id) {
+                payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                await db.collection("topics").doc(docId).set(payload);
+            } else {
+                await db.collection("topics").doc(docId).update(payload);
+            }
+            return { success: true, id: docId };
+        } else {
+            const list = getLocalData('mca_topics');
+            const docId = topicData.id || "top-" + Math.random().toString(36).substr(2, 9);
+            const payload = { id: docId, ...topicData, order: parseInt(topicData.order, 10), isDeleted: false };
+            const idx = list.findIndex(t => t.id === docId);
+            if (idx !== -1) {
+                list[idx] = payload;
+            } else {
+                list.push(payload);
+            }
+            saveLocalData('mca_topics', list);
+            return { success: true, id: docId };
+        }
+    },
+
+    async deleteTopic(topicId) {
+        if (!useFallback && db) {
+            const batch = db.batch();
+            
+            // Delete Topic
+            const topRef = db.collection("topics").doc(topicId);
+            batch.update(topRef, {
+                isDeleted: true,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            // Cascade delete Lessons
+            const lessonsSnap = await db.collection("lessons").where("topicId", "==", topicId).get();
+            lessonsSnap.forEach(doc => {
+                batch.update(doc.ref, {
+                    isDeleted: true,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            });
+            
+            await batch.commit();
+        } else {
+            const listT = getLocalData('mca_topics');
+            const idx = listT.findIndex(t => t.id === topicId);
+            if (idx !== -1) {
+                listT[idx].isDeleted = true;
+                saveLocalData('mca_topics', listT);
+            }
+            
+            const listL = getLocalData('mca_lessons');
+            let lChanged = false;
+            listL.forEach(l => { if (l.topicId === topicId) { l.isDeleted = true; lChanged = true; } });
+            if (lChanged) saveLocalData('mca_lessons', listL);
         }
         return { success: true };
     },
 
     async saveLesson(arg1, arg2, arg3, arg4) {
-        let id, courseId, moduleId, title, description, youtubeVideoId, durationSeconds, isFreePreview, resources, order;
+        let id, courseId, moduleId, topicId, title, description, youtubeVideoId, durationSeconds, isFreePreview, resources, order;
         
         if (typeof arg4 === 'object') {
             courseId = arg1;
             moduleId = arg2;
             id = arg3;
+            topicId = arg4.topicId;
             title = arg4.title;
             description = arg4.description;
             youtubeVideoId = arg4.youtubeId || arg4.youtubeVideoId;
@@ -876,7 +1380,7 @@ const FirebaseService = {
             const payload = {
                 courseId,
                 moduleId,
-                topicId: "default-topic",
+                topicId: topicId || "default-topic",
                 title,
                 description,
                 youtubeVideoId,
@@ -902,7 +1406,7 @@ const FirebaseService = {
                 id: docId,
                 courseId,
                 moduleId,
-                topicId: "default-topic",
+                topicId: topicId || "default-topic",
                 title,
                 description,
                 youtubeVideoId,
@@ -943,76 +1447,117 @@ const FirebaseService = {
     },
 
 
-    // --- RATE-LIMITED PROGRESS TRACKING ---
-    async saveProgress(userId, courseId, lessonId, watchSeconds, durationSeconds, isCompletedStatus = false) {
-        // Enforce 30 writes rate-limiting count in localStorage
-        const today = new Date().toISOString().slice(0, 10);
-        const limitKey = `yt_writes_count_${userId}_${today}`;
-        const currentCount = parseInt(localStorage.getItem(limitKey) || "0", 10);
+    // --- LOCAL-FIRST PROGRESS TRACKING ---
+    async getLastWatchedProgress(userId) {
+        // Since we aggressively cache progress locally, we should check local progress first 
+        // to find the absolute latest scrubbing position across all cached courses.
+        const allKeys = Object.keys(localStorage);
+        let latestProgress = null;
         
-        if (currentCount >= 30) {
-            console.warn(`Write limit of 30 exceeded for today. Firestore progress update blocked to prevent quota exhaustion.`);
-            return { limitExceeded: true, count: currentCount };
+        for (const key of allKeys) {
+            if (key.startsWith(`mca_cache_progress_${userId}_`)) {
+                const courseProgressList = JSON.parse(localStorage.getItem(key));
+                for (const p of courseProgressList) {
+                    if (!latestProgress || new Date(p.lastWatchedAt).getTime() > new Date(latestProgress.lastWatchedAt).getTime()) {
+                        latestProgress = p;
+                    }
+                }
+            }
         }
         
+        // If we found local progress, it's our source of truth for "last watched"
+        if (latestProgress) return latestProgress;
+
+        // Fallback to Firestore if no local cache exists
+        if (!useFallback && db) {
+            const snap = await db.collection("lessonProgress")
+                .where("userId", "==", userId)
+                .orderBy("lastWatchedAt", "desc")
+                .limit(1)
+                .get();
+            if (!snap.empty) {
+                return snap.docs[0].data();
+            }
+            return null;
+        } else {
+            const list = getLocalData('mca_progress');
+            const userProgress = list.filter(p => p.userId === userId);
+            if (userProgress.length === 0) return null;
+            userProgress.sort((a, b) => new Date(b.lastWatchedAt).getTime() - new Date(a.lastWatchedAt).getTime());
+            return userProgress[0];
+        }
+    },
+
+    async saveProgress(userId, courseId, lessonId, watchSeconds, durationSeconds, isCompletedStatus = false) {
         const completionPercent = Math.min(Math.round((watchSeconds / durationSeconds) * 100), 100);
         const isCompleted = isCompletedStatus || completionPercent >= 90;
         
-        // Log the local write
-        localStorage.setItem(limitKey, (currentCount + 1).toString());
+        const docId = `${userId}_${lessonId}`;
+        const cacheKey = `mca_cache_progress_${userId}_${courseId}`;
         
-        if (!useFallback && db) {
-            const docId = `${userId}_${lessonId}`;
-            const progressRef = db.collection("lessonProgress").doc(docId);
-            const updatePayload = {
-                userId,
-                courseId,
-                lessonId,
-                watchSeconds,
-                completionPercent,
-                isCompleted,
-                lastPositionSeconds: watchSeconds,
-                lastWatchedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            // Check if document exists to write createdAt
-            const docSnap = await progressRef.get();
-            if (!docSnap.exists) {
-                updatePayload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                await progressRef.set(updatePayload);
-            } else {
-                await progressRef.update(updatePayload);
-            }
-            return { success: true, count: currentCount + 1, data: updatePayload };
+        // 1. Update local cache immediately
+        let localProgress = [];
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) localProgress = JSON.parse(cached);
+        
+        const payload = {
+            id: docId,
+            userId,
+            courseId,
+            lessonId,
+            watchSeconds,
+            completionPercent,
+            isCompleted,
+            lastPositionSeconds: watchSeconds,
+            lastWatchedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        
+        const existingIdx = localProgress.findIndex(p => p.id === docId);
+        if (existingIdx !== -1) {
+            payload.createdAt = localProgress[existingIdx].createdAt;
+            localProgress[existingIdx] = payload;
         } else {
-            // Mock Progress Sync
+            payload.createdAt = new Date().toISOString();
+            localProgress.push(payload);
+        }
+        localStorage.setItem(cacheKey, JSON.stringify(localProgress));
+        
+        // If not completing, we skip Firestore write to save quota.
+        // We rely on local cache for scrubbing.
+        if (!isCompletedStatus) {
+            return { success: true, localOnly: true, data: payload };
+        }
+        
+        // --- ONLY IF COMPLETED: Write to Firestore ---
+        if (!useFallback && db) {
+            const progressRef = db.collection("lessonProgress").doc(docId);
+            try {
+                // Ensure payload has timestamp objects for Firestore where applicable
+                const fsPayload = {
+                    ...payload,
+                    lastWatchedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                if (existingIdx === -1) fsPayload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                
+                await progressRef.set(fsPayload, { merge: true });
+                return { success: true, data: payload };
+            } catch (e) {
+                console.error("Firestore write failed", e);
+                return { success: false, error: e };
+            }
+        } else {
+            // Mock mode
             const progressList = getLocalData('mca_progress');
-            const docId = `${userId}_${lessonId}`;
-            const existingIdx = progressList.findIndex(p => p.id === docId);
-            
-            const payload = {
-                id: docId,
-                userId,
-                courseId,
-                lessonId,
-                watchSeconds,
-                completionPercent,
-                isCompleted,
-                lastPositionSeconds: watchSeconds,
-                lastWatchedAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-            
-            if (existingIdx !== -1) {
-                payload.createdAt = progressList[existingIdx].createdAt;
-                progressList[existingIdx] = payload;
+            const pIdx = progressList.findIndex(p => p.id === docId);
+            if (pIdx !== -1) {
+                progressList[pIdx] = payload;
             } else {
-                payload.createdAt = new Date().toISOString();
                 progressList.push(payload);
             }
             saveLocalData('mca_progress', progressList);
-            return { success: true, count: currentCount + 1, data: payload };
+            return { success: true, data: payload };
         }
     },
 
@@ -1021,17 +1566,38 @@ const FirebaseService = {
     },
 
     async getLessonProgress(userId, courseId) {
+        const cacheKey = `mca_cache_progress_${userId}_${courseId}`;
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) return JSON.parse(cached);
+        
+        let list = [];
         if (!useFallback && db) {
-            const q = await db.collection("lessonProgress")
-                .where("userId", "==", userId)
-                .where("courseId", "==", courseId)
-                .get();
-            const list = [];
-            q.forEach(d => list.push({ id: d.id, ...d.data() }));
-            return list;
+            try {
+                // Requires composite index: userId + courseId
+                const q = await db.collection("lessonProgress")
+                    .where("userId", "==", userId)
+                    .where("courseId", "==", courseId)
+                    .get();
+                q.forEach(d => list.push({ id: d.id, ...d.data() }));
+            } catch (err) {
+                console.warn("[getLessonProgress] Composite index missing. Falling back to single-field query + memory filter.", err);
+                // Safe fallback: Query by userId only (single field index built-in)
+                const qFallback = await db.collection("lessonProgress")
+                    .where("userId", "==", userId)
+                    .get();
+                qFallback.forEach(d => {
+                    const data = d.data();
+                    if (data.courseId === courseId) {
+                        list.push({ id: d.id, ...data });
+                    }
+                });
+            }
         } else {
-            return getLocalData('mca_progress').filter(p => p.userId === userId && p.courseId === courseId);
+            list = getLocalData('mca_progress').filter(p => p.userId === userId && p.courseId === courseId);
         }
+        
+        localStorage.setItem(cacheKey, JSON.stringify(list));
+        return list;
     },
 
     // --- MANUAL UPI PAYMENTS GATEWAY ---
@@ -1054,22 +1620,38 @@ const FirebaseService = {
         if (!courseId) {
             const allCourses = await this.getCourses();
             const matched = allCourses.find(
-                c => c.title?.toLowerCase() === course?.toLowerCase()
+                c => c.title?.toLowerCase().includes(course?.toLowerCase() || '')
             );
-            courseId = matched?.id || 'course-unknown';
+            courseId = matched?.id;
+        }
+        
+        // STRICT GUARD: Prevent ghost enrollments from being created.
+        if (!courseId || courseId === 'course-unknown') {
+            console.error(`[savePayment] CRITICAL: Could not map payment to a valid course ID for title: ${course}`);
+            throw new Error("Invalid course selection. Please return to the homepage and try enrolling again.");
         }
 
         const now = new Date().toISOString();
+        let expectedAmount = parseFloat(amount);
+        let reportedAmount = parseFloat(amount);
 
         if (!useFallback && db) {
             try {
+                // Secure server-side pricing lookup to prevent price injection
+                const courseDoc = await db.collection("courses").doc(courseId).get();
+                if (courseDoc.exists) {
+                    const cData = courseDoc.data();
+                    expectedAmount = cData.discountPrice || cData.price || expectedAmount;
+                }
+                
                 const docRef = await db.collection('paymentRequests').add({
                     userId,
                     courseId,
                     name,
                     email,
                     course,
-                    amount:       parseFloat(amount),
+                    amount:       expectedAmount,
+                    reportedAmount: reportedAmount,
                     utrNumber:    utr,
                     screenshotUrl,
                     status:       'pending',
@@ -1120,15 +1702,12 @@ const FirebaseService = {
         if (!useFallback && db) {
             const snap = await db.collection("paymentRequests")
                 .where("userId", "==", userId)
+                .orderBy("submittedAt", "desc")
+                .limit(1)
                 .get();
             if (snap.empty) return null;
-            const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            docs.sort((a,b) => {
-                const da = a.submittedAt?.toMillis ? a.submittedAt.toMillis() : (a.submittedAt ? new Date(a.submittedAt).getTime() : 0);
-                const db = b.submittedAt?.toMillis ? b.submittedAt.toMillis() : (b.submittedAt ? new Date(b.submittedAt).getTime() : 0);
-                return db - da;
-            });
-            return docs[0];
+            const doc = snap.docs[0];
+            return { id: doc.id, ...doc.data() };
         } else {
             const payments = getLocalData('mca_payments').filter(p => p.userId === userId);
             if (payments.length === 0) return null;
@@ -1142,20 +1721,17 @@ const FirebaseService = {
     // --- PAGINATED FETCH FOR ADMIN PANEL ---
     async fetchPendingPayments(lastVisible = null, limitCount = 10) {
         if (!useFallback && db) {
-            const snapshot = await db.collection("paymentRequests")
+            let query = db.collection("paymentRequests")
                 .where("status", "==", "pending")
-                .get();
+                .orderBy("submittedAt", "desc")
+                .limit(limitCount);
                 
-            let allDocs = snapshot.docs;
-            // Sort descending in memory to avoid needing composite index
-            allDocs.sort((a,b) => {
-                const da = a.data().submittedAt?.toMillis ? a.data().submittedAt.toMillis() : (a.data().submittedAt ? new Date(a.data().submittedAt).getTime() : 0);
-                const db = b.data().submittedAt?.toMillis ? b.data().submittedAt.toMillis() : (b.data().submittedAt ? new Date(b.data().submittedAt).getTime() : 0);
-                return db - da;
-            });
-            
-            const startIdx = lastVisible ? allDocs.findIndex(d => d.id === lastVisible.id) + 1 : 0;
-            const pageDocs = allDocs.slice(startIdx, startIdx + limitCount);
+            if (lastVisible) {
+                query = query.startAfter(lastVisible);
+            }
+                
+            const snapshot = await query.get();
+            const pageDocs = snapshot.docs;
             
             const payments = [];
             for (const doc of pageDocs) {
@@ -1181,6 +1757,7 @@ const FirebaseService = {
                     id: doc.id,
                     name: userData.name || data.name || "Unknown",
                     email: userData.email || data.email || "N/A",
+                    mobile: userData.mobile || data.mobile || "No Mobile",
                     course: courseData.title || data.course || "Custom Course",
                     docSnapshot: doc,
                     ...data
@@ -1195,6 +1772,60 @@ const FirebaseService = {
         }
     },
 
+    async searchPendingPayments(email) {
+        const emailLower = email.toLowerCase().trim();
+        if (!useFallback && db) {
+            try {
+                // To avoid requiring a composite index for (email + status), 
+                // we query by email natively, then filter 'pending' status locally.
+                const snap = await db.collection("paymentRequests").where("email", "==", emailLower).get();
+                
+                const payments = [];
+                for (const doc of snap.docs) {
+                    const data = doc.data();
+                    if (data.status !== 'pending') continue; // Local filter
+                    
+                    let userData = { name: data.name || "Unknown", email: data.email || "N/A" };
+                    if (data.userId) {
+                        try {
+                            const userDoc = await db.collection("users").doc(data.userId).get();
+                            if (userDoc.exists) userData = userDoc.data();
+                        } catch(e) {}
+                    }
+                    
+                    let courseData = { title: data.course || "Custom Course" };
+                    if (data.courseId) {
+                        try {
+                            const courseDoc = await db.collection("courses").doc(data.courseId).get();
+                            if (courseDoc.exists) courseData = courseDoc.data();
+                        } catch(e) {}
+                    }
+                    
+                    payments.push({
+                        id: doc.id,
+                        name: userData.name || data.name || "Unknown",
+                        email: userData.email || data.email || "N/A",
+                        mobile: userData.mobile || data.mobile || "No Mobile",
+                        course: courseData.title || data.course || "Custom Course",
+                        ...data
+                    });
+                }
+                return payments.sort((a,b) => {
+                    const timeA = a.submittedAt?.seconds ? a.submittedAt.seconds * 1000 : new Date(a.submittedAt || 0).getTime();
+                    const timeB = b.submittedAt?.seconds ? b.submittedAt.seconds * 1000 : new Date(b.submittedAt || 0).getTime();
+                    return timeB - timeA;
+                });
+            } catch (e) {
+                console.error("Search failed:", e);
+                return [];
+            }
+        } else {
+            const all = getLocalData('mca_payments').filter(p => p.status === "pending" && p.email && p.email.toLowerCase() === emailLower);
+            all.sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+            return all;
+        }
+    },
+
     async updatePaymentStatus(paymentId, status) {
         const currentUser = this.getCurrentUser();
         const reviewerId = currentUser ? currentUser.uid : "admin-sys";
@@ -1206,7 +1837,9 @@ const FirebaseService = {
                 if (!snap.exists) throw new Error("Payment request not found.");
                 const pData = snap.data();
                 
-                await requestRef.update({ 
+                const batch = db.batch();
+                
+                batch.update(requestRef, { 
                     status: status,
                     reviewedBy: reviewerId,
                     reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1216,16 +1849,31 @@ const FirebaseService = {
                 // If Approved, automatically trigger Enrollment (strict schema)
                 if (status === 'approved') {
                     const enrollmentId = `${pData.userId}_${pData.courseId}`;
-                    await db.collection("enrollments").doc(enrollmentId).set({
-                        userId: pData.userId,
-                        courseId: pData.courseId,
-                        paymentRequestId: paymentId,
-                        status: 'active',
-                        enrolledAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    const enrollmentRef = db.collection("enrollments").doc(enrollmentId);
+                    
+                    // CRITICAL FIX: Only set createdAt if document is brand new to prevent index eviction
+                    const enrollSnap = await enrollmentRef.get();
+                    if (!enrollSnap.exists) {
+                        batch.set(enrollmentRef, {
+                            userId: pData.userId,
+                            courseId: pData.courseId,
+                            paymentRequestId: paymentId,
+                            status: 'active',
+                            enrolledAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    } else {
+                        batch.update(enrollmentRef, {
+                            status: 'active',
+                            paymentRequestId: paymentId,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
                 }
+                
+                // Commit the atomic batch
+                await batch.commit();
                 
                 // Fetch user data for logging
                 const uDoc = await db.collection("users").doc(pData.userId).get();
@@ -1250,8 +1898,14 @@ const FirebaseService = {
                 if (status === 'approved') {
                     const enrollments = getLocalData('mca_enrollments');
                     const enrollmentId = `${payments[idx].userId}_${payments[idx].courseId}`;
-                    // Prevent duplicate enrollments
-                    if (!enrollments.some(e => e.id === enrollmentId)) {
+                    const existingIdx = enrollments.findIndex(e => e.id === enrollmentId);
+                    
+                    if (existingIdx !== -1) {
+                        enrollments[existingIdx].status = 'active';
+                        enrollments[existingIdx].paymentRequestId = paymentId;
+                        enrollments[existingIdx].updatedAt = new Date().toISOString();
+                        saveLocalData('mca_enrollments', enrollments);
+                    } else {
                         enrollments.push({
                             id: enrollmentId,
                             userId: payments[idx].userId,
@@ -1314,14 +1968,48 @@ const FirebaseService = {
     },
 
     // --- STUDENT ENROLLMENTS MANAGEMENT (ADMIN CONTROLS) ---
-    async getEnrollments() {
+    async getPaginatedEnrollments(lastVisible = null, limitCount = 10) {
         if (!useFallback && db) {
-            const snap = await db.collection("enrollments").get();
+            let query = db.collection("enrollments")
+                .orderBy("createdAt", "desc")
+                .limit(limitCount);
+            
+            if (lastVisible) {
+                query = query.startAfter(lastVisible);
+            }
+            
+            const snap = await query.get();
+            const enrollments = [];
+            snap.forEach(d => enrollments.push({ id: d.id, docSnapshot: d, ...d.data() }));
+            return enrollments;
+        } else {
+            const list = getLocalData('mca_enrollments');
+            list.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const startIdx = lastVisible ? lastVisible : 0;
+            return list.slice(startIdx, startIdx + limitCount).map(e => ({...e, docSnapshot: startIdx + limitCount}));
+        }
+    },
+
+    async searchStudentEnrollments(email) {
+        const emailLower = email.toLowerCase().trim();
+        if (!useFallback && db) {
+            // 1. Find user by email
+            const userSnap = await db.collection("users").where("email", "==", emailLower).limit(1).get();
+            if (userSnap.empty) return [];
+            const userId = userSnap.docs[0].id;
+
+            // 2. Find enrollments for that user
+            const enrollSnap = await db.collection("enrollments").where("userId", "==", userId).get();
             const list = [];
-            snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+            enrollSnap.forEach(d => list.push({ id: d.id, ...d.data() }));
             return list;
         } else {
-            return getLocalData('mca_enrollments');
+            const users = getLocalData('mca_users');
+            const foundUser = users.find(u => u.email && u.email.toLowerCase() === emailLower);
+            if (!foundUser) return [];
+            
+            const enrollments = getLocalData('mca_enrollments');
+            return enrollments.filter(e => e.userId === foundUser.uid);
         }
     },
 
@@ -1334,15 +2022,26 @@ const FirebaseService = {
             if (userDoc.exists) email = userDoc.data().email || email;
 
             const enrollmentId = `${userId}_${courseId}`;
-            await db.collection("enrollments").doc(enrollmentId).set({
-                userId,
-                courseId,
-                paymentRequestId: "manually-granted",
-                status: 'active',
-                enrolledAt: firebase.firestore.FieldValue.serverTimestamp(),
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            const enrollmentRef = db.collection("enrollments").doc(enrollmentId);
+            const enrollSnap = await enrollmentRef.get();
+            
+            if (!enrollSnap.exists) {
+                await enrollmentRef.set({
+                    userId,
+                    courseId,
+                    paymentRequestId: "manually-granted",
+                    status: 'active',
+                    enrolledAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } else {
+                await enrollmentRef.update({
+                    status: 'active',
+                    paymentRequestId: "manually-granted",
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
         } else {
             const users = getLocalData('mca_users');
             const uData = users.find(u => u.uid === userId);
@@ -1350,7 +2049,12 @@ const FirebaseService = {
 
             const enrollments = getLocalData('mca_enrollments');
             const enrollmentId = `${userId}_${courseId}`;
-            if (!enrollments.some(e => e.id === enrollmentId)) {
+            const existingIdx = enrollments.findIndex(e => e.id === enrollmentId);
+            if (existingIdx !== -1) {
+                enrollments[existingIdx].status = 'active';
+                enrollments[existingIdx].updatedAt = new Date().toISOString();
+                saveLocalData('mca_enrollments', enrollments);
+            } else {
                 enrollments.push({
                     id: enrollmentId,
                     userId,
@@ -1371,10 +2075,10 @@ const FirebaseService = {
     async removeAccess(userId, courseId) {
         if (!useFallback && db) {
             const enrollmentId = `${userId}_${courseId}`;
-            await db.collection("enrollments").doc(enrollmentId).update({
+            await db.collection("enrollments").doc(enrollmentId).set({
                 status: 'cancelled',
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            }, { merge: true });
         } else {
             const enrollments = getLocalData('mca_enrollments');
             const enrollmentId = `${userId}_${courseId}`;
@@ -1401,6 +2105,12 @@ const FirebaseService = {
     },
 
     async logActivity(userId, email, type, description) {
+        // Skip activity logging for students to save Spark Plan quota
+        const currentUser = this.getCurrentUser();
+        if (currentUser && currentUser.role === 'student' && userId === currentUser.uid) {
+            return { success: true, skipped: true };
+        }
+
         const payload = {
             userId,
             email: email || "unknown",
@@ -1494,8 +2204,31 @@ const FirebaseService = {
             return list;
         } else {
             const list = getLocalData('mca_notifications');
-            return list.filter(n => n.recipientUid === "all" || n.recipientUid === userId);
+            return list.filter(n => n.recipientUid === "all" || n.recipientUid === userId).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         }
+    },
+
+    async getNotificationsPaginated(userId, limitCount = 5) {
+        // Because of the "all" OR "userId" complexity in Firestore without composite indexes,
+        // we fetch the full sorted list and let the client UI slice it safely.
+        // This is perfectly fine for <1000 notifications per user.
+        return await this.getNotifications(userId);
+    },
+
+    async markNotificationsRead(userId) {
+        if (!useFallback && db) {
+            await db.collection("users").doc(userId).update({
+                lastNotifReadAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } else {
+            const users = getLocalData('mca_users');
+            const idx = users.findIndex(u => u.uid === userId);
+            if (idx !== -1) {
+                users[idx].lastNotifReadAt = new Date().toISOString();
+                saveLocalData('mca_users', users);
+            }
+        }
+        return { success: true };
     },
 
     async getAllNotifications() {
@@ -1523,7 +2256,170 @@ const FirebaseService = {
             saveLocalData('mca_notifications', filtered);
         }
         return { success: true };
-    }
+    },
+
+    async getMockTestsPaginated(courseId, lastVisible = null, limitCount = 6) {
+        if (!useFallback && db) {
+            let query = db.collection("mockTests")
+                          .where("courseId", "==", courseId)
+                          .orderBy("createdAt", "desc")
+                          .limit(limitCount);
+                          
+            if (lastVisible) {
+                query = query.startAfter(lastVisible);
+            }
+            
+            const snap = await query.get();
+            const list = [];
+            snap.forEach(doc => {
+                list.push({ id: doc.id, docSnap: doc, ...doc.data() });
+            });
+            
+            return {
+                tests: list,
+                lastVisible: snap.docs.length > 0 ? snap.docs[snap.docs.length - 1] : null,
+                hasMore: snap.docs.length === limitCount
+            };
+        } else {
+            const all = getLocalData('mca_mocktests');
+            const filtered = all.filter(t => t.courseId === courseId)
+                                .sort((a,b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+            
+            let startIndex = 0;
+            if (lastVisible) {
+                startIndex = filtered.findIndex(t => t.id === lastVisible) + 1;
+            }
+            
+            const paginatedList = filtered.slice(startIndex, startIndex + limitCount);
+            return {
+                tests: paginatedList,
+                lastVisible: paginatedList.length > 0 ? paginatedList[paginatedList.length - 1].id : null,
+                hasMore: startIndex + limitCount < filtered.length
+            };
+        }
+    },
+
+    async saveMockTest(testId, data) {
+        if (!useFallback && db) {
+            const payload = { ...data, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+            if (testId) {
+                await db.collection("mockTests").doc(testId).update(payload);
+            } else {
+                payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                await db.collection("mockTests").add(payload);
+            }
+        } else {
+            const tests = getLocalData('mca_mocktests');
+            if (testId) {
+                const idx = tests.findIndex(t => t.id === testId);
+                if (idx !== -1) {
+                    tests[idx] = { ...tests[idx], ...data, updatedAt: new Date().toISOString() };
+                }
+            } else {
+                tests.push({
+                    id: 'mock-' + Math.random().toString(36).substr(2, 9),
+                    ...data,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                });
+            }
+            saveLocalData('mca_mocktests', tests);
+        }
+        await this.logActivity("admin", "admin@gmail.com", "mocktest", `Mock test saved: "${data.title}"`);
+        return { success: true };
+    },
+
+    async deleteMockTest(testId) {
+        if (!useFallback && db) {
+            await db.collection("mockTests").doc(testId).delete();
+        } else {
+            const tests = getLocalData('mca_mocktests');
+            const filtered = tests.filter(t => t.id !== testId);
+            saveLocalData('mca_mocktests', filtered);
+        }
+        await this.logActivity("admin", "admin@gmail.com", "mocktest", `Mock test deleted: ${testId}`);
+        return { success: true };
+    },
+
+    async saveMockAttempt(attemptData) {
+        const payload = {
+            ...attemptData,
+            createdAt: new Date().toISOString()
+        };
+        
+        let finalSummaries = null;
+        
+        if (!useFallback && db) {
+            await db.runTransaction(async (transaction) => {
+                const userRef = db.collection("users").doc(attemptData.userId);
+                const userDoc = await transaction.get(userRef);
+                const userData = userDoc.data() || {};
+                
+                const existingSummary = userData.attemptSummaries?.[attemptData.testId];
+                
+                // Only keep the HIGHEST score to prevent punishment for practicing
+                if (!existingSummary || existingSummary.percent < attemptData.percent) {
+                    transaction.update(userRef, {
+                        [`attemptSummaries.${attemptData.testId}`]: {
+                            score: attemptData.score,
+                            percent: attemptData.percent
+                        }
+                    });
+                    
+                    finalSummaries = {
+                        ...(userData.attemptSummaries || {}),
+                        [attemptData.testId]: {
+                            score: attemptData.score,
+                            percent: attemptData.percent
+                        }
+                    };
+                } else {
+                    finalSummaries = userData.attemptSummaries;
+                }
+                
+                const attemptRef = db.collection("mockAttempts").doc();
+                const fsPayload = {
+                    ...attemptData,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                transaction.set(attemptRef, fsPayload);
+            });
+        } else {
+            const attempts = getLocalData('mca_mockattempts');
+            payload.id = 'attempt-' + Math.random().toString(36).substr(2, 9);
+            attempts.push(payload);
+            saveLocalData('mca_mockattempts', attempts);
+            
+            const users = getLocalData('mca_users');
+            const uIdx = users.findIndex(u => u.uid === attemptData.userId);
+            if (uIdx !== -1) {
+                if (!users[uIdx].attemptSummaries) users[uIdx].attemptSummaries = {};
+                
+                const existingSummary = users[uIdx].attemptSummaries[attemptData.testId];
+                if (!existingSummary || existingSummary.percent < attemptData.percent) {
+                    users[uIdx].attemptSummaries[attemptData.testId] = {
+                        score: attemptData.score,
+                        percent: attemptData.percent
+                    };
+                    saveLocalData('mca_users', users);
+                }
+                finalSummaries = users[uIdx].attemptSummaries;
+            }
+        }
+        
+        // Sync local session cache for BOTH environments
+        if (finalSummaries) {
+            const sessionUser = getLocalData('mca_current_user');
+            if (sessionUser && sessionUser.uid === attemptData.userId) {
+                sessionUser.attemptSummaries = finalSummaries;
+                saveLocalData('mca_current_user', sessionUser);
+            }
+        }
+        
+        await this.logActivity(attemptData.userId, null, "mocktest_attempt", `Completed mock test "${attemptData.testTitle}" with score ${attemptData.score}`);
+        return { success: true };
+    },
+
 };
 
 // Export services to window object for global compatibility on file:///

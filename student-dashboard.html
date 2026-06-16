@@ -16,7 +16,14 @@
     <!-- Custom Style Sheet -->
     <link rel="stylesheet" href="css/style.css"/>
 </head>
-<body class="bg-[#f8fafc] text-on-surface font-body-md selection:bg-secondary-fixed-dim">
+<body class="bg-[#f8fafc] text-on-surface font-body-md selection:bg-secondary-fixed-dim relative">
+
+    <!-- CSS Anti-Peek Shield (Removed via JS after verification) -->
+    <div id="dashboard-shield" class="fixed inset-0 z-[99999] bg-[#f8fafc] flex flex-col items-center justify-center transition-opacity duration-500">
+        <span class="material-symbols-outlined text-primary text-5xl mb-4 animate-spin">autorenew</span>
+        <h2 class="text-xl font-bold text-primary mb-2">Verifying Access...</h2>
+        <p class="text-sm text-on-surface-variant text-center max-w-xs">Please wait while we check your course enrollments securely.</p>
+    </div>
 
     <!-- Navbar Custom Element -->
     <custom-navbar></custom-navbar>
@@ -34,9 +41,30 @@
                 <p class="text-white/80 max-w-xl text-sm md:text-base">Track your NIMCET, CUET, and corporate placement goals. Keep up the high consistency!</p>
             </div>
             <div class="flex items-center gap-4 relative z-10 shrink-0">
+                <button id="notif-bell-btn" class="relative p-3 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 transition-all text-white outline-none">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span id="notif-badge" class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-[#ef4444] rounded-full border border-[#1e3a8a] hidden"></span>
+                </button>
                 <div id="stat-progress-summary" class="bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/10">
                     <div class="text-2xl font-bold text-[#FB6514]" id="completed-badge">0 / 0</div>
                     <div class="text-xs text-white/75">Lessons Completed</div>
+                </div>
+
+                <!-- Notifications Dropdown -->
+                <div id="notif-dropdown" class="absolute right-0 top-[110%] z-50 w-80 md:w-96 bg-white text-on-surface rounded-2xl shadow-2xl border border-border-light overflow-hidden hidden flex-col max-h-[400px]">
+                    <div class="p-4 border-b border-border-light bg-surface-subtle flex justify-between items-center">
+                        <h3 class="font-bold text-primary">Announcements</h3>
+                        <button id="close-notif-btn" class="material-symbols-outlined text-on-surface-variant hover:text-primary p-1 rounded-lg hover:bg-surface-container outline-none">close</button>
+                    </div>
+                    <div id="notif-list" class="overflow-y-auto flex-1 divide-y divide-border-light custom-scrollbar bg-white">
+                        <div class="p-8 text-center text-on-surface-variant text-sm">
+                            <span class="material-symbols-outlined animate-spin mb-2">autorenew</span>
+                            <p>Loading notifications...</p>
+                        </div>
+                    </div>
+                    <div id="notif-load-more-container" class="p-3 border-t border-border-light bg-surface-subtle flex justify-center hidden">
+                        <button id="notif-load-more-btn" class="text-xs font-bold text-primary hover:underline outline-none px-4 py-1">Load Older Announcements</button>
+                    </div>
                 </div>
             </div>
         </header>
@@ -63,14 +91,38 @@
             </div>
             <div class="bg-white p-6 rounded-2xl border border-border-light shadow-sm flex items-center gap-4">
                 <div class="w-12 h-12 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
-                    <span class="material-symbols-outlined">schedule</span>
+                    <span class="material-symbols-outlined">check_circle</span>
                 </div>
                 <div>
-                    <h3 class="text-xs text-on-surface-variant font-bold uppercase">Daily Limit Limit</h3>
-                    <p class="text-2xl font-bold text-primary">30 Syncs/Day</p>
+                    <h3 class="text-xs text-on-surface-variant font-bold uppercase">Learning Status</h3>
+                    <p class="text-2xl font-bold text-primary">Active</p>
                 </div>
             </div>
         </div>
+
+        <!-- Continue Learning Section (Hidden by default) -->
+        <section id="continue-learning-section" class="mb-10 hidden">
+            <div class="bg-gradient-to-r from-[#021541] to-primary p-6 rounded-2xl shadow-md text-white flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-3xl text-[#ffb59a]">play_circle</span>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-bold text-[#b5c4ff] uppercase tracking-wider mb-1">Pick Up Where You Left Off</h2>
+                        <h3 id="continue-course-title" class="text-xl font-bold mb-2">Loading Course...</h3>
+                        <div class="flex items-center gap-3 w-48 md:w-64">
+                            <div class="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
+                                <div id="continue-progress" class="bg-[#22c55e] h-full rounded-full" style="width: 0%"></div>
+                            </div>
+                            <span id="continue-progress-text" class="text-[10px] font-bold">0%</span>
+                        </div>
+                    </div>
+                </div>
+                <a id="btn-continue-learning" href="#" class="bg-[#FB6514] hover:bg-[#e0560d] text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg transition-all active:scale-95 shrink-0 w-full md:w-auto text-center flex items-center justify-center gap-2">
+                    Continue Lesson <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </a>
+            </div>
+        </section>
 
         <!-- Enrolled Courses Grid Section -->
         <section class="mb-12">
@@ -87,6 +139,29 @@
                 <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-border-light">
                     <span class="material-symbols-outlined animate-spin text-primary text-3xl">autorenew</span>
                     <p class="text-xs text-on-surface-variant mt-2">Checking your active course credentials...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mock Test Hub Section -->
+        <section class="border-t border-border-light pt-12 mb-12" id="mock-test-hub-section">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div class="flex items-center gap-3">
+                    <h2 class="font-headline-lg text-2xl font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined">edit_note</span>
+                        Mock Test Center
+                    </h2>
+                    <span id="mock-tests-highlight-badge" class="hidden bg-rose-500 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full animate-pulse shadow-sm shadow-rose-500/30">New Available!</span>
+                </div>
+                <button id="load-mock-tests-btn" class="bg-surface-subtle hover:bg-surface-container border border-border-light text-primary font-bold text-xs px-4 py-2 rounded-lg transition-colors flex items-center gap-2 outline-none">
+                    <span class="material-symbols-outlined text-sm">visibility</span>
+                    Load Available Tests
+                </button>
+            </div>
+            
+            <div id="mock-tests-container" class="hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="mock-tests-grid">
+                    <!-- Dynamic Loading -->
                 </div>
             </div>
         </section>
@@ -113,197 +188,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="js/firebase-service.js"></script>
+    <script src="js/onboarding-service.js"></script>
     <script src="js/components.js"></script>
     <script src="js/main.js"></script>
 
-    <!-- Dashboard Controller Logic -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Authentication Guard
-            setTimeout(async () => {
-                const user = window.FirebaseService.getCurrentUser();
-                if (!user) {
-                    window.location.href = "index.html";
-                    return;
-                }
-                if (user.role === 'admin') {
-                    window.location.href = "admin-dashboard.html";
-                    return;
-                }
-                
-                // Banned user check
-                if (user.isActive === false) {
-                    document.body.innerHTML = `
-                        <div class="flex h-screen items-center justify-center bg-gray-100 p-6">
-                            <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md border border-border-light">
-                                <span class="material-symbols-outlined text-error text-6xl mb-4">block</span>
-                                <h2 class="text-2xl font-bold text-primary mb-2">Account Suspended</h2>
-                                <p class="text-sm text-on-surface-variant mb-6">Your account has been deactivated. Please contact support.</p>
-                                <a href="index.html" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition-all block w-full">Back to Home</a>
-                            </div>
-                        </div>`;
-                    return;
-                }
-
-                // Render student metadata
-                document.getElementById('student-name').innerText = user.name;
-                
-                // Fetch user statistics
-                const mockExamsCount = localStorage.getItem(`mca_mock_exams_taken_${user.uid}`) || 0;
-                document.getElementById('stat-mock-count').innerText = mockExamsCount;
-
-                // Load courses and check enrollments
-                await initializeDashboard(user.uid);
-            }, 600);
-        });
-
-        const initializeDashboard = async (userId) => {
-            try {
-                const courses = await window.FirebaseService.getCourses();
-                const enrolledGrid = document.getElementById('enrolled-courses-grid');
-                const exploreGrid = document.getElementById('explore-courses-grid');
-
-                let enrolledHTML = '';
-                let exploreHTML = '';
-                let enrolledCount = 0;
-                let totalCompleted = 0;
-                let totalSyllabusLessons = 0;
-
-                for (const course of courses) {
-                    const isEnrolled = await window.FirebaseService.checkEnrolled(userId, course.id);
-                    const { lessons } = await window.FirebaseService.getSyllabus(course.id);
-                    totalSyllabusLessons += lessons.length;
-
-                    // Fetch user's completion progress
-                    const progressList = await window.FirebaseService.getProgress(userId, course.id);
-                    const completedLessons = progressList.filter(p => p.status === 'completed').length;
-                    totalCompleted += completedLessons;
-
-                    const percent = lessons.length > 0 ? Math.round((completedLessons / lessons.length) * 100) : 0;
-
-                    if (isEnrolled) {
-                        enrolledCount++;
-                        enrolledHTML += `
-                            <div class="bg-white rounded-2xl border border-border-light shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
-                                <div class="p-6 md:p-8 flex-1 flex flex-col justify-between">
-                                    <div>
-                                        <div class="flex justify-between items-start mb-4">
-                                            <span class="bg-success/10 text-success text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full border border-success/20">Enrolled & Active</span>
-                                            <span class="text-xs text-on-surface-variant font-bold">${completedLessons}/${lessons.length} Completed</span>
-                                        </div>
-                                        <h3 class="font-headline-md text-xl text-primary font-bold mb-2 group-hover:text-secondary transition-colors">${course.title}</h3>
-                                        <p class="text-xs text-on-surface-variant mb-6 line-clamp-2">${course.description || 'Access full online curriculum resources, quiz libraries, and test keys.'}</p>
-                                    </div>
-                                    <div class="space-y-4">
-                                        <div>
-                                            <div class="flex justify-between text-[11px] font-bold mb-1">
-                                                <span class="text-on-surface-variant">Course Progress</span>
-                                                <span class="text-primary">${percent}%</span>
-                                            </div>
-                                            <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-                                                <div class="bg-[#FB6514] h-full rounded-full" style="width: ${percent}%"></div>
-                                            </div>
-                                        </div>
-                                        <div class="grid grid-cols-2 gap-3 pt-2">
-                                            <a href="course-workspace.html?course=${course.id}" class="w-full bg-primary hover:bg-[#1e2b56] text-white text-center py-2.5 rounded-lg font-bold text-xs shadow transition-all active:scale-95 flex items-center justify-center gap-1">
-                                                <span class="material-symbols-outlined text-sm">play_circle</span>
-                                                Resume Learning
-                                            </a>
-                                            <a href="mocktest.html?course=${course.id}" class="w-full border border-border-light hover:bg-surface-subtle text-primary text-center py-2.5 rounded-lg font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1">
-                                                <span class="material-symbols-outlined text-sm">edit_note</span>
-                                                Take Mock Test
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        exploreHTML += `
-                            <div class="bg-white rounded-2xl border border-border-light shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
-                                <div class="aspect-video w-full relative overflow-hidden bg-primary/5">
-                                    <div class="absolute inset-0 bg-[#021541]/10 z-10"></div>
-                                    <span class="absolute top-4 left-4 bg-[#FB6514] text-white text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded z-20">Premium Course</span>
-                                    <div class="w-full h-full flex items-center justify-center text-primary/10">
-                                        <span class="material-symbols-outlined text-[64px]" style="font-variation-settings: 'FILL' 1;">school</span>
-                                    </div>
-                                </div>
-                                <div class="p-5 flex-1 flex flex-col justify-between">
-                                    <div>
-                                        <h3 class="font-bold text-primary text-base mb-1.5 group-hover:text-[#FB6514] transition-colors">${course.title}</h3>
-                                        <p class="text-xs text-on-surface-variant line-clamp-2 mb-4">${course.description || 'Premium entrance curriculum with extensive modules and live revision mocks.'}</p>
-                                    </div>
-                                    <div class="pt-4 border-t border-border-light flex justify-between items-center">
-                                        <div class="flex flex-col">
-                                            <span class="text-xs text-on-surface-variant line-through">₹8,999</span>
-                                            <span class="font-bold text-primary text-sm">₹${course.price || '4,999'}</span>
-                                        </div>
-                                        <a href="upi-payment.html?course=${encodeURIComponent(course.title)}&courseId=${encodeURIComponent(course.id)}&price=${course.price || '4,999'}" class="bg-[#FB6514] hover:bg-[#e0560d] text-white font-bold text-xs px-4 py-2 rounded shadow transition-all active:scale-95">
-                                            Enroll Now
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                }
-
-                document.getElementById('stat-enrolled-count').innerText = enrolledCount;
-                document.getElementById('completed-badge').innerText = `${totalCompleted} / ${totalSyllabusLessons}`;
-
-                if (enrolledCount === 0) {
-                    const latestPayment = await window.FirebaseService.getLatestPaymentRequest(userId);
-                    
-                    if (latestPayment && latestPayment.status === 'pending') {
-                        document.body.innerHTML = `
-                            <div class="flex h-screen items-center justify-center bg-gray-100 p-6">
-                                <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md border border-border-light">
-                                    <span class="material-symbols-outlined text-pending text-6xl mb-4">hourglass_empty</span>
-                                    <h2 class="text-2xl font-bold text-primary mb-2">Payment Pending Approval</h2>
-                                    <p class="text-sm text-on-surface-variant mb-6">We have received your payment for <b>${latestPayment.course || 'a course'}</b> and it is currently under review by our admin. You will gain access soon.</p>
-                                    <button onclick="window.FirebaseService.logout().then(() => window.location.href='index.html')" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition-all block w-full">Logout</button>
-                                </div>
-                            </div>`;
-                        return;
-                    } else if (latestPayment && latestPayment.status === 'rejected') {
-                        document.body.innerHTML = `
-                            <div class="flex h-screen items-center justify-center bg-gray-100 p-6">
-                                <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md border border-border-light">
-                                    <span class="material-symbols-outlined text-error text-6xl mb-4">cancel</span>
-                                    <h2 class="text-2xl font-bold text-primary mb-2">Payment Rejected</h2>
-                                    <p class="text-sm text-on-surface-variant mb-6">Your recent payment request was rejected by the administrator. Please check your details or contact support.</p>
-                                    <a href="upi-payment.html" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition-all block w-full mb-3">Submit New Payment</a>
-                                    <button onclick="window.FirebaseService.logout().then(() => window.location.href='index.html')" class="text-on-surface-variant hover:text-primary font-bold text-sm">Logout</button>
-                                </div>
-                            </div>`;
-                        return;
-                    }
-                    
-                    // If no latest payment or it's something else, let them browse courses
-                    enrolledGrid.innerHTML = `
-                        <div class="col-span-full p-8 md:p-12 bg-white border border-border-light rounded-2xl text-center space-y-4 shadow-sm flex flex-col items-center">
-                            <span class="material-symbols-outlined text-on-surface-variant text-5xl">warning</span>
-                            <div class="space-y-1">
-                                <h3 class="font-bold text-primary text-lg">No Active Enrollments</h3>
-                                <p class="text-xs text-on-surface-variant max-w-sm">You are currently registered on the platform but have no course credentials. Pick a program below to enroll and verify payment.</p>
-                            </div>
-                            <a href="#explore-courses-grid" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-3 rounded-lg font-bold text-sm shadow-md active:scale-95 transition-all">Browse Prep Programs</a>
-                        </div>
-                    `;
-                } else {
-                    enrolledGrid.innerHTML = enrolledHTML;
-                }
-
-                exploreGrid.innerHTML = exploreHTML || `
-                    <div class="col-span-full py-8 text-center text-xs text-on-surface-variant">
-                        You have unlocked access to all programs! Excellent work.
-                    </div>
-                `;
-
-            } catch (error) {
-                console.error("Dashboard initialize error:", error);
-            }
-        };
-    </script>
+    <script src="js/student-dashboard.js"></script>
 </body>
 </html>

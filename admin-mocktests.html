@@ -298,14 +298,14 @@
                     
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold text-on-surface-variant uppercase">Question Text</label>
-                        <textarea onchange="updateFormQuestionText(${idx}, this.value)" required placeholder="Type question statement here..." class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-primary outline-none" rows="2">${q.questionText || ''}</textarea>
+                        <textarea onchange="updateFormQuestionText(${idx}, this.value)" required placeholder="Type question statement here..." class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-primary outline-none" rows="2">${(q.questionText || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2">
                         ${[0, 1, 2, 3].map(optIdx => `
                             <div class="space-y-1">
                                 <label class="text-[10px] font-bold text-on-surface-variant uppercase">Option ${String.fromCharCode(65 + optIdx)}</label>
-                                <input type="text" onchange="updateFormQuestionOption(${idx}, ${optIdx}, this.value)" required value="${q.options && q.options[optIdx] ? q.options[optIdx] : ''}" placeholder="Option value" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-primary outline-none"/>
+                                <input type="text" onchange="updateFormQuestionOption(${idx}, ${optIdx}, this.value)" required value="${(q.options && q.options[optIdx] ? q.options[optIdx] : '').replace(/"/g, '&quot;')}" placeholder="Option value" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-primary outline-none"/>
                             </div>
                         `).join('')}
                     </div>

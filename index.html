@@ -47,7 +47,7 @@
                         supportive community designed specifically for MCA aspirants.
                     </p>
                     <div class="flex flex-wrap gap-4 pt-2">
-                        <a href="upi-payment.html?course=NIMCET%20Complete%20Mastery&price=4999"
+                        <a href="upi-payment.html?course=NIMCET%20Complete%20Mastery&courseId=course-nimcet&price=4999"
                             class="bg-on-tertiary-container hover:bg-[#e0560d] text-white font-label-md text-label-md px-8 py-4 rounded-lg font-bold shadow-lg active:scale-95 transition-all flex items-center gap-2">
                             Enroll Now
                             <span class="material-symbols-outlined">arrow_forward</span>
@@ -153,7 +153,7 @@
                                 cracking India's top MCA entrance exam. Includes live classes, 500+ mock tests, and
                                 personal mentoring.</p>
                             <div class="flex items-center gap-6 mt-auto">
-                                <a href="upi-payment.html?course=NIMCET%20Complete%20Mastery&price=4999"
+                                <a href="upi-payment.html?course=NIMCET%20Complete%20Mastery&courseId=course-nimcet&price=4999"
                                     class="bg-white text-primary px-6 py-3 rounded-lg font-bold hover:bg-white/90 active:scale-95 transition-all text-center">Enroll
                                     Now</a>
                                 <span class="font-headline-md flex flex-col">
@@ -212,7 +212,7 @@
                             <p class="text-on-surface-variant">Last-minute 45-day intensive crash course to boost your
                                 scores in the CUET PG exam.</p>
                         </div>
-                        <a href="upi-payment.html?course=CUET%20PG%20Crash%20Course&price=1999"
+                        <a href="upi-payment.html?course=CUET%20PG%20Crash%20Course&courseId=course-cuet&price=1999"
                             class="bg-primary hover:bg-[#1a2b56] text-white px-8 py-3.5 rounded-lg font-bold active:scale-95 transition-all whitespace-nowrap text-center">Join
                             for ₹1,999</a>
                     </div>
@@ -580,6 +580,7 @@
     <script src="js/firebase-service.js"></script>
     <!-- Modular Video Player -->
     <script src="js/video-player.js"></script>
+    <script src="js/onboarding-service.js"></script>
     <script src="js/components.js"></script>
     <script src="js/main.js"></script>
 
@@ -615,9 +616,31 @@
             }
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const user = window.FirebaseService && window.FirebaseService.getCurrentUser();
+        document.addEventListener('DOMContentLoaded', async () => {
+            const checkAuth = async () => {
+                let user = null;
+                if (!window.useFallback && window.auth) {
+                    user = await new Promise(resolve => {
+                        let resolved = false;
+                        const unsubscribe = window.auth.onAuthStateChanged(u => {
+                            if (!resolved) {
+                                resolved = true;
+                                unsubscribe();
+                                resolve(window.FirebaseService.getCurrentUser());
+                            }
+                        });
+                        setTimeout(() => {
+                            if (!resolved) {
+                                resolved = true;
+                                unsubscribe();
+                                resolve(window.FirebaseService.getCurrentUser());
+                            }
+                        }, 2000);
+                    });
+                } else {
+                    user = window.FirebaseService && window.FirebaseService.getCurrentUser();
+                }
+
                 if (user) {
                     if (user.role === 'admin') {
                         window.location.href = "admin-dashboard.html";
@@ -625,7 +648,9 @@
                         window.location.href = "student-dashboard.html";
                     }
                 }
-            }, 600);
+            };
+            
+            checkAuth();
 
             const watchDemoBtn = document.querySelector('a[href="#demo"]');
             const demoModal = document.getElementById('demo-video-modal');

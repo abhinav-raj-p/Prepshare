@@ -322,6 +322,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="js/firebase-service.js"></script>
+    <script src="js/onboarding-service.js"></script>
     <script src="js/components.js"></script>
     <script src="js/main.js"></script>
 
@@ -340,6 +341,14 @@
         let timeRemaining = 0; // in seconds
         let timerInterval = null;
         let userId = "";
+
+        // Prevent accidental navigation during active exam
+        window.addEventListener('beforeunload', (e) => {
+            if (document.getElementById('test-workspace') && !document.getElementById('test-workspace').classList.contains('hidden')) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             // Wait briefly for firebase initials
@@ -443,10 +452,10 @@
             `).join('');
         };
 
-        const selectAndStart = (testId) => {
+        const selectAndStart = async (testId) => {
             activeTest = mockTests.find(t => t.id === testId);
             document.getElementById('selector-screen').classList.add('hidden');
-            showDisclaimer(activeTest);
+            await showDisclaimer(activeTest);
         };
 
         const showFallbackWarning = () => {
@@ -464,7 +473,15 @@
         };
 
         // Disclaimer phase
-        const showDisclaimer = (test) => {
+        const showDisclaimer = async (test) => {
+            // VERIFY ENROLLMENT
+            const isEnrolled = await window.FirebaseService.checkEnrolled(userId, test.courseId);
+            if (!isEnrolled) {
+                alert("Unauthorized Access: You are not enrolled in the course associated with this mock test.");
+                window.location.href = "student-dashboard.html";
+                return;
+            }
+
             document.getElementById('disclaimer-screen').classList.remove('hidden');
             
             // Set course title if present
@@ -736,8 +753,9 @@
                 }
             });
 
-            // Calculate negative marking
-            const score = (correctCount * marksCorrect) + (incorrectCount * marksWrong);
+            // Calculate negative marking securely (ensure absolute subtraction)
+            const penalty = Math.abs(marksWrong);
+            const score = (correctCount * marksCorrect) - (incorrectCount * penalty);
             const pct = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
             
             let grade = 'F';
@@ -776,9 +794,7 @@
                 console.error("Failed to write mock attempt to server, saving locally:", e);
             }
 
-            // Update user taken metrics locally
-            const currentExams = parseInt(localStorage.getItem(`mca_mock_exams_taken_${userId}`) || 0, 10);
-            localStorage.setItem(`mca_mock_exams_taken_${userId}`, currentExams + 1);
+            // User profile metrics are now securely updated in the backend via saveMockAttempt transaction
 
             // Render stats on Results dialog
             document.getElementById('res-score').innerText = `${score}/${maxScore}`;
@@ -790,7 +806,7 @@
             document.getElementById('res-incorrect-count').innerText = incorrectCount;
             document.getElementById('res-unanswered-count').innerText = unansweredCount;
 
-            // Hide workspace, show results modal
+            // Clear beforeunload listener since test is done
             document.getElementById('test-workspace').classList.add('hidden');
             
             const resultsModal = document.getElementById('results-modal');

@@ -189,6 +189,7 @@
     <script src="js/firebase-service.js"></script>
     <!-- Modular Cloudinary upload service -->
     <script src="js/cloudinary-service.js"></script>
+    <script src="js/onboarding-service.js"></script>
     <script src="js/components.js"></script>
     <script src="js/main.js"></script>
     
@@ -196,7 +197,7 @@
         // ── URL params ───────────────────────────────────────────────
         const params     = new URLSearchParams(window.location.search);
         const courseName = params.get('course')    || 'NIMCET Complete Mastery 2025';
-        const courseId   = params.get('courseId')  || null;   // passed through to savePayment
+        const courseId   = params.get('courseId')  || 'course-nimcet';   // ultimate fallback to prevent 'course-unknown'
         const coursePrice = parseFloat(params.get('price')) || 4999;
 
         // ── Populate summary panel ───────────────────────────────────

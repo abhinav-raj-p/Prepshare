@@ -7,8 +7,6 @@ const CONFIG = {
     // Replace 'your-cloud-name' with your actual Cloudinary Cloud Name
     cloudinary: {
         cloudName: "dcc3jab2m",
-        apiKey: "483318379859266",
-        apiSecret: "wUrSD4fvKf7S1F1mzFJrfhR3DA8",
         uploadPreset: "transactions",  // Preset set up by user
         folder: "transaction_id"        // Folder set up by user
     },

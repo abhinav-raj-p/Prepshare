@@ -77,12 +77,15 @@
                     <h3 class="font-title-lg text-title-lg text-primary font-bold">Course Curriculum Management</h3>
                     <p class="text-xs text-on-surface-variant">Create, update, and soft-delete modules and lessons dynamically.</p>
                 </div>
-                <div class="flex items-center gap-3 w-full sm:w-auto">
+                <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                     <select id="curr-course-selector" class="bg-surface-subtle border border-border-light rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none text-primary font-bold">
                         <!-- Populated dynamically -->
                     </select>
-                    <button id="add-module-btn" class="bg-primary text-white font-bold px-4 py-2 rounded-lg shadow hover:opacity-90 active:scale-95 transition-all text-sm flex items-center gap-2 shrink-0">
-                        <span class="material-symbols-outlined text-sm">add</span> Add Module
+                    <button id="add-course-btn" onclick="openCourseEditor()" class="bg-secondary text-white font-bold px-3 py-2 rounded-lg shadow hover:opacity-90 active:scale-95 transition-all text-sm flex items-center gap-1 shrink-0">
+                        <span class="material-symbols-outlined text-sm">add_box</span> Create Course
+                    </button>
+                    <button id="add-module-btn" class="bg-primary text-white font-bold px-3 py-2 rounded-lg shadow hover:opacity-90 active:scale-95 transition-all text-sm flex items-center gap-1 shrink-0">
+                        <span class="material-symbols-outlined text-sm">add</span> Add Subject
                     </button>
                 </div>
             </div>
@@ -95,6 +98,41 @@
         </div>
     </main>
 
+    <!-- Course Editor Modal Overlay -->
+    <div id="course-modal" class="fixed inset-0 bg-[#021541]/75 backdrop-blur-sm hidden items-center justify-center z-[160] p-4">
+        <div class="bg-white rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl border border-border-light flex flex-col animate-slide-up">
+            <div class="p-4 bg-surface-subtle border-b border-border-light flex justify-between items-center">
+                <h3 class="font-bold text-primary" id="course-modal-title">Create New Course</h3>
+                <button class="material-symbols-outlined p-1 rounded-lg hover:bg-surface-container text-on-surface-variant outline-none" onclick="hideCourseModal()">close</button>
+            </div>
+            <form id="course-form" class="p-6 space-y-4">
+                <input type="hidden" id="course-id"/>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-on-surface-variant uppercase">Course Title *</label>
+                    <input type="text" id="course-title" required class="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"/>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-on-surface-variant uppercase">Description</label>
+                    <textarea id="course-desc" rows="2" class="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-on-surface-variant uppercase">Price (₹)</label>
+                        <input type="number" id="course-price" class="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-on-surface-variant uppercase">Discount Price (₹)</label>
+                        <input type="number" id="course-discount" class="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"/>
+                    </div>
+                </div>
+                <div class="p-4 border-t border-border-light flex justify-end gap-3 pt-4">
+                    <button type="button" onclick="hideCourseModal()" class="px-5 py-2 rounded-lg border border-border-light text-on-surface-variant hover:bg-surface-subtle font-bold text-sm transition-colors">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-lg bg-primary text-white hover:opacity-90 font-bold text-sm shadow-md transition-all">Save Course</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Curriculum Item Editor Modal Overlay -->
     <div id="curriculum-modal" class="fixed inset-0 bg-[#021541]/75 backdrop-blur-sm hidden items-center justify-center z-[160] p-4">
         <div class="bg-white rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl border border-border-light flex flex-col animate-slide-up">
@@ -104,9 +142,10 @@
             </div>
             <form id="curriculum-form" class="p-6 space-y-4">
                 <input type="hidden" id="curr-id"/>
-                <input type="hidden" id="curr-type"/> <!-- 'module' or 'lesson' -->
+                <input type="hidden" id="curr-type"/> <!-- 'module', 'topic' or 'lesson' -->
                 <input type="hidden" id="curr-course-id"/>
                 <input type="hidden" id="curr-module-id"/>
+                <input type="hidden" id="curr-topic-id"/>
 
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-on-surface-variant uppercase">Title</label>
@@ -187,6 +226,49 @@
         // --- CURRICULUM MANAGEMENT LOGIC ---
         let activeCourseId = "course-placement";
 
+        // Course Modal Logic
+        const courseModal = document.getElementById('course-modal');
+        const courseForm = document.getElementById('course-form');
+        
+        window.openCourseEditor = () => {
+            document.getElementById('course-id').value = '';
+            courseForm.reset();
+            courseModal.classList.remove('hidden');
+            courseModal.classList.add('flex');
+        };
+        
+        window.hideCourseModal = () => {
+            courseModal.classList.add('hidden');
+            courseModal.classList.remove('flex');
+        };
+
+        courseForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('course-id').value;
+            const title = document.getElementById('course-title').value;
+            const desc = document.getElementById('course-desc').value;
+            const price = parseFloat(document.getElementById('course-price').value || 0);
+            const discount = parseFloat(document.getElementById('course-discount').value || 0);
+            
+            try {
+                const res = await window.FirebaseService.saveCourse({
+                    id: id || null,
+                    title: title,
+                    slug: title.toLowerCase().replace(/\s+/g, '-'),
+                    description: desc,
+                    price: price,
+                    discountPrice: discount,
+                    category: 'Uncategorized',
+                    isPublished: false
+                });
+                hideCourseModal();
+                activeCourseId = res.id || id;
+                await loadCurriculumManager(); // Reload course list
+            } catch (error) {
+                alert("Failed to save course: " + error.message);
+            }
+        };
+
         const loadCurriculumManager = async () => {
             const courses = await window.FirebaseService.getCourses();
             const select = document.getElementById('course-selector');
@@ -205,69 +287,105 @@
         };
 
         const renderCurriculumTree = async () => {
-            const { modules, lessons } = await window.FirebaseService.getSyllabus(activeCourseId);
-            const container = document.getElementById('curriculum-tree');
+            const { modules, topics, lessons } = await window.FirebaseService.getSyllabus(activeCourseId);
+            const container = document.getElementById('curriculum-tree-container');
             
             if (modules.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-10 bg-white border border-border-light rounded-2xl">
                         <span class="material-symbols-outlined text-4xl text-on-surface-variant mb-2">menu_book</span>
                         <p class="text-sm font-semibold text-[#808090]">No curriculum modules created yet.</p>
-                        <p class="text-xs text-on-surface-variant mt-1">Click Add Module to begin building the syllabus.</p>
+                        <p class="text-xs text-on-surface-variant mt-1">Click Add Subject (Module) to begin building the syllabus.</p>
                     </div>
                 `;
                 return;
             }
 
             container.innerHTML = modules.map((mod, mIdx) => {
-                const modLessons = lessons.filter(l => l.moduleId === mod.id && !l.isDeleted);
-                modLessons.sort((a,b) => a.order - b.order);
+                const modTopics = topics ? topics.filter(t => t.moduleId === mod.id && !t.isDeleted) : [];
+                modTopics.sort((a,b) => a.order - b.order);
                 
                 return `
-                    <div class="bg-white border border-border-light rounded-2xl overflow-hidden shadow-sm">
+                    <div class="bg-white border border-border-light rounded-2xl overflow-hidden shadow-sm mb-4">
+                        <!-- Module Header -->
                         <div class="p-4 bg-surface-subtle border-b border-border-light flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                             <div>
                                 <span class="font-mono text-xs text-secondary font-bold uppercase bg-secondary-container/10 px-2 py-0.5 rounded">Module ${mIdx + 1}</span>
                                 <h4 class="font-bold text-primary text-sm mt-1">${mod.title}</h4>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button onclick="openCurriculumEditor('module', '${mod.id}', '', '${mod.title}', ${mod.order})" class="px-2.5 py-1 text-xs border border-border-light rounded hover:bg-surface font-semibold flex items-center gap-1">
+                                <button onclick="openCurriculumEditor('module', '${mod.id}', '', '', '${mod.title.replace(/'/g, "\\'")}', ${mod.order})" class="px-2.5 py-1 text-xs border border-border-light rounded hover:bg-surface font-semibold flex items-center gap-1">
                                     <span class="material-symbols-outlined text-[14px]">edit</span> Edit
                                 </button>
                                 <button onclick="deleteCurriculumItem('module', '${mod.id}')" class="px-2.5 py-1 text-xs border border-error/30 text-error rounded hover:bg-error/5 font-semibold flex items-center gap-1">
                                     <span class="material-symbols-outlined text-[14px]">delete</span> Delete
                                 </button>
-                                <button onclick="openCurriculumEditor('lesson', '', '${mod.id}', '', ${modLessons.length + 1})" class="px-2.5 py-1 text-xs bg-primary text-white rounded hover:opacity-90 font-semibold flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[14px]">add</span> Add Lesson
+                                <button onclick="openCurriculumEditor('topic', '', '${mod.id}', '', '', ${modTopics.length + 1})" class="px-2.5 py-1 text-xs bg-primary text-white rounded hover:opacity-90 font-semibold flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[14px]">add</span> Add Sub-Topic
                                 </button>
                             </div>
                         </div>
                         
-                        <div class="divide-y divide-border-light">
-                            ${modLessons.length === 0 ? `
-                                <p class="text-xs text-on-surface-variant italic p-4 text-center">No lessons added to this module yet.</p>
-                            ` : modLessons.map((les, lIdx) => {
-                                const youtubeVal = les.youtubeVideoId || les.youtubeId || '';
-                                const pdfVal = les.resources && les.resources.length > 0 ? les.resources[0] : '';
+                        <!-- Topics List -->
+                        <div class="divide-y divide-border-light pl-4 sm:pl-8 bg-slate-50/30">
+                            ${modTopics.length === 0 ? `
+                                <p class="text-xs text-on-surface-variant italic p-4 text-center">No sub-topics added to this module yet.</p>
+                            ` : modTopics.map((top, tIdx) => {
+                                const topLessons = lessons ? lessons.filter(l => l.topicId === top.id && !l.isDeleted) : [];
+                                topLessons.sort((a,b) => a.order - b.order);
+                                
                                 return `
-                                <div class="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white hover:bg-slate-50/50 transition-colors">
-                                    <div class="space-y-1">
-                                        <div class="flex items-center gap-2">
-                                            <span class="font-bold text-primary text-xs">${mIdx + 1}.${lIdx + 1} ${les.title}</span>
-                                            ${les.isFreePreview || les.isPreview ? `<span class="px-1.5 py-0.5 rounded text-[8px] bg-success/10 text-success font-bold">PREVIEWABLE</span>` : ''}
+                                    <div class="border-l-2 border-border-light ml-2 my-2 rounded-r-xl bg-white shadow-sm overflow-hidden">
+                                        <!-- Topic Header -->
+                                        <div class="p-3 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-border-light border-dashed">
+                                            <div class="flex items-center gap-2">
+                                                <span class="material-symbols-outlined text-primary text-sm">segment</span>
+                                                <h5 class="font-bold text-primary text-xs">${mIdx + 1}.${tIdx + 1} ${top.title}</h5>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <button onclick="openCurriculumEditor('topic', '${top.id}', '${mod.id}', '', '${top.title.replace(/'/g, "\\'")}', ${top.order})" class="px-2 py-1 text-[10px] border border-border-light rounded hover:bg-surface font-semibold flex items-center gap-1">
+                                                    <span class="material-symbols-outlined text-[12px]">edit</span> Edit
+                                                </button>
+                                                <button onclick="deleteCurriculumItem('topic', '${top.id}')" class="px-2 py-1 text-[10px] border border-error/30 text-error rounded hover:bg-error/5 font-semibold flex items-center gap-1">
+                                                    <span class="material-symbols-outlined text-[12px]">delete</span> Delete
+                                                </button>
+                                                <button onclick="openCurriculumEditor('lesson', '', '${mod.id}', '${top.id}', '', ${topLessons.length + 1})" class="px-2 py-1 text-[10px] bg-secondary text-white rounded hover:opacity-90 font-semibold flex items-center gap-1">
+                                                    <span class="material-symbols-outlined text-[12px]">add</span> Add Video/PDF
+                                                </button>
+                                            </div>
                                         </div>
-                                        <p class="text-[10px] text-on-surface-variant">${les.description || 'No description provided.'}</p>
-                                        <p class="text-[9px] text-on-surface-variant font-mono uppercase">YT: ${youtubeVal} ${pdfVal ? `• PDF: ${pdfVal}` : ''} • ${Math.floor(les.durationSeconds / 60)}m ${les.durationSeconds % 60}s</p>
+                                        
+                                        <!-- Lessons List -->
+                                        <div class="divide-y divide-border-light/50 bg-slate-50/50">
+                                            ${topLessons.length === 0 ? `
+                                                <p class="text-[10px] text-on-surface-variant italic p-3 pl-8">No videos or PDFs added to this topic yet.</p>
+                                            ` : topLessons.map((les, lIdx) => {
+                                                const youtubeVal = les.youtubeVideoId || les.youtubeId || '';
+                                                const pdfVal = les.resources && les.resources.length > 0 ? les.resources[0] : '';
+                                                return `
+                                                <div class="p-3 pl-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-white transition-colors">
+                                                    <div class="space-y-1">
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="material-symbols-outlined text-secondary text-sm">${youtubeVal ? 'play_circle' : 'picture_as_pdf'}</span>
+                                                            <span class="font-bold text-primary text-xs">${mIdx + 1}.${tIdx + 1}.${lIdx + 1} ${les.title}</span>
+                                                            ${les.isFreePreview || les.isPreview ? `<span class="px-1.5 py-0.5 rounded text-[8px] bg-success/10 text-success font-bold">PREVIEWABLE</span>` : ''}
+                                                        </div>
+                                                        <p class="text-[10px] text-on-surface-variant">${les.description || 'No description provided.'}</p>
+                                                        <p class="text-[9px] text-on-surface-variant font-mono uppercase">YT: ${youtubeVal || 'N/A'} ${pdfVal ? `• PDF: Linked` : ''} • ${Math.floor((les.durationSeconds||0) / 60)}m ${(les.durationSeconds||0) % 60}s</p>
+                                                    </div>
+                                                    <div class="flex items-center gap-2 shrink-0">
+                                                        <button onclick="openCurriculumEditor('lesson', '${les.id}', '${mod.id}', '${top.id}', '${les.title.replace(/'/g, "\\'")}', ${les.order}, '${youtubeVal}', ${les.durationSeconds||0}, '${(les.description || '').replace(/'/g, "\\'")}', ${les.isFreePreview || les.isPreview || false}, '${pdfVal}')" class="px-2 py-1 text-[10px] border border-border-light rounded hover:bg-surface font-semibold flex items-center gap-1">
+                                                            <span class="material-symbols-outlined text-[12px]">edit</span> Edit
+                                                        </button>
+                                                        <button onclick="deleteCurriculumItem('lesson', '${les.id}')" class="px-2 py-1 text-[10px] border border-error/30 text-error rounded hover:bg-error/5 font-semibold flex items-center gap-1">
+                                                            <span class="material-symbols-outlined text-[12px]">delete</span> Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                `;
+                                            }).join('')}
+                                        </div>
                                     </div>
-                                    <div class="flex items-center gap-2 shrink-0">
-                                        <button onclick="openCurriculumEditor('lesson', '${les.id}', '${mod.id}', '${les.title.replace(/'/g, "\\'")}', ${les.order}, '${youtubeVal}', ${les.durationSeconds}, '${(les.description || '').replace(/'/g, "\\'")}', ${les.isFreePreview || les.isPreview || false}, '${pdfVal}')" class="px-2 py-1 text-[10px] border border-border-light rounded hover:bg-surface font-semibold flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-[12px]">edit</span> Edit
-                                        </button>
-                                        <button onclick="deleteCurriculumItem('lesson', '${les.id}')" class="px-2 py-1 text-[10px] border border-error/30 text-error rounded hover:bg-error/5 font-semibold flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-[12px]">delete</span> Delete
-                                        </button>
-                                    </div>
-                                </div>
                                 `;
                             }).join('')}
                         </div>
@@ -294,11 +412,14 @@
         const closeCurrModal = document.getElementById('close-curriculum-modal-btn');
         const cancelCurrBtn = document.getElementById('cancel-curriculum-btn');
 
-        window.openCurriculumEditor = (type, itemId = '', modId = '', title = '', orderVal = 1, ytId = '', duration = 0, desc = '', isPreview = false, pdfLink = '') => {
+        const currTopicId = document.getElementById('curr-topic-id');
+        
+        window.openCurriculumEditor = (type, itemId = '', modId = '', topicId = '', title = '', orderVal = 1, ytId = '', duration = 0, desc = '', isPreview = false, pdfLink = '') => {
             currId.value = itemId;
             currType.value = type;
             currCourseId.value = activeCourseId;
             currModuleId.value = modId;
+            currTopicId.value = topicId;
             currTitle.value = title;
             currOrder.value = orderVal;
             
@@ -307,7 +428,7 @@
             const pdfRow = document.getElementById('lesson-fields-row-pdf');
             const previewBox = document.getElementById('lesson-fields-preview');
 
-            if (type === 'module') {
+            if (type === 'module' || type === 'topic') {
                 ytRow.classList.add('hidden');
                 descRow.classList.add('hidden');
                 pdfRow.classList.add('hidden');
@@ -315,14 +436,18 @@
                 currYt.required = false;
                 currDuration.required = false;
                 
-                document.getElementById('curriculum-modal-title').innerText = itemId ? "Edit Module" : "Add New Module";
+                if (type === 'module') {
+                    document.getElementById('curriculum-modal-title').innerText = itemId ? "Edit Subject (Module)" : "Add New Subject";
+                } else {
+                    document.getElementById('curriculum-modal-title').innerText = itemId ? "Edit Sub-Topic" : "Add Sub-Topic";
+                }
             } else {
                 ytRow.classList.remove('hidden');
                 descRow.classList.remove('hidden');
                 pdfRow.classList.remove('hidden');
                 previewBox.classList.remove('hidden');
-                currYt.required = true;
-                currDuration.required = true;
+                currYt.required = false; // Optional if PDF is provided
+                currDuration.required = false;
                 
                 currYt.value = ytId;
                 currDuration.value = duration || '';
@@ -330,7 +455,7 @@
                 currPdf.value = pdfLink;
                 currPreview.checked = isPreview;
 
-                document.getElementById('curriculum-modal-title').innerText = itemId ? "Edit Lesson" : "Add Lesson to Module";
+                document.getElementById('curriculum-modal-title').innerText = itemId ? "Edit Video/PDF" : "Add Video/PDF to Topic";
             }
 
             currModal.classList.remove('hidden');
@@ -347,7 +472,7 @@
         cancelCurrBtn.onclick = hideCurriculumModal;
 
         document.getElementById('add-module-btn').onclick = () => {
-            openCurriculumEditor('module', '', '', '', 1);
+            openCurriculumEditor('module', '', '', '', '', 1);
         };
 
         currForm.onsubmit = async (e) => {
@@ -356,20 +481,24 @@
             const itemId = currId.value;
             const courseId = currCourseId.value;
             const modId = currModuleId.value;
+            const topicId = currTopicId.value;
             const title = currTitle.value.trim();
             const order = parseInt(currOrder.value, 10);
 
             try {
                 if (type === 'module') {
                     await window.FirebaseService.saveModule(courseId, itemId || null, { title, order });
+                } else if (type === 'topic') {
+                    await window.FirebaseService.saveTopic({ id: itemId || null, courseId, moduleId: modId, title, order });
                 } else {
                     const youtubeId = currYt.value.trim();
-                    const durationSeconds = parseInt(currDuration.value, 10);
+                    const durationSeconds = parseInt(currDuration.value, 10) || 0;
                     const description = currDesc.value.trim();
                     const isPreview = currPreview.checked;
                     const pdfLink = currPdf.value.trim();
 
                     await window.FirebaseService.saveLesson(courseId, modId, itemId || null, {
+                        topicId: topicId,
                         title,
                         order,
                         youtubeId,
@@ -391,6 +520,8 @@
                 try {
                     if (type === 'module') {
                         await window.FirebaseService.deleteModule(activeCourseId, itemId);
+                    } else if (type === 'topic') {
+                        await window.FirebaseService.deleteTopic(itemId);
                     } else {
                         await window.FirebaseService.deleteLesson(activeCourseId, itemId);
                     }

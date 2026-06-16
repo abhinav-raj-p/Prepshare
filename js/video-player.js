@@ -103,7 +103,58 @@
                     }
                 };
 
-                if (overlay) overlay.onclick = togglePlay;
+                // Keyboard Events Global Listener
+                const handleKeyDown = (e) => {
+                    if (!ytPlayer) return;
+                    // Ignore if typing in input/textarea
+                    const tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+                    if (tag === 'input' || tag === 'textarea') return;
+
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        togglePlay();
+                    } else if (e.code === 'ArrowLeft') {
+                        e.preventDefault();
+                        if (ytPlayer.getCurrentTime) ytPlayer.seekTo(ytPlayer.getCurrentTime() - 10, true);
+                    } else if (e.code === 'ArrowRight') {
+                        e.preventDefault();
+                        if (ytPlayer.getCurrentTime) ytPlayer.seekTo(ytPlayer.getCurrentTime() + 10, true);
+                    }
+                };
+                document.addEventListener('keydown', handleKeyDown);
+
+                // Double Tap / Single Tap Touch Handle
+                let lastTap = 0;
+                let tapTimeout = null;
+
+                if (overlay) {
+                    overlay.addEventListener('click', (e) => {
+                        if (!ytPlayer) return;
+                        let currentTime = new Date().getTime();
+                        let tapLength = currentTime - lastTap;
+
+                        if (tapLength < 300 && tapLength > 0) {
+                            // Double Tap
+                            clearTimeout(tapTimeout);
+                            const rect = overlay.getBoundingClientRect();
+                            const x = e.clientX - rect.left;
+                            if (x < rect.width / 2) {
+                                if (ytPlayer.getCurrentTime) ytPlayer.seekTo(ytPlayer.getCurrentTime() - 10, true);
+                            } else {
+                                if (ytPlayer.getCurrentTime) ytPlayer.seekTo(ytPlayer.getCurrentTime() + 10, true);
+                            }
+                        } else {
+                            // Single Tap Schedule
+                            tapTimeout = setTimeout(() => {
+                                togglePlay();
+                            }, 300);
+                        }
+                        lastTap = currentTime;
+                    });
+                }
+                
+                // Expose listener for cleanup
+                if (ytPlayer) ytPlayer._handleKeyDown = handleKeyDown;
                 if (playBtn) playBtn.onclick = togglePlay;
 
                 if (progressSlider) {
@@ -208,10 +259,15 @@
                 getPlayer: () => ytPlayer,
                 destroy: () => {
                     if (progressInterval) clearInterval(progressInterval);
-                    if (ytPlayer && ytPlayer.destroy) {
-                        try {
-                            ytPlayer.destroy();
-                        } catch (e) {}
+                    if (ytPlayer) {
+                        if (ytPlayer._handleKeyDown) {
+                            document.removeEventListener('keydown', ytPlayer._handleKeyDown);
+                        }
+                        if (ytPlayer.destroy) {
+                            try {
+                                ytPlayer.destroy();
+                            } catch (e) {}
+                        }
                     }
                 }
             };
