@@ -104,6 +104,19 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => window.location.href = "index.html", 1500);
             return;
         }
+
+        // Strict Routing Guard: If not admin, check for any active enrollments or pending payments
+        if (currentUser.role !== 'admin') {
+            const enrollments = await window.FirebaseService.getUserEnrollments(currentUser.uid);
+            if (!enrollments || enrollments.length === 0) {
+                const latestPayment = await window.FirebaseService.getLatestPaymentRequest(currentUser.uid);
+                if (!latestPayment || latestPayment.status !== 'pending') {
+                    // Force them to payment page
+                    window.location.href = "upi-payment.html";
+                    return;
+                }
+            }
+        }
         
         await initWorkspace();
     };

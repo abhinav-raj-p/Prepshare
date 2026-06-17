@@ -183,6 +183,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (enrolledCount === 0) {
                 const latestPayment = await window.FirebaseService.getLatestPaymentRequest(user.uid);
                 
+                if (latestPayment && ['pending', 'rejected', 'approved'].includes(latestPayment.status)) {
+                    // Remove shield so overlay is visible
+                    const shield = document.getElementById('dashboard-shield');
+                    if (shield) shield.remove();
+                }
+                
                 if (latestPayment && latestPayment.status === 'pending') {
                     showStateOverlay(`
                         <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md border border-border-light">

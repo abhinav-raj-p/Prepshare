@@ -56,7 +56,7 @@ window.OnboardingService = {
                 e.preventDefault();
                 const mobile = input.value.trim();
                 
-                if (mobile.length !== 10 || !/^\\d+$/.test(mobile)) {
+                if (mobile.length !== 10 || !/^[0-9]+$/.test(mobile)) {
                     alertBox.innerText = "Please enter a valid 10-digit mobile number.";
                     alertBox.classList.remove('hidden');
                     return;
@@ -67,8 +67,12 @@ window.OnboardingService = {
                 alertBox.classList.add('hidden');
                 
                 try {
-                    await window.FirebaseService.updateUserMobile(mobile);
-                    loggedInUser.mobile = mobile;
+                    if (loggedInUser.pendingOnboarding) {
+                        await window.FirebaseService.finalizeUserSignup(loggedInUser, mobile);
+                    } else {
+                        await window.FirebaseService.updateUserMobile(mobile);
+                        loggedInUser.mobile = mobile;
+                    }
                     
                     // Trigger exit animation
                     this._modal.classList.remove('opacity-100');

@@ -366,22 +366,17 @@ const FirebaseService = {
             const userDoc = await db.collection("users").doc(uid).get();
 
             if (!userDoc.exists) {
-                // First login — create the users document
+                // First login — DEFER database creation until onboarding is complete
                 const adminDocData = isAdmin ? adminSnap.docs[0].data() : null;
                 const name = adminDocData?.name || email.split('@')[0];
-                userData = {
+                return {
+                    pendingOnboarding: true,
                     uid,
                     name,
                     email,
                     role: targetRole,
-                    profileImage: getInitialsAvatar(name),
-                    isActive: true,
-                    currentDeviceId: devId,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
+                    profileImage: getInitialsAvatar(name)
                 };
-                await db.collection("users").doc(uid).set(userData);
             } else {
                 // Returning user — sync role from authoritative collection
                 userData = userDoc.data();
@@ -419,20 +414,16 @@ const FirebaseService = {
             );
 
             if (!foundUser) {
-                // Auto-create from admin record data or email prefix
+                // First login - DEFER creation
                 const name = adminRecord?.name || email.split('@')[0];
-                foundUser = {
+                return {
+                    pendingOnboarding: true,
                     uid: "mock-user-" + Math.random().toString(36).substr(2, 9),
                     name,
                     email,
                     role: targetRole,
-                    profileImage: getInitialsAvatar(name),
-                    isActive: true,
-                    currentDeviceId: devId,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
+                    profileImage: getInitialsAvatar(name)
                 };
-                usersList.push(foundUser);
             } else {
                 // Always sync role from the authoritative list on each login
                 foundUser.role = targetRole;
@@ -646,23 +637,14 @@ const FirebaseService = {
             const isAdminUser = !adminQuery.empty;
             const targetRole = isAdminUser ? 'admin' : 'student';
 
-            const userData = {
+            return {
+                pendingOnboarding: true,
                 uid: userCred.user.uid,
                 name,
                 email,
                 role: targetRole,
-                profileImage: initialImg,
-                isActive: true,
-                currentDeviceId: devId,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
+                profileImage: initialImg
             };
-
-            await db.collection("users").doc(userCred.user.uid).set(userData);
-            localStorage.setItem('mca_current_user', JSON.stringify(userData));
-            await this.logActivity(userData.uid, userData.email, "signup", `User registered standard account`);
-            return userData;
         } else {
             // ── MOCK SIGNUP ───────────────────────────────────────────
             const adminList = getLocalData('mca_admin');
@@ -676,24 +658,14 @@ const FirebaseService = {
 
             const newUid = "mock-user-" + Math.random().toString(36).substr(2, 9);
             const initialImg = getInitialsAvatar(name);
-            const devId = getOrCreateDeviceId();
-            const newUser = {
+            return {
+                pendingOnboarding: true,
                 uid: newUid,
                 name,
                 email,
                 role: targetRole,
-                profileImage: initialImg,
-                isActive: true,
-                currentDeviceId: devId,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                lastLoginAt: new Date().toISOString()
+                profileImage: initialImg
             };
-            users.push(newUser);
-            saveLocalData('mca_users', users);
-            localStorage.setItem('mca_current_user', JSON.stringify(newUser));
-            await this.logActivity(newUser.uid, newUser.email, "signup", `User registered standard account`);
-            return newUser;
         }
     },
 
@@ -713,21 +685,15 @@ const FirebaseService = {
             let userData = {};
             
             if (!userDoc.exists) {
-                // Initial Google Signup - use Google Photo URL
-                userData = {
+                // Initial Google Signup - DEFER database creation
+                return {
+                    pendingOnboarding: true,
                     uid: user.uid,
                     name: user.displayName || "Google User",
                     email: user.email,
                     role: targetRole,
-                    profileImage: user.photoURL || getInitialsAvatar(user.displayName || "Google User"),
-                    isActive: true,
-                    currentDeviceId: devId,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
+                    profileImage: user.photoURL || getInitialsAvatar(user.displayName || "Google User")
                 };
-                await db.collection("users").doc(user.uid).set(userData);
-                user.isNewUser = true;
             } else {
                 userData = userDoc.data();
                 const updates = {
@@ -761,20 +727,14 @@ const FirebaseService = {
             
             let foundUser = users.find(u => u.email === email);
             if (!foundUser) {
-                foundUser = {
+                return {
+                    pendingOnboarding: true,
                     uid: "mock-google-id",
                     name,
                     email,
                     role: targetRole,
-                    profileImage: initialImg,
-                    isActive: true,
-                    currentDeviceId: devId,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    lastLoginAt: new Date().toISOString()
+                    profileImage: initialImg
                 };
-                users.push(foundUser);
-                saveLocalData('mca_users', users);
             } else {
                 foundUser.role = targetRole;
                 foundUser.currentDeviceId = devId;
@@ -785,6 +745,38 @@ const FirebaseService = {
             await this.logActivity(foundUser.uid, foundUser.email, "login_google", `User logged in via Google Auth`);
             return foundUser;
         }
+    },
+
+    async finalizeUserSignup(pendingUser, mobileNumber) {
+        const devId = getOrCreateDeviceId();
+        const userData = {
+            uid: pendingUser.uid,
+            name: pendingUser.name,
+            email: pendingUser.email,
+            mobile: mobileNumber,
+            role: pendingUser.role,
+            profileImage: pendingUser.profileImage,
+            isActive: true,
+            currentDeviceId: devId,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            lastLoginAt: new Date().toISOString()
+        };
+        
+        if (!useFallback && db) {
+            userData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            userData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+            userData.lastLoginAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection("users").doc(pendingUser.uid).set(userData);
+        } else {
+            const users = getLocalData('mca_users');
+            users.push(userData);
+            saveLocalData('mca_users', users);
+        }
+        
+        localStorage.setItem('mca_current_user', JSON.stringify(userData));
+        await this.logActivity(userData.uid, userData.email, "signup", `User registered and onboarded with mobile: ${mobileNumber}`);
+        return { ...userData, isNewUser: true };
     },
 
     async updateUserMobile(mobileNumber) {
@@ -2102,6 +2094,28 @@ const FirebaseService = {
             const enrollmentId = `${userId}_${courseId}`;
             return enrollments.some(e => e.id === enrollmentId && e.status === 'active');
         }
+    },
+
+    async getUserEnrollments(userId) {
+        let list = [];
+        if (!useFallback && db) {
+            try {
+                // Query by userId only to avoid composite index requirement
+                const snap = await db.collection("enrollments").where("userId", "==", userId).get();
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.status === 'active') {
+                        list.push({ id: doc.id, ...data });
+                    }
+                });
+            } catch (err) {
+                console.error("getUserEnrollments failed", err);
+            }
+        } else {
+            const enrollments = getLocalData('mca_enrollments');
+            list = enrollments.filter(e => e.userId === userId && e.status === 'active');
+        }
+        return list;
     },
 
     async logActivity(userId, email, type, description) {

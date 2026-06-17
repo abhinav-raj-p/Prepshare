@@ -325,11 +325,12 @@ class CustomNavbar extends HTMLElement {
             const name = this.querySelector('#auth-name').value.trim();
 
             try {
+                let loggedInUser;
                 if (currentMode === 'login') {
-                    await window.FirebaseService.loginEmail(email, password);
+                    loggedInUser = await window.FirebaseService.loginEmail(email, password);
                 } else if (currentMode === 'signup') {
                     if (!name) throw new Error("Full Name is required for registration.");
-                    await window.FirebaseService.signupEmail(name, email, password);
+                    loggedInUser = await window.FirebaseService.signupEmail(name, email, password);
                 } else {
                     await window.FirebaseService.forgotPassword(email);
                     alertBox.innerText = "Instructions to reset your password have been emailed.";
@@ -343,7 +344,6 @@ class CustomNavbar extends HTMLElement {
                     return;
                 }
                 
-                const loggedInUser = window.FirebaseService.getCurrentUser();
                 await handleAuthSuccess(loggedInUser, currentMode);
             } catch (err) {
                 alertBox.innerText = err.message;
@@ -360,8 +360,7 @@ class CustomNavbar extends HTMLElement {
             alertBox.classList.add('hidden');
             googleBtn.disabled = true;
             try {
-                await window.FirebaseService.loginGoogle();
-                const loggedInUser = window.FirebaseService.getCurrentUser();
+                const loggedInUser = await window.FirebaseService.loginGoogle();
                 await handleAuthSuccess(loggedInUser, 'google');
             } catch (err) {
                 alertBox.innerText = err.message;
@@ -377,12 +376,14 @@ class CustomNavbar extends HTMLElement {
                 return;
             }
 
-            // Check if mobile number is missing (skip for admins)
-            if (!loggedInUser.mobile && loggedInUser.role !== 'admin') {
+            // Check if user is pending onboarding OR is a legacy user missing mobile
+            if (loggedInUser.pendingOnboarding || (!loggedInUser.mobile && loggedInUser.role !== 'admin')) {
                 hideAuthModal();
                 if (window.OnboardingService) {
                     window.OnboardingService.requestMobileNumber(loggedInUser, () => {
-                        finalizeRedirect(loggedInUser, mode);
+                        const finalUser = window.FirebaseService.getCurrentUser();
+                        if (loggedInUser.pendingOnboarding) finalUser.isNewUser = true;
+                        finalizeRedirect(finalUser, mode);
                     });
                 } else {
                     console.error("OnboardingService missing. Falling back to immediate redirect.");
@@ -394,7 +395,7 @@ class CustomNavbar extends HTMLElement {
             finalizeRedirect(loggedInUser, mode);
         };
 
-        const finalizeRedirect = (loggedInUser, mode) => {
+        const finalizeRedirect = async (loggedInUser, mode) => {
             hideAuthModal();
             this.updateAuthState();
             if (loggedInUser.role === 'admin') {
@@ -402,7 +403,29 @@ class CustomNavbar extends HTMLElement {
             } else {
                 if (window.location.pathname.includes('upi-payment.html')) {
                     window.location.reload();
-                } else if (mode === 'signup' || loggedInUser.isNewUser) {
+                    return;
+                }
+                
+                // State-Based Routing Strategy
+                let hasEnrollments = false;
+                let hasPendingPayments = false;
+                
+                try {
+                    const enrollments = await window.FirebaseService.getUserEnrollments(loggedInUser.uid);
+                    if (enrollments && enrollments.length > 0) hasEnrollments = true;
+                    
+                    if (!hasEnrollments) {
+                        const pendingPayment = await window.FirebaseService.getLatestPaymentRequest(loggedInUser.uid);
+                        if (pendingPayment && pendingPayment.status === 'pending') {
+                            hasPendingPayments = true;
+                        }
+                    }
+                } catch(e) {
+                    console.error("Routing check failed", e);
+                }
+
+                if (!hasEnrollments && !hasPendingPayments) {
+                    // Payment Abandonment Scenario OR Brand New User
                     window.location.href = "upi-payment.html";
                 } else {
                     window.location.href = "student-dashboard.html";
