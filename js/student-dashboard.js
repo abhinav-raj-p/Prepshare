@@ -223,9 +223,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
                 
-                // User has 0 active enrollments and no pending/rejected payment.
-                // Force them to the payment page to prevent bypassing the block.
-                window.location.href = "upi-payment.html";
+                // User has 0 active enrollments and no payment record at all.
+                // Use replace() so the back button cannot create a redirect loop.
+                window.location.replace("upi-payment.html");
+
                 return;
             } else {
                 if(enrolledGrid) {
@@ -364,14 +365,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             console.error("Dashboard initialization error:", e);
             const shield = document.getElementById('dashboard-shield');
-            if (shield) {
-                shield.innerHTML = `
-                    <span class="material-symbols-outlined text-error text-5xl mb-4">error</span>
-                    <h2 class="text-xl font-bold text-primary mb-2">System Error</h2>
-                    <p class="text-sm text-on-surface-variant text-center max-w-xs mb-4">We encountered an issue loading your data. Please try refreshing.</p>
-                    <button onclick="window.location.reload()" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition-all">Reload Page</button>
-                `;
-            }
+            if (shield) shield.remove();
+            // On any unexpected error (like missing collections), eject to payment to prevent being stuck
+            window.location.replace("upi-payment.html");
         }
     };
 

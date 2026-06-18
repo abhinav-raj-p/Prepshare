@@ -14,9 +14,13 @@ service cloud.firestore {
     
     // Helper function to check if the user is an administrator
     function isAdmin() {
-      return isAuth() && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return isAuth() && (
+        request.auth.token.email == 'admin@gmail.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+        ||
+        exists(/databases/$(database)/documents/admin/$(request.auth.token.email))
+      );
     }
 
     // --- Admin Collection ---

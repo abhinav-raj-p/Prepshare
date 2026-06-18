@@ -399,39 +399,62 @@ class CustomNavbar extends HTMLElement {
             hideAuthModal();
             this.updateAuthState();
             if (loggedInUser.role === 'admin') {
-                window.location.href = "admin-dashboard.html";
+                window.location.replace("admin-dashboard.html");
             } else {
+                // If already on the payment page, just reload so the form prefills
                 if (window.location.pathname.includes('upi-payment.html')) {
                     window.location.reload();
                     return;
                 }
                 
-                // State-Based Routing Strategy
+                // ── State-Based Routing ──────────────────────────────────────────
+                // Source of truth per collections.md:
+                //   enrollments.status: 'active' | 'revoked'
+                //   paymentRequests.status: 'pending' | 'approved' | 'rejected'
+                //
+                // Routing rules:
+                //   1. Has active enrollment              → student-dashboard.html
+                //   2. Has ANY payment request record
+                //      (pending / approved / rejected)   → student-dashboard.html
+                //      (dashboard overlays handle each status message)
+                //   3. No enrollments & no payment record → upi-payment.html
+                //      (total payment abandonment / brand new user)
+                // ────────────────────────────────────────────────────────────────
                 let hasEnrollments = false;
-                let hasPendingPayments = false;
+                let hasAnyPaymentRecord = false;
                 
                 try {
+                    // Check 1: active enrollments
                     const enrollments = await window.FirebaseService.getUserEnrollments(loggedInUser.uid);
                     if (enrollments && enrollments.length > 0) hasEnrollments = true;
                     
+                    // Check 2: any payment record (only needed when no active enrollment)
                     if (!hasEnrollments) {
-                        const pendingPayment = await window.FirebaseService.getLatestPaymentRequest(loggedInUser.uid);
-                        if (pendingPayment && pendingPayment.status === 'pending') {
-                            hasPendingPayments = true;
+                        const latestPayment = await window.FirebaseService.getLatestPaymentRequest(loggedInUser.uid);
+                        // Per collections.md: status can be 'pending', 'approved', or 'rejected'
+                        // All three mean they have engaged with the payment process.
+                        // The dashboard will render the correct overlay for each.
+                        if (latestPayment && ['pending', 'approved', 'rejected'].includes(latestPayment.status)) {
+                            hasAnyPaymentRecord = true;
                         }
                     }
                 } catch(e) {
-                    console.error("Routing check failed", e);
+                    console.error("State-based routing check failed:", e);
+                    // On error, eject to payment page to prevent getting stuck in "Verifying Access" loop
+                    window.location.replace("upi-payment.html");
+                    return;
                 }
 
-                if (!hasEnrollments && !hasPendingPayments) {
-                    // Payment Abandonment Scenario OR Brand New User
-                    window.location.href = "upi-payment.html";
+                if (!hasEnrollments && !hasAnyPaymentRecord) {
+                    // Absolute no-pay scenario: eject cleanly to payment page.
+                    // Use replace() to prevent the back button creating a redirect loop.
+                    window.location.replace("upi-payment.html");
                 } else {
-                    window.location.href = "student-dashboard.html";
+                    window.location.replace("student-dashboard.html");
                 }
             }
         };
+
 
         // Logout action
         const logoutTrigger = this.querySelector('#logout-btn-trigger');

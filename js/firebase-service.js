@@ -40,29 +40,44 @@ const getOrCreateDeviceId = () => {
     return devId;
 };
 
-const startDeviceSessionCheck = (uid) => {
+const startDeviceSessionCheck = (user) => {
+    // Admin exception: Admins can login from wherever they want. No eviction.
+    if (user && user.role === 'admin') return;
+    
+    const uid = user.uid;
+
+    // 1. Guard against running on public pages to prevent flash on index.html,
+    // while ensuring ALL protected pages remain secure.
+    const publicPages = ['index.html', 'course-details.html', 'course-details-dark.html', 'upi-payment.html'];
+    const path = window.location.pathname;
+    if (path === '/' || publicPages.some(p => path.includes(p))) return;
+
     if (deviceSessionListener) return;
     const localDevId = getOrCreateDeviceId();
     
+    const renderOverlay = (btnId) => {
+        const overlay = document.createElement('div');
+        overlay.className = "fixed inset-0 bg-[#021541]/95 backdrop-blur-sm z-[9999] flex items-center justify-center p-4";
+        overlay.innerHTML = `
+            <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full">
+                <span class="material-symbols-outlined text-error text-6xl mb-4">gpp_maybe</span>
+                <h2 class="text-2xl font-bold text-primary mb-2">Session Terminated</h2>
+                <p class="text-sm text-on-surface-variant mb-6">Your account was logged in from another device. For security reasons, this session has been terminated.</p>
+                <button id="${btnId}" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition-all block w-full">Logout</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        document.getElementById(btnId).addEventListener('click', () => {
+            window.FirebaseService.logout().then(() => window.location.replace("index.html"));
+        });
+    };
+
     if (!useFallback && db) {
         deviceSessionListener = db.collection("users").doc(uid).onSnapshot(doc => {
             if (doc.exists) {
                 const data = doc.data();
                 if (data.currentDeviceId && data.currentDeviceId !== localDevId) {
-                    const overlay = document.createElement('div');
-                    overlay.className = "fixed inset-0 bg-[#021541]/95 backdrop-blur-sm z-[9999] flex items-center justify-center p-4";
-                    overlay.innerHTML = `
-                        <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full">
-                            <span class="material-symbols-outlined text-error text-6xl mb-4">gpp_maybe</span>
-                            <h2 class="text-2xl font-bold text-primary mb-2">Session Terminated</h2>
-                            <p class="text-sm text-on-surface-variant mb-6">Your account was logged in from another device. For security reasons, this session has been terminated.</p>
-                            <button id="concurrent-logout-btn" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition-all block w-full">Return to Home</button>
-                        </div>
-                    `;
-                    document.body.appendChild(overlay);
-                    document.getElementById('concurrent-logout-btn').addEventListener('click', () => {
-                        window.FirebaseService.logout().then(() => window.location.href = "index.html");
-                    });
+                    renderOverlay('concurrent-logout-btn');
                 }
             }
         }, err => {
@@ -74,20 +89,7 @@ const startDeviceSessionCheck = (uid) => {
             const users = JSON.parse(localStorage.getItem('mca_users') || '[]');
             const user = users.find(u => u.uid === uid);
             if (user && user.currentDeviceId && user.currentDeviceId !== localDevId) {
-                const overlay = document.createElement('div');
-                overlay.className = "fixed inset-0 bg-[#021541]/95 backdrop-blur-sm z-[9999] flex items-center justify-center p-4";
-                overlay.innerHTML = `
-                    <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full">
-                        <span class="material-symbols-outlined text-error text-6xl mb-4">gpp_maybe</span>
-                        <h2 class="text-2xl font-bold text-primary mb-2">Session Terminated</h2>
-                        <p class="text-sm text-on-surface-variant mb-6">Your account was logged in from another device. For security reasons, this session has been terminated.</p>
-                        <button id="concurrent-logout-btn-mock" class="bg-primary hover:bg-[#1a2b56] text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition-all block w-full">Return to Home</button>
-                    </div>
-                `;
-                document.body.appendChild(overlay);
-                document.getElementById('concurrent-logout-btn-mock').addEventListener('click', () => {
-                    window.FirebaseService.logout().then(() => window.location.href = "index.html");
-                });
+                renderOverlay('concurrent-logout-btn-mock');
                 clearInterval(deviceSessionListener);
             }
         }, 3000);
@@ -814,6 +816,54 @@ const FirebaseService = {
             }
             deviceSessionListener = null;
         }
+
+        // --- PRE-LOGOUT SYNC: Flush local progress cache to Firestore ---
+        const userJson = localStorage.getItem('mca_current_user');
+        if (userJson && !useFallback && db) {
+            try {
+                const user = JSON.parse(userJson);
+                if (user && user.uid) {
+                    const syncPromises = [];
+                    const keysToRemove = [];
+                    
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key && key.startsWith(`mca_cache_progress_${user.uid}_`)) {
+                            keysToRemove.push(key);
+                            const cached = localStorage.getItem(key);
+                            if (cached) {
+                                try {
+                                    const list = JSON.parse(cached);
+                                    list.forEach(payload => {
+                                        // Only flush incomplete progress (complete is already synced)
+                                        if (!payload.isCompleted) {
+                                            const progressRef = db.collection("lessonProgress").doc(payload.id);
+                                            const fsPayload = {
+                                                ...payload,
+                                                lastWatchedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                                            };
+                                            syncPromises.push(progressRef.set(fsPayload, { merge: true }));
+                                        }
+                                    });
+                                } catch (parseErr) {
+                                    console.warn("Corrupt local progress cache skipped:", key);
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (syncPromises.length > 0) {
+                        await Promise.allSettled(syncPromises); // Use allSettled so one failure doesn't stop cleanup
+                    }
+                    
+                    keysToRemove.forEach(k => localStorage.removeItem(k));
+                }
+            } catch (e) {
+                console.error("Failed to sync local progress on logout:", e);
+            }
+        }
+
         if (!useFallback && auth) {
             await auth.signOut();
         }
@@ -826,7 +876,7 @@ const FirebaseService = {
             if (!userJson) return null;
             const user = JSON.parse(userJson);
             if (user && user.uid) {
-                startDeviceSessionCheck(user.uid);
+                startDeviceSessionCheck(user);
             }
             return user;
         } catch (e) {
@@ -1713,14 +1763,9 @@ const FirebaseService = {
     // --- PAGINATED FETCH FOR ADMIN PANEL ---
     async fetchPendingPayments(lastVisible = null, limitCount = 10) {
         if (!useFallback && db) {
+            // Remove orderBy to avoid Firebase Composite Index requirement
             let query = db.collection("paymentRequests")
-                .where("status", "==", "pending")
-                .orderBy("submittedAt", "desc")
-                .limit(limitCount);
-                
-            if (lastVisible) {
-                query = query.startAfter(lastVisible);
-            }
+                .where("status", "==", "pending");
                 
             const snapshot = await query.get();
             const pageDocs = snapshot.docs;
@@ -1755,7 +1800,23 @@ const FirebaseService = {
                     ...data
                 });
             }
-            return payments;
+
+            // Local Memory Sort (Bypasses Firebase Index limits)
+            payments.sort((a, b) => {
+                const timeA = (a.submittedAt && a.submittedAt.seconds) ? a.submittedAt.seconds * 1000 : new Date(a.submittedAt || 0).getTime();
+                const timeB = (b.submittedAt && b.submittedAt.seconds) ? b.submittedAt.seconds * 1000 : new Date(b.submittedAt || 0).getTime();
+                return timeB - timeA;
+            });
+
+            // Local Memory Pagination
+            let startIndex = 0;
+            if (lastVisible && lastVisible.id) {
+                startIndex = payments.findIndex(p => p.id === lastVisible.id);
+                if (startIndex !== -1) startIndex += 1;
+                else startIndex = 0;
+            }
+
+            return payments.slice(startIndex, startIndex + limitCount);
         } else {
             const all = getLocalData('mca_payments').filter(p => p.status === "pending");
             all.sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt));
@@ -1803,8 +1864,8 @@ const FirebaseService = {
                     });
                 }
                 return payments.sort((a,b) => {
-                    const timeA = a.submittedAt?.seconds ? a.submittedAt.seconds * 1000 : new Date(a.submittedAt || 0).getTime();
-                    const timeB = b.submittedAt?.seconds ? b.submittedAt.seconds * 1000 : new Date(b.submittedAt || 0).getTime();
+                    const timeA = (a.submittedAt && a.submittedAt.seconds) ? a.submittedAt.seconds * 1000 : new Date(a.submittedAt || 0).getTime();
+                    const timeB = (b.submittedAt && b.submittedAt.seconds) ? b.submittedAt.seconds * 1000 : new Date(b.submittedAt || 0).getTime();
                     return timeB - timeA;
                 });
             } catch (e) {
@@ -1923,10 +1984,22 @@ const FirebaseService = {
         if (!useFallback && db) {
             let state = { totalStudents: 0, activeStudents: 0, pendingCount: 0, revenue: "₹0" };
             
-            const unsubUsers = db.collection("users").where("role", "==", "student").onSnapshot(snap => {
-                state.totalStudents = snap.size;
-                state.activeStudents = snap.docs.filter(d => d.data().isActive !== false).length;
+            const unsubUsers = db.collection("users").onSnapshot(snap => {
+                const students = snap.docs.filter(d => d.data().role === "student");
+                state.totalStudents = students.length;
                 callback(state);
+            }, (error) => {
+                console.error("Firebase fetch error in users snapshot:", error);
+            });
+
+            const unsubEnrollments = db.collection("enrollments").onSnapshot(snap => {
+                const activeEnrollments = snap.docs.filter(d => d.data().status === "active");
+                // Get unique user IDs from active enrollments to count Active Students
+                const activeUserIds = new Set(activeEnrollments.map(d => d.data().userId));
+                state.activeStudents = activeUserIds.size;
+                callback(state);
+            }, (error) => {
+                console.error("Firebase fetch error in enrollments snapshot:", error);
             });
             
             const unsubPayments = db.collection("paymentRequests").onSnapshot(snap => {
@@ -1935,20 +2008,25 @@ const FirebaseService = {
                 const revenue = all.filter(p => p.status === 'approved').reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
                 state.revenue = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(revenue);
                 callback(state);
+            }, (error) => {
+                console.error("Firebase fetch error in paymentRequests snapshot:", error);
             });
             
-            return () => { unsubUsers(); unsubPayments(); };
+            return () => { unsubUsers(); unsubEnrollments(); unsubPayments(); };
         } else {
             // Mock Listener
             const emitStats = () => {
                 const users = getLocalData('mca_users').filter(u => u.role === 'student');
                 const payments = getLocalData('mca_payments');
+                const enrollments = getLocalData('mca_enrollments').filter(e => e.status === 'active');
+                
                 const pendingCount = payments.filter(p => p.status === 'pending').length;
                 const revenue = payments.filter(p => p.status === 'approved').reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+                const activeUserIds = new Set(enrollments.map(e => e.userId));
                 
                 callback({
                     totalStudents: users.length,
-                    activeStudents: users.filter(u => u.isActive !== false).length,
+                    activeStudents: activeUserIds.size,
                     pendingCount: pendingCount,
                     revenue: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(revenue)
                 });

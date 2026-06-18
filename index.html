@@ -617,38 +617,76 @@
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const checkAuth = async () => {
-                let user = null;
-                if (!window.useFallback && window.auth) {
-                    user = await new Promise(resolve => {
-                        let resolved = false;
-                        const unsubscribe = window.auth.onAuthStateChanged(u => {
-                            if (!resolved) {
-                                resolved = true;
-                                unsubscribe();
-                                resolve(window.FirebaseService.getCurrentUser());
-                            }
-                        });
-                        setTimeout(() => {
-                            if (!resolved) {
-                                resolved = true;
-                                unsubscribe();
-                                resolve(window.FirebaseService.getCurrentUser());
-                            }
-                        }, 2000);
+        const checkAuth = async () => {
+            let user = null;
+            if (!window.useFallback && window.auth) {
+                user = await new Promise(resolve => {
+                    let resolved = false;
+                    const unsubscribe = window.auth.onAuthStateChanged(u => {
+                        if (!resolved) {
+                            resolved = true;
+                            unsubscribe();
+                            resolve(window.FirebaseService.getCurrentUser());
+                        }
                     });
-                } else {
-                    user = window.FirebaseService && window.FirebaseService.getCurrentUser();
+                    setTimeout(() => {
+                        if (!resolved) {
+                            resolved = true;
+                            unsubscribe();
+                            resolve(window.FirebaseService.getCurrentUser());
+                        }
+                    }, 2000);
+                });
+            } else {
+                user = window.FirebaseService && window.FirebaseService.getCurrentUser();
+            }
+
+            if (user) {
+                if (user.role === 'admin') {
+                    window.location.replace("admin-dashboard.html");
+                    return;
+                }
+                
+                // ── Unified State-Based Routing ──────────────────────────────────
+                // Mirror the exact logic in components.js finalizeRedirect so all
+                // entry points behave identically. Per collections.md:
+                //   enrollments.status: 'active' | 'revoked'
+                //   paymentRequests.status: 'pending' | 'approved' | 'rejected'
+                //
+                // 1. Has active enrollment              → student-dashboard.html
+                // 2. Has ANY payment request record     → student-dashboard.html
+                //    (dashboard overlays handle each status message)
+                // 3. No enrollments & no payment record → upi-payment.html
+                // ────────────────────────────────────────────────────────────────
+                let hasEnrollments = false;
+                let hasAnyPaymentRecord = false;
+
+                try {
+                    const enrollments = await window.FirebaseService.getUserEnrollments(user.uid);
+                    if (enrollments && enrollments.length > 0) hasEnrollments = true;
+
+                    if (!hasEnrollments) {
+                        const latestPayment = await window.FirebaseService.getLatestPaymentRequest(user.uid);
+                        if (latestPayment && ['pending', 'approved', 'rejected'].includes(latestPayment.status)) {
+                            hasAnyPaymentRecord = true;
+                        }
+                    }
+                } catch(e) {
+                    console.error("index.html routing check failed:", e);
+                    // On error, eject to payment page to prevent getting stuck in "Verifying Access" loop
+                    window.location.replace("upi-payment.html");
+                    return;
                 }
 
-                if (user) {
-                    if (user.role === 'admin') {
-                        window.location.href = "admin-dashboard.html";
-                    } else {
-                        window.location.href = "student-dashboard.html";
-                    }
+                if (!hasEnrollments && !hasAnyPaymentRecord) {
+                    // Unpaid user: eject cleanly to payment page, no browser history loop
+                    window.location.replace("upi-payment.html");
+                } else {
+                    window.location.replace("student-dashboard.html");
                 }
-            };
+            }
+        };
+
             
             checkAuth();
 
