@@ -1063,6 +1063,23 @@ const FirebaseService = {
     },
 
     // --- CURRICULUM MANAGEMENT ---
+    invalidateCourseCache() {
+        localStorage.removeItem('mca_cache_courses');
+    },
+
+    invalidateSyllabusCache(courseId) {
+        if (courseId) {
+            localStorage.removeItem(`mca_cache_syllabus_${courseId}`);
+        } else {
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('mca_cache_syllabus_')) {
+                    localStorage.removeItem(key);
+                }
+            }
+        }
+    },
+
     async getCourses() {
         const currentUser = this.getCurrentUser();
         const isAdmin = currentUser && currentUser.role === 'admin';
@@ -1103,6 +1120,7 @@ const FirebaseService = {
             } else {
                 await db.collection("courses").doc(docId).update(payload);
             }
+            this.invalidateCourseCache();
             return { success: true, id: docId };
         } else {
             const list = getLocalData('mca_courses');
@@ -1115,6 +1133,7 @@ const FirebaseService = {
                 list.push(payload);
             }
             saveLocalData('mca_courses', list);
+            this.invalidateCourseCache();
             return { success: true, id: docId };
         }
     },
@@ -1133,6 +1152,8 @@ const FirebaseService = {
                 saveLocalData('mca_courses', list);
             }
         }
+        this.invalidateCourseCache();
+        this.invalidateSyllabusCache(courseId);
         return { success: true };
     },
 
@@ -1183,10 +1204,20 @@ const FirebaseService = {
             let modules = getLocalData('mca_modules').filter(m => m.courseId === courseId && !m.isDeleted);
             modules.sort((a,b) => a.order - b.order);
             
-            let topics = getLocalData('mca_topics').filter(t => t.courseId === courseId && !t.isDeleted);
+            const moduleIds = modules.map(m => m.id);
+            
+            let topics = getLocalData('mca_topics').filter(t => {
+                if (t.isDeleted) return false;
+                if (t.courseId === courseId) return true;
+                return moduleIds.includes(t.moduleId);
+            });
             topics.sort((a,b) => a.order - b.order);
             
-            let lessons = getLocalData('mca_lessons').filter(l => l.courseId === courseId && !l.isDeleted);
+            let lessons = getLocalData('mca_lessons').filter(l => {
+                if (l.isDeleted) return false;
+                if (l.courseId === courseId) return true;
+                return moduleIds.includes(l.moduleId);
+            });
             lessons.sort((a,b) => a.order - b.order);
             
             // Assemble nested tree
@@ -1234,6 +1265,7 @@ const FirebaseService = {
             } else {
                 await db.collection("modules").doc(docId).update(payload);
             }
+            this.invalidateSyllabusCache(courseId);
             return { success: true, id: docId };
         } else {
             const list = getLocalData('mca_modules');
@@ -1246,6 +1278,7 @@ const FirebaseService = {
                 list.push(payload);
             }
             saveLocalData('mca_modules', list);
+            this.invalidateSyllabusCache(courseId);
             return { success: true, id: docId };
         }
     },
@@ -1299,15 +1332,35 @@ const FirebaseService = {
             listL.forEach(l => { if (l.moduleId === docId) { l.isDeleted = true; lChanged = true; } });
             if (lChanged) saveLocalData('mca_lessons', listL);
         }
+        const courseId = id ? courseIdOrId : null;
+        this.invalidateSyllabusCache(courseId);
         return { success: true };
     },
 
     async saveTopic(topicData) {
+        let courseId = topicData.courseId;
+        if (!courseId && topicData.moduleId) {
+            if (!useFallback && db) {
+                try {
+                    const modSnap = await db.collection("modules").doc(topicData.moduleId).get();
+                    if (modSnap.exists) {
+                        courseId = modSnap.data().courseId;
+                    }
+                } catch (e) {
+                    console.error("Failed to transitively resolve courseId for topic:", e);
+                }
+            } else {
+                const listM = getLocalData('mca_modules');
+                const parentMod = listM.find(m => m.id === topicData.moduleId);
+                if (parentMod) courseId = parentMod.courseId;
+            }
+        }
+
         if (!useFallback && db) {
             const ref = db.collection("topics").doc(topicData.id || undefined);
             const docId = topicData.id || ref.id;
             const payload = {
-                courseId: topicData.courseId,
+                courseId: courseId || null,
                 moduleId: topicData.moduleId,
                 title: topicData.title,
                 order: parseInt(topicData.order, 10),
@@ -1320,11 +1373,12 @@ const FirebaseService = {
             } else {
                 await db.collection("topics").doc(docId).update(payload);
             }
+            this.invalidateSyllabusCache(courseId);
             return { success: true, id: docId };
         } else {
             const list = getLocalData('mca_topics');
             const docId = topicData.id || "top-" + Math.random().toString(36).substr(2, 9);
-            const payload = { id: docId, ...topicData, order: parseInt(topicData.order, 10), isDeleted: false };
+            const payload = { id: docId, ...topicData, courseId: courseId || null, order: parseInt(topicData.order, 10), isDeleted: false };
             const idx = list.findIndex(t => t.id === docId);
             if (idx !== -1) {
                 list[idx] = payload;
@@ -1332,6 +1386,7 @@ const FirebaseService = {
                 list.push(payload);
             }
             saveLocalData('mca_topics', list);
+            this.invalidateSyllabusCache(courseId);
             return { success: true, id: docId };
         }
     },
@@ -1370,6 +1425,7 @@ const FirebaseService = {
             listL.forEach(l => { if (l.topicId === topicId) { l.isDeleted = true; lChanged = true; } });
             if (lChanged) saveLocalData('mca_lessons', listL);
         }
+        this.invalidateSyllabusCache();
         return { success: true };
     },
 
@@ -1416,11 +1472,29 @@ const FirebaseService = {
         };
         youtubeVideoId = extractVideoId(youtubeVideoId);
 
+        let courseIdVal = courseId;
+        if (!courseIdVal && moduleId) {
+            if (!useFallback && db) {
+                try {
+                    const modSnap = await db.collection("modules").doc(moduleId).get();
+                    if (modSnap.exists) {
+                        courseIdVal = modSnap.data().courseId;
+                    }
+                } catch (e) {
+                    console.error("Failed to transitively resolve courseId for lesson:", e);
+                }
+            } else {
+                const listM = getLocalData('mca_modules');
+                const parentMod = listM.find(m => m.id === moduleId);
+                if (parentMod) courseIdVal = parentMod.courseId;
+            }
+        }
+
         if (!useFallback && db) {
             const ref = db.collection("lessons").doc(id || undefined);
             const docId = id || ref.id;
             const payload = {
-                courseId,
+                courseId: courseIdVal || null,
                 moduleId,
                 topicId: topicId || "default-topic",
                 title,
@@ -1440,13 +1514,14 @@ const FirebaseService = {
             } else {
                 await db.collection("lessons").doc(docId).update(payload);
             }
+            this.invalidateSyllabusCache(courseIdVal);
             return { success: true, id: docId };
         } else {
             const list = getLocalData('mca_lessons');
             const docId = id || "les-" + Math.random().toString(36).substr(2, 9);
             const payload = {
                 id: docId,
-                courseId,
+                courseId: courseIdVal || null,
                 moduleId,
                 topicId: topicId || "default-topic",
                 title,
@@ -1466,6 +1541,7 @@ const FirebaseService = {
                 list.push(payload);
             }
             saveLocalData('mca_lessons', list);
+            this.invalidateSyllabusCache(courseIdVal);
             return { success: true, id: docId };
         }
     },
@@ -1485,6 +1561,8 @@ const FirebaseService = {
                 saveLocalData('mca_lessons', list);
             }
         }
+        const courseId = id ? courseIdOrId : null;
+        this.invalidateSyllabusCache(courseId);
         return { success: true };
     },
 
